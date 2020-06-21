@@ -1,3 +1,8 @@
+const React = require("react");
+const ReactDOM = require("react-dom");
+
+const App = require("./App.js");
+
 /**
  * We listen to the messages our script we injected into the webview sends
  * us. That script sends us information about the events which happen in the
@@ -18,3 +23,9 @@ onload = () => {
     webview.send("abcd", "got it");
   });
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  const root = document.getElementById("root");
+
+  ReactDOM.render(React.createElement(App, null, null), root);
+});
