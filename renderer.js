@@ -1,7 +1,7 @@
 const React = require("react");
 const ReactDOM = require("react-dom");
 
-const App = require("./App.js");
+const App = require("./src/App.js");
 
 /**
  * We listen to the messages our script we injected into the webview sends

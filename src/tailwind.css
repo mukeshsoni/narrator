@@ -1,0 +1,86 @@
+@tailwind base;
+
+a {
+  @apply text-blue-600 whitespace-no-wrap cursor-pointer;
+}
+
+a:hover {
+  @apply text-blue-900;
+}
+
+a:visited {
+  @apply text-purple-600;
+}
+
+.theme-light {
+  --bg-background-primary: white;
+  --bg-background-secondary: #edf2f7;
+  --bg-background-tertiary: #a0aec0;
+
+  --bg-background-form: white;
+
+  --text-copy-primary: #1a202c;
+  --text-copy-secondary: #2d3748;
+  --text-copy-tertiary: #718096;
+
+  --border-border-color-primary: white;
+}
+
+.theme-light .search-highlighted {
+  background: #f0fff4;
+}
+
+.theme-light .search-hover:hover {
+  background: #f0fff4;
+}
+
+.theme-dark .markdown-body {
+  color: #24292e;
+}
+
+.theme-dark .search-highlighted {
+  background: #2d3748;
+}
+
+.theme-dark .search-hover:hover {
+  background: #2d3748;
+}
+
+.theme-dark {
+  --bg-background-primary: #232931;
+  --bg-background-secondary: #393e46;
+  --bg-background-tertiary: #4ecca3;
+
+  --bg-background-form: #1a202c;
+
+  --text-copy-primary: #f7fafc;
+  --text-copy-secondary: #cbd5e0;
+  --text-copy-tertiary: #a0aec0;
+
+  --border-border-color-primary: #1a202c;
+}
+
+.theme-dark .markdown-body {
+  color: #cbd5e0;
+}
+
+.theme-dark nav .active {
+  @apply border-b border-white;
+}
+
+#app-root {
+  transition: background-color 0.3s;
+}
+
+.icon-button {
+  @apply p-2 rounded-full text-copy-primary;
+}
+
+.icon-button:hover {
+  @apply bg-background-secondary;
+}
+
+@tailwind components;
+
+@tailwind utilities;
+

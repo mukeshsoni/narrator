@@ -2,16 +2,23 @@ const React = require("react");
 
 function SidePanel({ events }) {
   console.log("Sidebar");
-  return React.createElement("div", { style: { width: 300 } }, [
-    React.createElement("h1", {}, "hoo ooo"),
-    React.createElement(
-      "div",
-      {},
-      events.map((event, i) => {
-        return React.createElement("div", { key: i }, event.action);
-      })
-    ),
-  ]);
+  return React.createElement(
+    "div",
+    { className: "border border-gray-300", style: { width: 300 } },
+    [
+      React.createElement("div", { style: { display: "flex" } }, [
+        React.createElement("button", { className: "p-2" }, "Record"),
+        React.createElement("button", {}, "Pause"),
+      ]),
+      React.createElement(
+        "div",
+        {},
+        events.map((event, i) => {
+          return React.createElement("div", { key: i }, event.action);
+        })
+      ),
+    ]
+  );
 }
 
 const initialState = {
@@ -57,19 +64,28 @@ function App() {
     };
   }, [webviewRef, handleMessageFromSitePanel]);
 
-  return React.createElement("div", { style: { display: "flex" } }, [
-    React.createElement(SidePanel, { events: state.events }, null),
-    React.createElement(
-      "webview",
-      {
-        src: "http://google.com",
-        preload: "webview-preload.js",
-        style: { width: 640, height: 600 },
-        ref: webviewRef,
-      },
-      null
-    ),
-  ]);
+  return React.createElement(
+    "div",
+    {
+      className:
+        "flex w-screen antialiased text-copy-primary bg-background-primary",
+
+      style: { display: "flex" },
+    },
+    [
+      React.createElement(SidePanel, { events: state.events }, null),
+      React.createElement(
+        "webview",
+        {
+          src: "http://google.com",
+          preload: "webview-preload.js",
+          className: "w-full h-screen",
+          ref: webviewRef,
+        },
+        null
+      ),
+    ]
+  );
 }
 
 module.exports = App;
