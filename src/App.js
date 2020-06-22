@@ -139,7 +139,7 @@ function eventsToCommands(events) {
   }));
 }
 
-function SidePanel({ events, onGenerateClick, onTestNewUrlClick }) {
+function SidePanel({ urlToTest, events, onGenerateClick, onTestNewUrlClick }) {
   const [selectedEvent, setSelectedEvent] = React.useState(null);
 
   function handleCommandRowClick(event) {
@@ -200,27 +200,40 @@ function SidePanel({ events, onGenerateClick, onTestNewUrlClick }) {
                 );
               })
             )),
+            selectedEvent &&
+              React.createElement(
+                EventDetails,
+                {
+                  event: selectedEvent,
+                  onRemoveClick: () => setSelectedEvent(null),
+                },
+                null
+              ),
           ]),
-          React.createElement(
-            "button",
-            { className: "w-full py-2", onClick: onTestNewUrlClick },
-            "Test new url"
-          ),
+          React.createElement("div", {}, [
+            React.createElement(
+              "div",
+              { className: "px-4 py-2 bg-gray-300" },
+              `Testing - ${urlToTest}`
+            ),
+            React.createElement(
+              "button",
+              {
+                className: "w-full py-2 hover:bg-gray-300",
+                onClick: onTestNewUrlClick,
+              },
+              "Test new url"
+            ),
+          ]),
         ]
       ),
-      selectedEvent &&
-        React.createElement(
-          EventDetails,
-          { event: selectedEvent, onRemoveClick: () => setSelectedEvent(null) },
-          null
-        ),
     ]
   );
 }
 
 const initialState = {
   events: [],
-  urlToTest: "https://google.com",
+  urlToTest: "",
 };
 
 function rootReducer(state, action) {
@@ -336,6 +349,7 @@ function App() {
         ? React.createElement(
             SidePanel,
             {
+              urlToTest,
               events: state.events,
               onGenerateClick: handleGenerateClick,
               onTestNewUrlClick: handleTestNewUrlClick,
@@ -346,22 +360,38 @@ function App() {
             "div",
             {
               className:
-                "flex justify-center p-64 align-center w-full h-full border-r border-gray-200",
+                "flex justify-center p-64 align-center w-full h-screen border-r border-gray-200",
               style: { width: SIDE_PANEL_WIDTH },
             },
             [
-              React.createElement("form", { onSubmit: handleUrlToTestSubmit }, [
-                React.createElement(
-                  "input",
-                  {
-                    value: locationBarUrl,
-                    className: "px-4 py-2 border border-gray-300",
-                    onChange: handleLocationBarUrlChange,
-                    placeholder: "Url to test",
-                  },
-                  null
-                ),
-              ]),
+              React.createElement(
+                "form",
+                {
+                  className: "flex items-center",
+                  onSubmit: handleUrlToTestSubmit,
+                },
+                [
+                  React.createElement(
+                    "input",
+                    {
+                      value: locationBarUrl,
+                      className:
+                        "px-4 py-2 border border-gray-300 focus:bg-gray-100",
+                      onChange: handleLocationBarUrlChange,
+                      placeholder: "Url to test",
+                    },
+                    null
+                  ),
+                  React.createElement(
+                    "button",
+                    {
+                      className:
+                        "px-4 py-2 bg-blue-600 border border-gray-300 border-l-0 text-white",
+                    },
+                    "Test"
+                  ),
+                ]
+              ),
             ]
           ),
       ,
@@ -371,7 +401,7 @@ function App() {
             {
               src: urlToTest,
               preload: "webview-preload.js",
-              className: "w-full h-screen",
+              className: "flex-1 w-full h-screen",
               ref: webviewRef,
             },
             null
