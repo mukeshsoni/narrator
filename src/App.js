@@ -1,16 +1,19 @@
 const React = require("react");
+const { Dialog } = require("@reach/dialog");
+const Modal = require("react-modal");
 
 const { transformEvent } = require("../webview-preload");
 const { generatePuppeteerCode } = require("../code_generator");
 const pptrActions = require("../pptr_actions");
 
+const SIDE_PANEL_WIDTH = 600;
+
 function SidePanel({ events, onGenerateClick }) {
-  console.log("Sidebar");
   return React.createElement(
     "div",
     {
       className: "border border-gray-300 px-4 py-2",
-      style: { width: 400 },
+      style: { width: SIDE_PANEL_WIDTH },
     },
     [
       React.createElement("div", { className: "flex justify-between w-full" }, [
@@ -64,6 +67,8 @@ function rootReducer(state, action) {
 
 function App() {
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
+  const [generatedCode, setGeneratedCode] = React.useState("");
+  const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const webviewRef = React.useRef(null);
   const { urlToTest, events } = state;
 
@@ -117,7 +122,9 @@ function App() {
 
   const handleGenerateClick = React.useCallback(() => {
     console.log(generatePuppeteerCode(state.events));
-  }, []);
+    setGeneratedCode(generatePuppeteerCode(state.events));
+    setShowGeneratedCode(true);
+  }, [state.events]);
 
   return React.createElement(
     "div",
@@ -143,6 +150,37 @@ function App() {
             ref: webviewRef,
           },
           null
+        ),
+      showGeneratedCode &&
+        React.createElement(
+          Modal,
+          {
+            isOpen: showGeneratedCode,
+            onRequestClose: () => setShowGeneratedCode(false),
+          },
+          [
+            React.createElement("div", {}, [
+              React.createElement(
+                "div",
+                { className: "flex flex-row-reverse" },
+                [
+                  React.createElement(
+                    "button",
+                    {
+                      className: "p-2",
+                      onClick: () => setShowGeneratedCode(false),
+                    },
+                    "X"
+                  ),
+                ]
+              ),
+              React.createElement(
+                "pre",
+                { className: "whitespace-pre" },
+                generatedCode
+              ),
+            ]),
+          ]
         ),
     ]
   );

@@ -2,7 +2,7 @@ const Block = require("./block");
 const pptrActions = require("./pptr_actions");
 const domEvents = require("./dom_events_to_record");
 
-const importPuppeteer = `const puppeteer = require('puppeteer');\n`;
+const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()\n`;
@@ -27,6 +27,22 @@ let hasNavigation = false;
 let frameId;
 let frame;
 let allFrames = {};
+
+function cleanUp() {
+  options = {
+    wrapAsync: true,
+    headless: true,
+    waitForNavigation: true,
+    waitForSelectorOnClick: true,
+    blankLinesBetweenBlocks: true,
+    dataAttribute: "",
+  };
+  blocks = [];
+  hasNavigation = false;
+  frameId;
+  frame;
+  allFrames = {};
+}
 
 function getHeader() {
   let hdr = options.wrapAsync ? wrappedHeader : header;
@@ -259,6 +275,7 @@ function parseEvents(events) {
 }
 
 function generate(events) {
+  cleanUp();
   return importPuppeteer + getHeader() + parseEvents(events) + getFooter();
 }
 
