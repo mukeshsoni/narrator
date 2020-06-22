@@ -1,10 +1,11 @@
 const React = require("react");
-const { Dialog } = require("@reach/dialog");
 const Modal = require("react-modal");
 
 const { transformEvent } = require("../webview-preload");
-const { generatePuppeteerCode } = require("../code_generator");
-const pptrActions = require("../pptr_actions");
+const {
+  generatePuppeteerCode,
+} = require("./code-generator-puppeteer/code_generator");
+const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 const SIDE_PANEL_WIDTH = 600;
 
