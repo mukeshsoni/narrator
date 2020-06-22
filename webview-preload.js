@@ -14,6 +14,11 @@ const events = [
   "dblclick",
   "change",
   "keydown",
+  // we need to capture mousedown and mouseup too because some sites don't
+  // let the click event happen at all. click event is fire after mousedown
+  // and mouseup. google's search page does it too.
+  // "mousedown",
+  // "mouseup",
   "select",
   "submit",
   "load",
@@ -71,8 +76,8 @@ function transformEvent(e) {
 document.addEventListener("DOMContentLoaded", () => {
   events.forEach((eventName) => {
     document.addEventListener(eventName, (event) => {
-      console.log("click evnt deteced");
-      ipcRenderer.sendToHost("got-event", transformEvent(event));
+      console.log(eventName, " event deteced");
+      ipcRenderer.sendToHost("user-event", transformEvent(event));
     });
   });
 
