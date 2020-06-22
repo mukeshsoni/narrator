@@ -173,7 +173,7 @@ function SidePanel({ urlToTest, events, onGenerateClick, onTestNewUrlClick }) {
         { className: "flex flex-col h-full justify-between" },
         [
           React.createElement("div", {}, [
-            (React.createElement(CommandRowHeader, {}, null),
+            React.createElement(CommandRowHeader, {}, null),
             React.createElement(
               "ul",
               {},
@@ -199,7 +199,7 @@ function SidePanel({ urlToTest, events, onGenerateClick, onTestNewUrlClick }) {
                   )
                 );
               })
-            )),
+            ),
             selectedEvent &&
               React.createElement(
                 EventDetails,
@@ -238,6 +238,11 @@ const initialState = {
 
 function rootReducer(state, action) {
   switch (action.type) {
+    case "SET_EVENTS":
+      return {
+        ...state,
+        events: action.events,
+      };
     case "ADD_EVENT":
       return {
         ...state,
@@ -284,6 +289,7 @@ function App() {
 
   const handleUrlToTestSubmit = React.useCallback(() => {
     console.log("url to set", locationBarUrl);
+    dispatch({ type: "SET_EVENTS", events: [] });
     dispatch({
       type: "SET_URL_TO_TEST",
       urlToTest: locationBarUrl,
@@ -360,14 +366,14 @@ function App() {
             "div",
             {
               className:
-                "flex justify-center p-64 align-center w-full h-screen border-r border-gray-200",
+                "flex justify-center p-2 w-full h-screen border-r border-gray-200",
               style: { width: SIDE_PANEL_WIDTH },
             },
             [
               React.createElement(
                 "form",
                 {
-                  className: "flex items-center",
+                  className: "mt-16",
                   onSubmit: handleUrlToTestSubmit,
                 },
                 [
@@ -410,9 +416,9 @@ function App() {
             "div",
             {
               className:
-                "flex flex-1 justify-center items-center w-full h-full font-bold text-xxl",
+                "flex flex-1 justify-center items-center w-full h-screen font-bold text-6xl",
             },
-            React.createElement("h3", {}, "SHIT")
+            React.createElement("h3", { className: "uppercase" }, "Test stuff")
           ),
 
       showGeneratedCode &&
