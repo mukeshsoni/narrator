@@ -9,7 +9,128 @@ const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 const SIDE_PANEL_WIDTH = 600;
 
+function CommandRow({ event, onCommandRowClick }) {
+  return React.createElement(
+    "button",
+    { className: "flex w-full hover:bg-gray-400", onClick: onCommandRowClick },
+    [
+      React.createElement(
+        "div",
+        { className: "flex-1 px-4 py-2 truncate" },
+        event.action
+      ),
+      React.createElement(
+        "div",
+        { className: "flex-1 px-4 py-2 truncate" },
+        event.selector
+      ),
+      React.createElement(
+        "div",
+        { className: "flex-1 px-4 py-2 truncate" },
+        event.keyCode
+      ),
+    ]
+  );
+}
+
+function CommandRowHeader() {
+  return React.createElement("div", { className: "flex w-full" }, [
+    React.createElement(
+      "span",
+      { className: "flex-1 px-4 py-2 font-bold text-lg" },
+      "Command"
+    ),
+    React.createElement(
+      "span",
+      { className: "flex-1 px-4 py-2 font-bold text-lg" },
+      "Target"
+    ),
+    React.createElement(
+      "span",
+      { className: "flex-1 px-4 py-2 font-bold text-lg" },
+      "Value"
+    ),
+  ]);
+}
+
+function getEventValue(event) {
+  if (event.type === "click") {
+    return event.coordinates;
+  }
+
+  return event.keyCode;
+}
+
+function EventDetails({ event, onRemoveClick }) {
+  console.log("selected event", event);
+  return React.createElement(
+    "div",
+    { className: "mt-6 px-4 py-2 bg-indigo-100" },
+    [
+      React.createElement("div", { className: "flex flex-row-reverse" }, [
+        React.createElement("button", { onClick: onRemoveClick }, "X"),
+      ]),
+      React.createElement("form", { className: "flex flex-col" }, [
+        React.createElement(
+          "label",
+          { className: "flex items-center w-full mb-4" },
+          [
+            "Command",
+            React.createElement(
+              "input",
+              {
+                className:
+                  "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
+                defaultValue: event.action,
+              },
+              null
+            ),
+          ]
+        ),
+        React.createElement(
+          "label",
+          { className: "flex items-center w-full mb-4" },
+          [
+            "Target",
+            React.createElement(
+              "input",
+              {
+                className:
+                  "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
+                defaultValue: event.selector,
+              },
+              null
+            ),
+          ]
+        ),
+        React.createElement(
+          "label",
+          { className: "flex items-center w-full" },
+          [
+            "Value",
+            React.createElement(
+              "input",
+              {
+                className:
+                  "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
+                defaultValue: getEventValue(event),
+              },
+              null
+            ),
+          ]
+        ),
+      ]),
+    ]
+  );
+}
+
 function SidePanel({ events, onGenerateClick }) {
+  const [selectedEvent, setSelectedEvent] = React.useState(null);
+
+  function handleCommandRowClick(event) {
+    setSelectedEvent(event);
+  }
+
   return React.createElement(
     "div",
     {
@@ -28,17 +149,33 @@ function SidePanel({ events, onGenerateClick }) {
           "Generate"
         ),
       ]),
-      React.createElement(
-        "ul",
-        {},
-        events.map((event, i) => {
-          return React.createElement(
-            "li",
-            { key: `action_no_${i}`, className: "px-4 py-2 bg-gray-200 mb-px" },
-            `${event.action} - ${event.keyCode}`
-          );
-        })
-      ),
+      React.createElement("div", {}, [
+        React.createElement(CommandRowHeader, {}, null),
+        React.createElement(
+          "ul",
+          {},
+          events.map((event, i) => {
+            return React.createElement(
+              "li",
+              { key: `action_no_${i}`, className: "bg-gray-200 mb-px" },
+              React.createElement(
+                CommandRow,
+                {
+                  event,
+                  onCommandRowClick: handleCommandRowClick.bind(null, event),
+                },
+                null
+              )
+            );
+          })
+        ),
+      ]),
+      selectedEvent &&
+        React.createElement(
+          EventDetails,
+          { event: selectedEvent, onRemoveClick: () => setSelectedEvent(null) },
+          null
+        ),
     ]
   );
 }
