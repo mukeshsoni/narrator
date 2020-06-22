@@ -1,20 +1,37 @@
 const React = require("react");
 
-function SidePanel({ events }) {
+const { transformEvent } = require("../webview-preload");
+const { generatePuppeteerCode } = require("../code_generator");
+
+function SidePanel({ events, onGenerateClick }) {
   console.log("Sidebar");
   return React.createElement(
     "div",
-    { className: "border border-gray-300", style: { width: 300 } },
+    {
+      className: "border border-gray-300 px-4 py-2",
+      style: { width: 400 },
+    },
     [
-      React.createElement("div", { style: { display: "flex" } }, [
-        React.createElement("button", { className: "p-2" }, "Record"),
-        React.createElement("button", {}, "Pause"),
+      React.createElement("div", { className: "flex justify-between w-full" }, [
+        React.createElement("div", { className: "flex" }, [
+          React.createElement("button", { className: "p-2 mr-2" }, "Record"),
+          React.createElement("button", {}, "Pause"),
+        ]),
+        React.createElement(
+          "button",
+          { className: "p-2", onClick: onGenerateClick },
+          "Generate"
+        ),
       ]),
       React.createElement(
-        "div",
+        "ul",
         {},
         events.map((event, i) => {
-          return React.createElement("div", { key: i }, event.action);
+          return React.createElement(
+            "li",
+            { key: `action_no_${i}`, className: "px-4 py-2 bg-gray-200 mb-px" },
+            `${event.action} - ${event.keyCode}`
+          );
         })
       ),
     ]
@@ -51,6 +68,11 @@ function App() {
   React.useEffect(() => {
     console.log("webview ref changed");
     if (webviewRef && webviewRef.current) {
+      /**
+       * We listen to the messages our script we injected into the webview sends
+       * us. That script sends us information about the events which happen in the
+       * loaded page.
+       */
       webviewRef.current.addEventListener(
         "ipc-message",
         handleMessageFromSitePanel
@@ -64,6 +86,10 @@ function App() {
     };
   }, [webviewRef, handleMessageFromSitePanel]);
 
+  function handleGenerateClick() {
+    console.log("ooo", generatePuppeteerCode(state.events));
+  }
+
   return React.createElement(
     "div",
     {
@@ -73,7 +99,11 @@ function App() {
       style: { display: "flex" },
     },
     [
-      React.createElement(SidePanel, { events: state.events }, null),
+      React.createElement(
+        SidePanel,
+        { events: state.events, onGenerateClick: handleGenerateClick },
+        null
+      ),
       React.createElement(
         "webview",
         {
