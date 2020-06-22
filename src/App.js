@@ -2,6 +2,7 @@ const React = require("react");
 
 const { transformEvent } = require("../webview-preload");
 const { generatePuppeteerCode } = require("../code_generator");
+const pptrActions = require("../pptr_actions");
 
 function SidePanel({ events, onGenerateClick }) {
   console.log("Sidebar");
@@ -40,14 +41,21 @@ function SidePanel({ events, onGenerateClick }) {
 
 const initialState = {
   events: [],
+  urlToTest: null,
 };
 
 function rootReducer(state, action) {
   switch (action.type) {
     case "ADD_EVENT":
+      console.log("addEvent", action.event);
       return {
         ...state,
         events: state.events.concat(action.event),
+      };
+    case "SET_URL_TO_TEST":
+      return {
+        ...state,
+        urlToTest: action.urlToTest,
       };
     default:
       return state;
@@ -56,17 +64,35 @@ function rootReducer(state, action) {
 
 function App() {
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
-  const webviewRef = React.useRef();
+  const webviewRef = React.useRef(null);
+  const { urlToTest, events } = state;
 
-  const handleMessageFromSitePanel = React.useCallback(
+  const addEvent = React.useCallback(
     (event) => {
-      dispatch({ type: "ADD_EVENT", event: event.args[0] });
+      dispatch({ type: "ADD_EVENT", event });
     },
     [dispatch]
   );
 
+  const handleMessageFromSitePanel = React.useCallback(
+    (event) => {
+      addEvent(event.args[0]);
+    },
+    [addEvent]
+  );
+
   React.useEffect(() => {
-    console.log("webview ref changed");
+    // TODO: Later the url will be dynamically set
+    dispatch({ type: "SET_URL_TO_TEST", urlToTest: "https://google.com" });
+  }, []);
+
+  React.useEffect(() => {
+    if (urlToTest) {
+      addEvent({ action: pptrActions.GOTO, href: urlToTest });
+    }
+  }, [urlToTest]);
+
+  React.useEffect(() => {
     if (webviewRef && webviewRef.current) {
       /**
        * We listen to the messages our script we injected into the webview sends
@@ -81,14 +107,17 @@ function App() {
 
     return function cleanUp() {
       if (webviewRef && webviewRef.current) {
-        webviewRef.removeEventListener("ipc-message");
+        webviewRef.current.removeEventListener(
+          "ipc-message",
+          handleMessageFromSitePanel
+        );
       }
     };
-  }, [webviewRef, handleMessageFromSitePanel]);
+  }, [webviewRef.current, handleMessageFromSitePanel]);
 
-  function handleGenerateClick() {
-    console.log("ooo", generatePuppeteerCode(state.events));
-  }
+  const handleGenerateClick = React.useCallback(() => {
+    console.log(generatePuppeteerCode(state.events));
+  }, []);
 
   return React.createElement(
     "div",
@@ -104,16 +133,17 @@ function App() {
         { events: state.events, onGenerateClick: handleGenerateClick },
         null
       ),
-      React.createElement(
-        "webview",
-        {
-          src: "http://google.com",
-          preload: "webview-preload.js",
-          className: "w-full h-screen",
-          ref: webviewRef,
-        },
-        null
-      ),
+      urlToTest &&
+        React.createElement(
+          "webview",
+          {
+            src: urlToTest,
+            preload: "webview-preload.js",
+            className: "w-full h-screen",
+            ref: webviewRef,
+          },
+          null
+        ),
     ]
   );
 }
