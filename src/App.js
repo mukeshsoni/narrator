@@ -3,7 +3,6 @@ const Modal = require("react-modal");
 
 const { CommandTable, getEventValue } = require("./CommandTable");
 
-const { transformEvent } = require("../webview-preload");
 const {
   generatePuppeteerCode,
 } = require("./code-generator-puppeteer/code_generator");
@@ -65,6 +64,14 @@ const initialState = {
   urlToTest: "",
 };
 
+function addHttpsIfRequired(url) {
+  if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
+    return `https://${url}`;
+  }
+
+  return url;
+}
+
 function rootReducer(state, action) {
   switch (action.type) {
     case "SET_EVENTS":
@@ -80,7 +87,7 @@ function rootReducer(state, action) {
     case "SET_URL_TO_TEST":
       return {
         ...state,
-        urlToTest: action.urlToTest,
+        urlToTest: addHttpsIfRequired(action.urlToTest),
       };
     default:
       return state;
@@ -93,6 +100,7 @@ function App() {
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const webviewRef = React.useRef(null);
+  const urlInputRef = React.useRef(null);
   const { urlToTest, events } = state;
 
   const addEvent = React.useCallback(
@@ -124,13 +132,12 @@ function App() {
       urlToTest: locationBarUrl,
     });
   }, [dispatch, locationBarUrl]);
-  // React.useEffect(() => {
-  // // TODO: Later the url will be dynamically set
-  // dispatch({
-  // type: "SET_URL_TO_TEST",
-  // urlToTest: "https://opensource-demo.orangehrmlive.com/",
-  // });
-  // }, []);
+
+  React.useEffect(() => {
+    if (urlInputRef && urlInputRef.current) {
+      urlInputRef.current.focus();
+    }
+  }, [urlInputRef.current]);
 
   React.useEffect(() => {
     if (urlToTest) {
@@ -209,6 +216,7 @@ function App() {
                   React.createElement(
                     "input",
                     {
+                      ref: urlInputRef,
                       value: locationBarUrl,
                       className:
                         "px-4 py-2 border border-gray-300 focus:bg-gray-100",
@@ -247,7 +255,11 @@ function App() {
               className:
                 "flex flex-1 justify-center items-center w-full h-screen font-bold text-6xl",
             },
-            React.createElement("h3", { className: "uppercase" }, "Test stuff")
+            React.createElement(
+              "h3",
+              { className: "uppercase tracking-wide" },
+              "Test stuff"
+            )
           ),
 
       showGeneratedCode &&

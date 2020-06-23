@@ -151,7 +151,6 @@ function CommandTable({ events }) {
           (event) => event.action !== "keydown" || event.keyCode === 9
         )
       ).map((event, i) => {
-        console.log("event", event);
         return React.createElement(
           "li",
           { key: `action_no_${i}`, className: "bg-gray-200 mb-px" },
