@@ -59,8 +59,8 @@ function CommandRowHeader() {
   ]);
 }
 
-function eventsToCommands(events) {
-  return events.map((event) => ({
+function eventsToCommands(commands) {
+  return commands.map((event) => ({
     ...event,
     name: event.action === "keydown" ? "sendKeys" : event.action,
   }));
@@ -134,7 +134,7 @@ function EventDetails({ event, onRemoveClick }) {
   );
 }
 
-function CommandTable({ events }) {
+function CommandTable({ commands }) {
   const [selectedEvent, setSelectedEvent] = React.useState(null);
 
   function handleCommandRowClick(event) {
@@ -146,11 +146,7 @@ function CommandTable({ events }) {
     React.createElement(
       "ul",
       {},
-      eventsToCommands(
-        events.filter(
-          (event) => event.action !== "keydown" || event.keyCode === 9
-        )
-      ).map((event, i) => {
+      eventsToCommands(commands).map((event, i) => {
         return React.createElement(
           "li",
           { key: `action_no_${i}`, className: "bg-gray-200 mb-px" },

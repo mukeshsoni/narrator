@@ -1,10 +1,10 @@
 const { CommandTable, getEventValue } = require("./CommandTable");
 
-const SIDE_PANEL_WIDTH = 600;
+const SIDE_PANEL_WIDTH = 400;
 
 function SidePanel({
   urlToTest,
-  events,
+  commands,
   onGenerateClick,
   onTestNewUrlClick,
   isRecording,
@@ -68,7 +68,7 @@ function SidePanel({
         "div",
         { className: "flex flex-col h-full justify-between" },
         [
-          React.createElement(CommandTable, { events }, null),
+          React.createElement(CommandTable, { commands }, null),
           React.createElement("div", {}, [
             React.createElement(
               "div",

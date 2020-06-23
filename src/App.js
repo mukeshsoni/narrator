@@ -8,9 +8,45 @@ const {
 } = require("./code-generator-puppeteer/code_generator");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
+const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
+
+function getNextCommand(events, nextIndexToProcess) {
+  const lastEvent = events[events.length - 1];
+
+  switch (lastEvent.action) {
+    case "keydown":
+      if (lastEvent.keyCode === 9) {
+        return lastEvent;
+      }
+      return null;
+    default:
+      return lastEvent;
+  }
+}
+
+function addEventToCommander(commander, event) {
+  const newEvents = commander.events.concat(event);
+
+  const nextCommand = getNextCommand(newEvents, commander.nextIndexToProcess);
+
+  return {
+    nextIndexToProcess: nextCommand
+      ? newEvents.length
+      : commander.nextIndexToProcess,
+    events: newEvents,
+    commands: nextCommand
+      ? commander.commands.concat(nextCommand)
+      : commander.commands,
+  };
+}
+
 const initialState = {
-  events: [],
-  urlToTest: "https://google.com",
+  commander: {
+    events: [],
+    nextIndexToProcess: 0,
+    commands: [],
+  },
+  urlToTest: "",
   isRecording: false,
 };
 
@@ -24,16 +60,20 @@ function addHttpsIfRequired(url) {
 
 function rootReducer(state, action) {
   switch (action.type) {
-    case "SET_EVENTS":
+    case "RESET_EVENTS":
       return {
         ...state,
-        events: action.events,
+        commander: {
+          events: [],
+          nextIndexToProcess: 0,
+          commands: [],
+        },
       };
     case "ADD_EVENT":
       if (state.isRecording || action.event.action === pptrActions.GOTO) {
         return {
           ...state,
-          events: state.events.concat(action.event),
+          commander: addEventToCommander(state.commander, action.event),
         };
       } else {
         return state;
@@ -67,7 +107,11 @@ function App() {
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const webviewRef = React.useRef(null);
   const urlInputRef = React.useRef(null);
-  const { urlToTest, events, isRecording } = state;
+  const {
+    urlToTest,
+    commander: { events, commands },
+    isRecording,
+  } = state;
 
   const addEvent = React.useCallback(
     (event) => {
@@ -92,7 +136,7 @@ function App() {
 
   const handleUrlToTestSubmit = React.useCallback(() => {
     console.log("url to set", locationBarUrl);
-    dispatch({ type: "SET_EVENTS", events: [] });
+    dispatch({ type: "RESET_EVENTS" });
     dispatch({
       type: "SET_URL_TO_TEST",
       urlToTest: locationBarUrl,
@@ -168,7 +212,7 @@ function App() {
             {
               isRecording,
               urlToTest,
-              events,
+              commands,
               onGenerateClick: handleGenerateClick,
               onTestNewUrlClick: handleTestNewUrlClick,
               onStartRecording: handleStartRecording,
@@ -200,6 +244,7 @@ function App() {
                         "px-4 py-2 border border-gray-300 focus:bg-gray-100",
                       onChange: handleLocationBarUrlChange,
                       placeholder: "Url to test",
+                      title: locationBarUrl,
                     },
                     null
                   ),
@@ -208,6 +253,7 @@ function App() {
                     {
                       className:
                         "px-8 py-2 bg-pink-600 border border-gray-300 border-l-0 text-white",
+                      title: "Test",
                     },
                     "Test"
                   ),
