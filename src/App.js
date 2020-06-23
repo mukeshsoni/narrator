@@ -1,67 +1,17 @@
 const React = require("react");
 const Modal = require("react-modal");
 
-const { CommandTable, getEventValue } = require("./CommandTable");
+const { SIDE_PANEL_WIDTH, SidePanel } = require("./SidePanel");
 
 const {
   generatePuppeteerCode,
 } = require("./code-generator-puppeteer/code_generator");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
-const SIDE_PANEL_WIDTH = 600;
-
-function SidePanel({ urlToTest, events, onGenerateClick, onTestNewUrlClick }) {
-  return React.createElement(
-    "div",
-    {
-      className: "flex flex-col border border-gray-300",
-      style: { width: SIDE_PANEL_WIDTH },
-    },
-    [
-      React.createElement(
-        "div",
-        { className: "flex justify-between px-4 mb-4 w-full bg-gray-500" },
-        [
-          React.createElement("div", { className: "flex" }, [
-            React.createElement("button", { className: "p-2 mr-2" }, "Record"),
-            React.createElement("button", {}, "Pause"),
-          ]),
-          React.createElement(
-            "button",
-            { className: "p-2", onClick: onGenerateClick },
-            "Generate"
-          ),
-        ]
-      ),
-      React.createElement(
-        "div",
-        { className: "flex flex-col h-full justify-between" },
-        [
-          React.createElement(CommandTable, { events }, null),
-          React.createElement("div", {}, [
-            React.createElement(
-              "div",
-              { className: "px-4 py-2 bg-gray-300" },
-              `Testing - ${urlToTest}`
-            ),
-            React.createElement(
-              "button",
-              {
-                className: "w-full py-2 hover:bg-gray-300",
-                onClick: onTestNewUrlClick,
-              },
-              "Test new url"
-            ),
-          ]),
-        ]
-      ),
-    ]
-  );
-}
-
 const initialState = {
   events: [],
-  urlToTest: "",
+  urlToTest: "https://google.com",
+  isRecording: false,
 };
 
 function addHttpsIfRequired(url) {
@@ -80,14 +30,30 @@ function rootReducer(state, action) {
         events: action.events,
       };
     case "ADD_EVENT":
-      return {
-        ...state,
-        events: state.events.concat(action.event),
-      };
+      if (state.isRecording || action.event.action === pptrActions.GOTO) {
+        return {
+          ...state,
+          events: state.events.concat(action.event),
+        };
+      } else {
+        return state;
+      }
     case "SET_URL_TO_TEST":
       return {
         ...state,
         urlToTest: addHttpsIfRequired(action.urlToTest),
+      };
+    case "START_RECORDING":
+      console.log("starting recording");
+      return {
+        ...state,
+        isRecording: true,
+      };
+    case "PAUSE_RECORDING":
+      console.log("pausing recording");
+      return {
+        ...state,
+        isRecording: false,
       };
     default:
       return state;
@@ -101,7 +67,7 @@ function App() {
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const webviewRef = React.useRef(null);
   const urlInputRef = React.useRef(null);
-  const { urlToTest, events } = state;
+  const { urlToTest, events, isRecording } = state;
 
   const addEvent = React.useCallback(
     (event) => {
@@ -169,13 +135,22 @@ function App() {
   }, [webviewRef.current, handleMessageFromSitePanel]);
 
   const handleGenerateClick = React.useCallback(() => {
-    console.log(generatePuppeteerCode(state.events));
-    setGeneratedCode(generatePuppeteerCode(state.events));
+    console.log(generatePuppeteerCode(events));
+    setGeneratedCode(generatePuppeteerCode(events));
     setShowGeneratedCode(true);
-  }, [state.events]);
+  }, [events]);
 
   const handleTestNewUrlClick = React.useCallback(() => {
     dispatch({ type: "SET_URL_TO_TEST", urlToTest: "" });
+  }, [dispatch]);
+
+  const handleStartRecording = React.useCallback(() => {
+    dispatch({ type: "START_RECORDING" });
+  }, [dispatch]);
+
+  const handlePauseClick = React.useCallback(() => {
+    console.log("dispatch pause");
+    dispatch({ type: "PAUSE_RECORDING" });
   }, [dispatch]);
 
   return React.createElement(
@@ -191,10 +166,13 @@ function App() {
         ? React.createElement(
             SidePanel,
             {
+              isRecording,
               urlToTest,
-              events: state.events,
+              events,
               onGenerateClick: handleGenerateClick,
               onTestNewUrlClick: handleTestNewUrlClick,
+              onStartRecording: handleStartRecording,
+              onPauseClick: handlePauseClick,
             },
             null
           )
@@ -202,7 +180,7 @@ function App() {
             "div",
             {
               className:
-                "flex justify-center p-2 w-full h-screen border-r border-gray-200",
+                "flex justify-center p-2 w-full h-screen border-r border-gray-200 bg-pink-100",
               style: { width: SIDE_PANEL_WIDTH },
             },
             [
@@ -229,7 +207,7 @@ function App() {
                     "button",
                     {
                       className:
-                        "px-4 py-2 bg-blue-600 border border-gray-300 border-l-0 text-white",
+                        "px-8 py-2 bg-pink-600 border border-gray-300 border-l-0 text-white",
                     },
                     "Test"
                   ),
@@ -261,7 +239,6 @@ function App() {
               "Test stuff"
             )
           ),
-
       showGeneratedCode &&
         React.createElement(
           Modal,
