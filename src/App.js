@@ -10,42 +10,8 @@ const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
 
-function getNextCommand(events, nextIndexToProcess) {
-  const lastEvent = events[events.length - 1];
-
-  switch (lastEvent.action) {
-    case "keydown":
-      if (lastEvent.keyCode === 9) {
-        return lastEvent;
-      }
-      return null;
-    default:
-      return lastEvent;
-  }
-}
-
-function addEventToCommander(commander, event) {
-  const newEvents = commander.events.concat(event);
-
-  const nextCommand = getNextCommand(newEvents, commander.nextIndexToProcess);
-
-  return {
-    nextIndexToProcess: nextCommand
-      ? newEvents.length
-      : commander.nextIndexToProcess,
-    events: newEvents,
-    commands: nextCommand
-      ? commander.commands.concat(nextCommand)
-      : commander.commands,
-  };
-}
-
 const initialState = {
-  commander: {
-    events: [],
-    nextIndexToProcess: 0,
-    commands: [],
-  },
+  commands: [],
   urlToTest: "https://google.com",
   isRecording: false,
 };
@@ -60,24 +26,21 @@ function addHttpsIfRequired(url) {
 
 function rootReducer(state, action) {
   switch (action.type) {
-    case "RESET_EVENTS":
+    case "RESET_COMMANDS":
       return {
         ...state,
-        commander: {
-          events: [],
-          nextIndexToProcess: 0,
-          commands: [],
-        },
+        commands: [],
       };
-    case "ADD_EVENT":
-      if (state.isRecording || action.event.action === pptrActions.GOTO) {
+    case "ADD_COMMAND":
+      if (state.isRecording || action.command.command === pptrActions.GOTO) {
         return {
           ...state,
-          commander: addEventToCommander(state.commander, action.event),
+          commands: state.commands.concat(action.command),
         };
       } else {
         return state;
       }
+
     case "SET_URL_TO_TEST":
       return {
         ...state,
@@ -107,15 +70,11 @@ function App() {
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const webviewRef = React.useRef(null);
   const urlInputRef = React.useRef(null);
-  const {
-    urlToTest,
-    commander: { events, commands },
-    isRecording,
-  } = state;
+  const { urlToTest, commands, isRecording } = state;
 
-  const addEvent = React.useCallback(
-    (event) => {
-      dispatch({ type: "ADD_EVENT", event });
+  const addCommand = React.useCallback(
+    (command) => {
+      dispatch({ type: "ADD_COMMAND", command });
     },
     [dispatch]
   );
@@ -123,11 +82,11 @@ function App() {
   const handleMessageFromSitePanel = React.useCallback(
     (event) => {
       console.log(event.channel);
-      if (event.channel === "user-event") {
-        addEvent(event.args[0]);
+      if (event.channel === "new-command") {
+        addCommand(event.args[0]);
       }
     },
-    [addEvent]
+    [addCommand]
   );
 
   const handleLocationBarUrlChange = React.useCallback((event) => {
@@ -136,7 +95,7 @@ function App() {
 
   const handleUrlToTestSubmit = React.useCallback(() => {
     console.log("url to set", locationBarUrl);
-    dispatch({ type: "RESET_EVENTS" });
+    dispatch({ type: "RESET_COMMANDS" });
     dispatch({
       type: "SET_URL_TO_TEST",
       urlToTest: locationBarUrl,
@@ -151,7 +110,7 @@ function App() {
 
   React.useEffect(() => {
     if (urlToTest) {
-      addEvent({ action: pptrActions.GOTO, href: urlToTest });
+      addCommand({ command: pptrActions.GOTO, href: urlToTest });
     }
   }, [urlToTest]);
 
@@ -182,10 +141,10 @@ function App() {
   }, [webviewRef.current, handleMessageFromSitePanel]);
 
   const handleGenerateClick = React.useCallback(() => {
-    console.log(generatePuppeteerCode(events));
-    setGeneratedCode(generatePuppeteerCode(events));
+    console.log(generatePuppeteerCode(commands));
+    setGeneratedCode(generatePuppeteerCode(commands));
     setShowGeneratedCode(true);
-  }, [events]);
+  }, [commands]);
 
   const handleTestNewUrlClick = React.useCallback(() => {
     dispatch({ type: "SET_URL_TO_TEST", urlToTest: "" });

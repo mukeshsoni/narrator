@@ -74,14 +74,21 @@ function transformEvent(e) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  events.forEach((eventName) => {
-    document.addEventListener(eventName, (event) => {
-      // console.log(" event deteced", eventName );
-      ipcRenderer.sendToHost("user-event", transformEvent(event));
-    });
-  });
-});
+// document.addEventListener("DOMContentLoaded", () => {
+// events.forEach((eventName) => {
+// document.addEventListener(eventName, (event) => {
+// // console.log(" event deteced", eventName );
+// ipcRenderer.sendToHost("user-event", transformEvent(event));
+// });
+// });
+// });
+
+function sendCommandToParent(command) {
+  console.log("sending command to parent", command);
+  ipcRenderer.sendToHost("new-command", command);
+}
 
 console.log("inside preload");
-new Recorder(window);
+const recorder = new Recorder(window);
+
+recorder.onNewCommand(sendCommandToParent);

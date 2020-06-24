@@ -2,20 +2,24 @@ const React = require("react");
 
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
-function getEventValue(event) {
-  switch (event.action) {
+function getCommandValue(command) {
+  switch (command.command) {
     case "click":
-      return event.coordinates;
-    case "keydown":
-      return event.value;
+      return command.coordinates;
+    case "type":
+      return command.value;
     case pptrActions.GOTO:
-      return event.href;
+      return command.href;
     default:
-      return event.keyCode;
+      return command.keyCode;
   }
 }
 
-function CommandRow({ event, onCommandRowClick }) {
+function getSelector(command) {
+  return command.target && command.target.length ? command.target[0] : "";
+}
+
+function CommandRow({ command, onCommandRowClick }) {
   return React.createElement(
     "button",
     { className: "flex w-full hover:bg-gray-400", onClick: onCommandRowClick },
@@ -23,17 +27,17 @@ function CommandRow({ event, onCommandRowClick }) {
       React.createElement(
         "div",
         { className: "flex-1 px-4 py-2 truncate" },
-        event.name
+        command.command
       ),
       React.createElement(
         "div",
         { className: "flex-1 px-4 py-2 truncate" },
-        event.selector
+        getSelector(command)
       ),
       React.createElement(
         "div",
         { className: "flex-1 px-4 py-2 truncate" },
-        getEventValue(event)
+        getCommandValue(command)
       ),
     ]
   );
@@ -59,14 +63,7 @@ function CommandRowHeader() {
   ]);
 }
 
-function eventsToCommands(commands) {
-  return commands.map((event) => ({
-    ...event,
-    name: event.action === "keydown" ? "sendKeys" : event.action,
-  }));
-}
-
-function EventDetails({ event, onRemoveClick }) {
+function CommandDetails({ command, onRemoveClick }) {
   return React.createElement(
     "div",
     { className: "mt-6 px-4 py-2 bg-indigo-100" },
@@ -86,10 +83,10 @@ function EventDetails({ event, onRemoveClick }) {
               "input",
               {
                 // to blow the earlier value when we select a different command
-                key: event.value,
+                key: command.value,
                 className:
                   "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
-                value: event.name,
+                value: command.command,
               },
               null
             ),
@@ -103,10 +100,10 @@ function EventDetails({ event, onRemoveClick }) {
             React.createElement(
               "input",
               {
-                key: event.selector,
+                key: getSelector(command),
                 className:
                   "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
-                defaultValue: event.selector,
+                defaultValue: getSelector(command),
               },
               null
             ),
@@ -120,10 +117,10 @@ function EventDetails({ event, onRemoveClick }) {
             React.createElement(
               "input",
               {
-                key: getEventValue(event),
+                key: getCommandValue(command),
                 className:
                   "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
-                defaultValue: getEventValue(event),
+                defaultValue: getCommandValue(command),
               },
               null
             ),
@@ -135,10 +132,11 @@ function EventDetails({ event, onRemoveClick }) {
 }
 
 function CommandTable({ commands }) {
-  const [selectedEvent, setSelectedEvent] = React.useState(null);
+  const [selectedCommand, setSelectedCommand] = React.useState(null);
 
-  function handleCommandRowClick(event) {
-    setSelectedEvent(event);
+  console.log(commands);
+  function handleCommandRowClick(command) {
+    setSelectedCommand(command);
   }
 
   return React.createElement("div", {}, [
@@ -146,27 +144,27 @@ function CommandTable({ commands }) {
     React.createElement(
       "ul",
       {},
-      eventsToCommands(commands).map((event, i) => {
+      commands.map((command, i) => {
         return React.createElement(
           "li",
           { key: `action_no_${i}`, className: "bg-gray-200 mb-px" },
           React.createElement(
             CommandRow,
             {
-              event,
-              onCommandRowClick: handleCommandRowClick.bind(null, event),
+              command,
+              onCommandRowClick: handleCommandRowClick.bind(null, command),
             },
             null
           )
         );
       })
     ),
-    selectedEvent &&
+    selectedCommand &&
       React.createElement(
-        EventDetails,
+        CommandDetails,
         {
-          event: selectedEvent,
-          onRemoveClick: () => setSelectedEvent(null),
+          command: selectedCommand,
+          onRemoveClick: () => setSelectedCommand(null),
         },
         null
       ),
@@ -175,5 +173,5 @@ function CommandTable({ commands }) {
 
 module.exports = {
   CommandTable,
-  getEventValue,
+  getCommandValue,
 };

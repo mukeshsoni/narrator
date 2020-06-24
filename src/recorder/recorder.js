@@ -80,6 +80,10 @@ class Recorder {
     }
   }
 
+  onNewCommand(cb) {
+    this.newCommandCallback = cb;
+  }
+
   /* record */
   record(command, target, value, insertBeforeLastCommand, actualFrameLocation) {
     console.log(
@@ -89,20 +93,21 @@ class Recorder {
       value,
       actualFrameLocation
     );
-    // return browser.runtime
-    // .sendMessage({
-    // command: command,
-    // target: target,
-    // value: value,
-    // insertBeforeLastCommand: insertBeforeLastCommand,
-    // frameLocation:
-    // actualFrameLocation != undefined
-    // ? actualFrameLocation
-    // : this.frameLocation,
-    // })
-    // .catch(() => {
-    // this.detach();
-    // });
+    if (this.newCommandCallback) {
+      return this.newCommandCallback({
+        command: command,
+        target: target,
+        value: value,
+        insertBeforeLastCommand: insertBeforeLastCommand,
+        frameLocation:
+          actualFrameLocation != undefined
+            ? actualFrameLocation
+            : this.frameLocation,
+      });
+      // .catch(() => {
+      // this.detach();
+      // });
+    }
   }
 
   setWindowHandle(event) {
