@@ -8,6 +8,7 @@
  */
 const { ipcRenderer } = require("electron");
 const { finder } = require("./finder.js");
+const Recorder = require("./src/recorder/recorder");
 
 const events = [
   "click",
@@ -76,12 +77,11 @@ function transformEvent(e) {
 document.addEventListener("DOMContentLoaded", () => {
   events.forEach((eventName) => {
     document.addEventListener(eventName, (event) => {
-      console.log(eventName, " event deteced");
+      // console.log(" event deteced", eventName );
       ipcRenderer.sendToHost("user-event", transformEvent(event));
     });
   });
-
-  ipcRenderer.on("abcd", () => {
-    console.log("got message from up");
-  });
 });
+
+console.log("inside preload");
+new Recorder(window);

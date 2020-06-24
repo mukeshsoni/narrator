@@ -46,7 +46,7 @@ const initialState = {
     nextIndexToProcess: 0,
     commands: [],
   },
-  urlToTest: "",
+  urlToTest: "https://google.com",
   isRecording: false,
 };
 
@@ -166,6 +166,9 @@ function App() {
         "ipc-message",
         handleMessageFromSitePanel
       );
+      setTimeout(() => {
+        if (webviewRef.current.openDevTools) webviewRef.current.openDevTools();
+      }, 100);
     }
 
     return function cleanUp() {
