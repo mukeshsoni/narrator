@@ -16,7 +16,9 @@ function getCommandValue(command) {
 }
 
 function getSelector(command) {
-  return command.target && command.target.length ? command.target[0][0] : "";
+  return command.target && command.target.length
+    ? command.target[command.selectedTarget][0]
+    : "";
 }
 
 function CommandRow({ command, onCommandRowClick }) {
@@ -63,7 +65,7 @@ function CommandRowHeader() {
   ]);
 }
 
-function CommandDetails({ command, onRemoveClick }) {
+function CommandDetails({ command, onRemoveClick, onSelectorChange }) {
   return React.createElement(
     "div",
     { className: "mt-6 px-4 py-2 bg-indigo-100" },
@@ -101,16 +103,17 @@ function CommandDetails({ command, onRemoveClick }) {
               "select",
               {
                 name: "selector",
-                key: getSelector(command),
+                key: command.selectedTarget,
                 className:
-                  "w-full flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
-                defaultValue: getSelector(command),
+                  "w-full flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md bg-white",
+                value: command.selectedTarget,
+                onChange: (e) => onSelectorChange(Number(e.target.value)),
               },
               [
                 command.target &&
                   command.target.length > 0 &&
-                  command.target.map((t) => {
-                    return React.createElement("option", { value: t[0] }, t[0]);
+                  command.target.map((t, i) => {
+                    return React.createElement("option", { value: i }, t[0]);
                   }),
               ]
             ),
@@ -138,11 +141,11 @@ function CommandDetails({ command, onRemoveClick }) {
   );
 }
 
-function CommandTable({ commands }) {
-  const [selectedCommand, setSelectedCommand] = React.useState(null);
+function CommandTable({ commands, onSelectorChange }) {
+  const [selectedCommandIndex, setSelectedCommandIndex] = React.useState(null);
 
-  function handleCommandRowClick(command) {
-    setSelectedCommand(command);
+  function handleCommandRowClick(commandIndex) {
+    setSelectedCommandIndex(commandIndex);
   }
 
   return React.createElement("div", {}, [
@@ -158,19 +161,20 @@ function CommandTable({ commands }) {
             CommandRow,
             {
               command,
-              onCommandRowClick: handleCommandRowClick.bind(null, command),
+              onCommandRowClick: handleCommandRowClick.bind(null, i),
             },
             null
           )
         );
       })
     ),
-    selectedCommand &&
+    selectedCommandIndex !== null &&
       React.createElement(
         CommandDetails,
         {
-          command: selectedCommand,
-          onRemoveClick: () => setSelectedCommand(null),
+          command: commands[selectedCommandIndex],
+          onRemoveClick: () => setSelectedCommandIndex(null),
+          onSelectorChange: onSelectorChange.bind(null, selectedCommandIndex),
         },
         null
       ),

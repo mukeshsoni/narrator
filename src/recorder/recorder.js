@@ -97,6 +97,7 @@ class Recorder {
       return this.newCommandCallback({
         command: command,
         target: target,
+        selectedTarget: 0,
         value: value,
         insertBeforeLastCommand: insertBeforeLastCommand,
         frameLocation:

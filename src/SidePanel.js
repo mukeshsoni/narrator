@@ -10,6 +10,7 @@ function SidePanel({
   isRecording,
   onStartRecording,
   onPauseClick,
+  onSelectorChange,
 }) {
   return React.createElement(
     "div",
@@ -68,7 +69,11 @@ function SidePanel({
         "div",
         { className: "flex flex-col h-full justify-between" },
         [
-          React.createElement(CommandTable, { commands }, null),
+          React.createElement(
+            CommandTable,
+            { commands, onSelectorChange },
+            null
+          ),
           React.createElement("div", {}, [
             React.createElement(
               "div",

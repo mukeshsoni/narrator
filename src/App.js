@@ -36,7 +36,10 @@ function rootReducer(state, action) {
       if (state.isRecording || action.command.command === pptrActions.GOTO) {
         return {
           ...state,
-          commands: state.commands.concat(action.command),
+          commands: state.commands.concat({
+            ...action.command,
+            selectedTarget: 0,
+          }),
         };
       } else {
         return state;
@@ -62,6 +65,17 @@ function rootReducer(state, action) {
       return {
         ...state,
         isRecording: false,
+      };
+    case "CHANGE_SELECTOR":
+      return {
+        ...state,
+        commands: state.commands
+          .slice(0, action.commandIndex)
+          .concat({
+            ...state.commands[action.commandIndex],
+            selectedTarget: action.targetIndex,
+          })
+          .concat(state.commands.slice(action.commandIndex + 1)),
       };
     default:
       return state;
@@ -178,6 +192,13 @@ function App() {
     dispatch({ type: "PAUSE_RECORDING" });
   }, [dispatch]);
 
+  const handleSelectorChange = React.useCallback(
+    (commandIndex, targetIndex) => {
+      dispatch({ type: "CHANGE_SELECTOR", commandIndex, targetIndex });
+    },
+    [dispatch]
+  );
+
   return React.createElement(
     "div",
     {
@@ -197,6 +218,7 @@ function App() {
           onTestNewUrlClick: handleTestNewUrlClick,
           onStartRecording: handleStartRecording,
           onPauseClick: handlePauseClick,
+          onSelectorChange: handleSelectorChange,
         },
         null
       ),
