@@ -16,7 +16,7 @@ function getCommandValue(command) {
 }
 
 function getSelector(command) {
-  return command.target && command.target.length ? command.target[0] : "";
+  return command.target && command.target.length ? command.target[0][0] : "";
 }
 
 function CommandRow({ command, onCommandRowClick }) {
@@ -98,14 +98,21 @@ function CommandDetails({ command, onRemoveClick }) {
           [
             "Target",
             React.createElement(
-              "input",
+              "select",
               {
+                name: "selector",
                 key: getSelector(command),
                 className:
                   "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
                 defaultValue: getSelector(command),
               },
-              null
+              [
+                command.target &&
+                  command.target.length > 0 &&
+                  command.target.map((t) => {
+                    return React.createElement("option", { value: t[0] }, t[0]);
+                  }),
+              ]
             ),
           ]
         ),
