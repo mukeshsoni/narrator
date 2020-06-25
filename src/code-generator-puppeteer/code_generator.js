@@ -67,7 +67,7 @@ function setFrames(frameId, frameUrl) {
   }
 }
 
-function handleKeyDown(selector, value) {
+function typeCode(selector, value) {
   const block = new Block(frameId);
   block.addLine({
     type: domEvents.KEYDOWN,
@@ -76,7 +76,7 @@ function handleKeyDown(selector, value) {
   return block;
 }
 
-function handleClick(selector) {
+function clickCode(selector) {
   const block = new Block(frameId);
   if (options.waitForSelectorOnClick) {
     block.addLine({
@@ -91,21 +91,21 @@ function handleClick(selector) {
   return block;
 }
 
-function handleChange(selector, value) {
+function changeCode(selector, value) {
   return new Block(frameId, {
     type: domEvents.CHANGE,
     value: `await ${frame}.select('${selector}', '${value}')`,
   });
 }
 
-function handleGoto(href) {
+function gotoCode(href) {
   return new Block(frameId, {
     type: pptrActions.GOTO,
     value: `await ${frame}.goto('${href}')`,
   });
 }
 
-function handleViewport(width, height) {
+function viewportCode(width, height) {
   return new Block(frameId, {
     type: pptrActions.VIEWPORT,
     value: `await ${frame}.setViewport({ width: ${width}, height: ${height} })`,
@@ -138,7 +138,7 @@ function handleScreenshot(options) {
   return block;
 }
 
-function handleWaitForNavigation() {
+function waitForNavigationCode() {
   const block = new Block(frameId);
   if (options.waitForNavigation) {
     block.addLine({
@@ -204,43 +204,44 @@ function parseEvents(events) {
 
   for (let i = 0; i < events.length; i++) {
     const {
-      action,
-      selector,
+      command,
       value,
       href,
       keyCode,
       tagName,
       frameId,
       frameUrl,
+      target,
+      selectedTarget,
     } = events[i];
+    const selector =
+      target && target.length > 0 ? target[selectedTarget || 0][0] : "";
 
     // we need to keep a handle on what frames events originate from
     setFrames(frameId, frameUrl);
 
-    switch (action) {
-      case "keydown":
+    switch (command) {
+      case "type":
         console.log("keycode", keyCode);
-        if (keyCode === 9) {
-          // tab key
-          blocks.push(handleKeyDown(selector, value, keyCode));
-        }
+        // tab key
+        blocks.push(typeCode(selector, value));
         break;
       case "click":
-        blocks.push(handleClick(selector, events));
+        blocks.push(clickCode(selector, events));
         break;
       case "change":
         if (tagName === "SELECT") {
-          blocks.push(handleChange(selector, value));
+          blocks.push(changeCode(selector, value));
         }
         break;
       case pptrActions.GOTO:
-        blocks.push(handleGoto(href, frameId));
+        blocks.push(gotoCode(href, frameId));
         break;
       case pptrActions.VIEWPORT:
-        blocks.push(handleViewport(value.width, value.height));
+        blocks.push(viewportCode(value.width, value.height));
         break;
       case pptrActions.NAVIGATION:
-        blocks.push(handleWaitForNavigation());
+        blocks.push(waitForNavigationCode());
         hasNavigation = true;
         break;
       case pptrActions.SCREENSHOT:

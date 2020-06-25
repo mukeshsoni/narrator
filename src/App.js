@@ -142,7 +142,10 @@ function App() {
         handleMessageFromSitePanel
       );
       setTimeout(() => {
-        if (webviewRef.current.openDevTools) webviewRef.current.openDevTools();
+        // IMP - if i keep the devtools open, navigating from one website to
+        // any other doesn't work. The navigation works as soon as i close
+        // the devtools
+        // if (webviewRef.current.openDevTools) webviewRef.current.openDevTools();
       }, 100);
     }
 

@@ -12,6 +12,9 @@ function createWindow() {
 
   win.loadFile("index.html");
 
+  win.webContents.on("will-navigate", () => {
+    console.log("navigating");
+  });
   win.webContents.openDevTools();
 }
 
