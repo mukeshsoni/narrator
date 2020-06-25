@@ -1,6 +1,6 @@
 const { CommandTable, getEventValue } = require("./CommandTable");
 
-const SIDE_PANEL_WIDTH = 400;
+const SIDE_PANEL_WIDTH = 600;
 
 function SidePanel({
   urlToTest,

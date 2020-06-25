@@ -558,9 +558,10 @@ observers.push([
   function (mutations) {
     mutations.forEach(async (mutation) => {
       const removedNodes = await mutation.removedNodes;
-      if (removedNodes.length && removedNodes[0].nodeName === "IFRAME") {
-        browser.runtime.sendMessage({ frameRemoved: true }).catch(() => {});
-      }
+      console.log("frame deleted");
+      // if (removedNodes.length && removedNodes[0].nodeName === "IFRAME") {
+      // browser.runtime.sendMessage({ frameRemoved: true }).catch(() => {});
+      // }
     });
   },
   { childList: true },
@@ -624,6 +625,7 @@ handlers.push([
       pageLoaded = false;
       clearTimeout(readyTimeOut);
       readyTimeOut = setTimeout(() => {
+        console.log("page loaded");
         pageLoaded = true;
       }, 1500); //setReady after complete 1.5s
     }

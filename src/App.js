@@ -17,7 +17,7 @@ const initialState = {
 };
 
 function addHttpsIfRequired(url) {
-  if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
+  if (url.length > 0 && !/^(?:f|ht)tps?\:\/\//.test(url)) {
     return `https://${url}`;
   }
 
@@ -25,6 +25,7 @@ function addHttpsIfRequired(url) {
 }
 
 function rootReducer(state, action) {
+  console.log("action", action);
   switch (action.type) {
     case "RESET_COMMANDS":
       return {
@@ -51,6 +52,10 @@ function rootReducer(state, action) {
       return {
         ...state,
         isRecording: true,
+        commands:
+          state.commands.lenght > 0
+            ? state.commands
+            : [{ command: pptrActions.GOTO, href: state.urlToTest }],
       };
     case "PAUSE_RECORDING":
       console.log("pausing recording");
@@ -64,7 +69,9 @@ function rootReducer(state, action) {
 }
 
 function App() {
-  const [locationBarUrl, setLocationBarUrl] = React.useState("");
+  const [locationBarUrl, setLocationBarUrl] = React.useState(
+    "https://google.com"
+  );
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
@@ -90,17 +97,26 @@ function App() {
   );
 
   const handleLocationBarUrlChange = React.useCallback((event) => {
+    console.log("aa");
     setLocationBarUrl(event.target.value);
   }, []);
 
-  const handleUrlToTestSubmit = React.useCallback(() => {
-    console.log("url to set", locationBarUrl);
-    dispatch({ type: "RESET_COMMANDS" });
-    dispatch({
-      type: "SET_URL_TO_TEST",
-      urlToTest: locationBarUrl,
-    });
-  }, [dispatch, locationBarUrl]);
+  const handleUrlToTestSubmit = React.useCallback(
+    (e) => {
+      // IMP!
+      // if we don't stop the propagation or preventDefault, the whole electron
+      // page refreshes for some reason
+      e.stopPropagation();
+      e.preventDefault();
+      console.log("url to set", locationBarUrl);
+      // dispatch({ type: "RESET_COMMANDS" });
+      dispatch({
+        type: "SET_URL_TO_TEST",
+        urlToTest: locationBarUrl,
+      });
+    },
+    [dispatch, locationBarUrl]
+  );
 
   React.useEffect(() => {
     if (urlInputRef && urlInputRef.current) {
@@ -110,7 +126,7 @@ function App() {
 
   React.useEffect(() => {
     if (urlToTest) {
-      addCommand({ command: pptrActions.GOTO, href: urlToTest });
+      // addCommand({ command: pptrActions.GOTO, href: urlToTest });
     }
   }, [urlToTest]);
 
@@ -168,85 +184,69 @@ function App() {
       style: { display: "flex" },
     },
     [
-      urlToTest
-        ? React.createElement(
-            SidePanel,
-            {
-              isRecording,
-              urlToTest,
-              commands,
-              onGenerateClick: handleGenerateClick,
-              onTestNewUrlClick: handleTestNewUrlClick,
-              onStartRecording: handleStartRecording,
-              onPauseClick: handlePauseClick,
-            },
-            null
-          )
-        : React.createElement(
-            "div",
-            {
-              className:
-                "flex justify-center p-2 w-full h-screen border-r border-gray-200 bg-pink-100",
-              style: { width: SIDE_PANEL_WIDTH },
-            },
-            [
-              React.createElement(
-                "form",
-                {
-                  className: "mt-16",
-                  onSubmit: handleUrlToTestSubmit,
-                },
-                [
-                  React.createElement(
-                    "input",
-                    {
-                      ref: urlInputRef,
-                      value: locationBarUrl,
-                      className:
-                        "px-4 py-2 border border-gray-300 focus:bg-gray-100",
-                      onChange: handleLocationBarUrlChange,
-                      placeholder: "Url to test",
-                      title: locationBarUrl,
-                    },
-                    null
-                  ),
-                  React.createElement(
-                    "button",
-                    {
-                      className:
-                        "px-8 py-2 bg-pink-600 border border-gray-300 border-l-0 text-white",
-                      title: "Test",
-                    },
-                    "Test"
-                  ),
-                ]
-              ),
-            ]
-          ),
-      ,
-      urlToTest
-        ? React.createElement(
-            "webview",
-            {
-              src: urlToTest,
-              preload: "webview-preload.js",
-              className: "flex-1 w-full h-screen",
-              ref: webviewRef,
-            },
-            null
-          )
-        : React.createElement(
-            "div",
-            {
-              className:
-                "flex flex-1 justify-center items-center w-full h-screen font-bold text-6xl",
-            },
+      React.createElement(
+        SidePanel,
+        {
+          isRecording,
+          urlToTest,
+          commands,
+          onGenerateClick: handleGenerateClick,
+          onTestNewUrlClick: handleTestNewUrlClick,
+          onStartRecording: handleStartRecording,
+          onPauseClick: handlePauseClick,
+        },
+        null
+      ),
+      React.createElement("div", { className: "w-full" }, [
+        React.createElement(
+          "form",
+          {
+            onSubmit: handleUrlToTestSubmit,
+          },
+          [
             React.createElement(
-              "h3",
-              { className: "uppercase tracking-wide" },
-              "Test stuff"
+              "input",
+              {
+                ref: urlInputRef,
+                value: locationBarUrl,
+                className:
+                  "w-full px-4 py-2 border border-gray-300 focus:bg-gray-100",
+                onChange: handleLocationBarUrlChange,
+                placeholder: "Url to test",
+                title: locationBarUrl,
+              },
+              null
+            ),
+          ]
+        ),
+        urlToTest
+          ? React.createElement(
+              "webview",
+              {
+                // if we want to keep the webview around, we need to keep busting
+                // the webview with key change, otherwise the previous rendered
+                // url does not go
+                key: urlToTest,
+                src: urlToTest,
+                preload: "webview-preload.js",
+                className: "flex-1 w-full h-screen",
+                ref: webviewRef,
+              },
+              null
             )
-          ),
+          : React.createElement(
+              "div",
+              {
+                className:
+                  "flex flex-1 justify-center items-center w-full h-screen font-bold text-6xl",
+              },
+              React.createElement(
+                "h3",
+                { className: "uppercase tracking-wide" },
+                "Test stuff"
+              )
+            ),
+      ]),
       showGeneratedCode &&
         React.createElement(
           Modal,

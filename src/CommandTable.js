@@ -134,7 +134,6 @@ function CommandDetails({ command, onRemoveClick }) {
 function CommandTable({ commands }) {
   const [selectedCommand, setSelectedCommand] = React.useState(null);
 
-  console.log(commands);
   function handleCommandRowClick(command) {
     setSelectedCommand(command);
   }
