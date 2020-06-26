@@ -13,7 +13,7 @@ const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
 
 const initialState = {
   commands: [],
-  urlToTest: "https://google.com",
+  urlToTest: dummyUrlToTest,
   isRecording: false,
 };
 
@@ -39,6 +39,7 @@ function rootReducer(state, action) {
           ...state,
           commands: state.commands.concat({
             ...action.command,
+            name: action.command.command,
             selectedTarget: 0,
           }),
         };
@@ -59,7 +60,7 @@ function rootReducer(state, action) {
         commands:
           state.commands.lenght > 0
             ? state.commands
-            : [{ command: pptrActions.GOTO, href: state.urlToTest }],
+            : [{ name: "GOTO", href: state.urlToTest }],
       };
     case "PAUSE_RECORDING":
       console.log("pausing recording");
@@ -84,9 +85,7 @@ function rootReducer(state, action) {
 }
 
 function App() {
-  const [locationBarUrl, setLocationBarUrl] = React.useState(
-    "https://google.com"
-  );
+  const [locationBarUrl, setLocationBarUrl] = React.useState(dummyUrlToTest);
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);

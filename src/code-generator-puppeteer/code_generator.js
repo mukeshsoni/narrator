@@ -4,6 +4,7 @@ const domEvents = require("./dom_events_to_record");
 
 const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
+  let xpathEl;
   const browser = await puppeteer.launch()
   const page = await browser.newPage()\n`;
 
@@ -44,6 +45,21 @@ function cleanUp() {
   allFrames = {};
 }
 
+function getSelector(target) {
+  const [selector, selectorType] = target;
+
+  console.log(selector, selectorType);
+  if (selectorType === "name") {
+    return [`[${selector}]`, selectorType];
+  } else if (selectorType === "id") {
+    return [`#${selector.split("=")[1]}`, selectorType];
+  } else if (selectorType.startsWith("xpath")) {
+    return [`${selector.slice(6)}`, selectorType];
+  }
+
+  return [`${selector}`, selectorType];
+}
+
 function getHeader() {
   let hdr = options.wrapAsync ? wrappedHeader : header;
   hdr = options.headless
@@ -67,35 +83,91 @@ function setFrames(frameId, frameUrl) {
   }
 }
 
-function typeCode(selector, value) {
-  const block = new Block(frameId);
-  block.addLine({
-    type: domEvents.KEYDOWN,
-    value: `await ${frame}.type('${selector}', '${value}')`,
-  });
-  return block;
-}
+function typeCode(command) {
+  let { target, value, selectedTarget } = command;
+  const [selector, selectorType] = getSelector(target[selectedTarget]);
 
-function clickCode(selector) {
   const block = new Block(frameId);
-  if (options.waitForSelectorOnClick) {
+
+  if (!selectorType.startsWith("xpath")) {
     block.addLine({
-      type: domEvents.CLICK,
-      value: `await ${frame}.waitForSelector('${selector}')`,
+      type: domEvents.KEYDOWN,
+      value: `await ${frame}.type("${selector}", "${value}")`,
+    });
+  } else {
+    block.addLine({
+      type: domEvents.KEYDOWN,
+      value: `xpathEl = await page.$x("${selector}");`,
+    });
+    block.addLine({
+      type: domEvents.KEYDOWN,
+      value: `await xpathEl.type("${value}");`,
     });
   }
-  block.addLine({
-    type: domEvents.CLICK,
-    value: `await ${frame}.click('${selector}')`,
-  });
+
   return block;
 }
 
-function changeCode(selector, value) {
-  return new Block(frameId, {
-    type: domEvents.CHANGE,
-    value: `await ${frame}.select('${selector}', '${value}')`,
-  });
+function clickCode(command) {
+  let { target, selectedTarget } = command;
+  const [selector, selectorType] = getSelector(target[selectedTarget]);
+
+  const block = new Block(frameId);
+  if (options.waitForSelectorOnClick) {
+    if (!selectorType.startsWith("xpath")) {
+      block.addLine({
+        type: domEvents.CLICK,
+        value: `await ${frame}.waitForSelector('${selector}')`,
+      });
+    } else {
+      block.addLine({
+        type: domEvents.CLICK,
+        value: `await ${frame}.waitForXPath("${selector}")`,
+      });
+    }
+  }
+
+  if (!selectorType.startsWith("xpath")) {
+    block.addLine({
+      type: domEvents.CLICK,
+      value: `await ${frame}.click("${selector}")`,
+    });
+  } else {
+    block.addLine({
+      type: domEvents.CLICK,
+      value: `xpathEl = await ${frame}.$x("${selector}");`,
+    });
+    block.addLine({
+      type: domEvents.CLICK,
+      value: `await xpathEl.click();`,
+    });
+  }
+
+  return block;
+}
+
+function changeCode(command) {
+  let { target, value, selectedTarget } = command;
+  const [selector, selectorType] = getSelector(target[selectedTarget]);
+  const block = new Block(frameId);
+
+  if (!selectorType.startsWith("xpath")) {
+    block.addLine({
+      type: domEvents.CLICK,
+      value: `await ${frame}.select("${selector}", "${value}")`,
+    });
+  } else {
+    block.addLine({
+      type: domEvents.CLICK,
+      value: `xpathEl = await ${frame}.$x("${selector}");`,
+    });
+    block.addLine({
+      type: domEvents.CLICK,
+      value: `await xpathEl.select("${selector}");`,
+    });
+  }
+
+  return block;
 }
 
 function gotoCode(href) {
@@ -196,46 +268,37 @@ function postProcess() {
   }
 }
 
-function parseEvents(events) {
-  console.debug(`generating code for ${events ? events.length : 0} events`);
+function parseEvents(commands) {
+  console.debug(
+    `generating code for ${commands ? commands.length : 0} commands`
+  );
   let result = "";
 
-  if (!events) return result;
+  if (!commands) return result;
 
-  for (let i = 0; i < events.length; i++) {
-    const {
-      command,
-      value,
-      href,
-      keyCode,
-      tagName,
-      frameId,
-      frameUrl,
-      target,
-      selectedTarget,
-    } = events[i];
-    const selector =
-      target && target.length > 0 ? target[selectedTarget || 0][0] : "";
+  for (let i = 0; i < commands.length; i++) {
+    const command = commands[i];
+    const { name, value, href, keyCode, tagName, frameId, frameUrl } = command;
 
-    // we need to keep a handle on what frames events originate from
+    // we need to keep a handle on what frames commands originate from
     setFrames(frameId, frameUrl);
 
-    switch (command) {
+    switch (name) {
       case "type":
         console.log("keycode", keyCode);
         // tab key
-        blocks.push(typeCode(selector, value));
+        blocks.push(typeCode(command));
         break;
       case "click":
-        blocks.push(clickCode(selector, events));
+        blocks.push(clickCode(command));
         break;
       case "change":
         if (tagName === "SELECT") {
-          blocks.push(changeCode(selector, value));
+          blocks.push(changeCode(command));
         }
         break;
-      case pptrActions.GOTO:
-        blocks.push(gotoCode(href, frameId));
+      case "GOTO":
+        blocks.push(gotoCode(href));
         break;
       case pptrActions.VIEWPORT:
         blocks.push(viewportCode(value.width, value.height));
@@ -275,9 +338,9 @@ function parseEvents(events) {
   return result;
 }
 
-function generate(events) {
+function generate(commands) {
   cleanUp();
-  return importPuppeteer + getHeader() + parseEvents(events) + getFooter();
+  return importPuppeteer + getHeader() + parseEvents(commands) + getFooter();
 }
 
 module.exports = {

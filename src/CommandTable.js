@@ -3,12 +3,13 @@ const React = require("react");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 function getCommandValue(command) {
-  switch (command.command) {
+  console.log("getCommandValue", command);
+  switch (command.name) {
     case "click":
       return command.coordinates;
     case "type":
       return command.value;
-    case pptrActions.GOTO:
+    case "GOTO":
       return command.href;
     default:
       return command.keyCode;
@@ -29,7 +30,7 @@ function CommandRow({ command, onCommandRowClick }) {
       React.createElement(
         "div",
         { className: "flex-1 px-4 py-2 truncate" },
-        command.command
+        command.name
       ),
       React.createElement(
         "div",
@@ -88,7 +89,7 @@ function CommandDetails({ command, onRemoveClick, onSelectorChange }) {
                 key: command.value,
                 className:
                   "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
-                value: command.command,
+                value: command.name,
               },
               null
             ),

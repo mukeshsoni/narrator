@@ -15,7 +15,7 @@ function selectorPart(command) {
 function generateCode(commands) {
   return commands
     .map((command) => {
-      switch (command.command) {
+      switch (command.name) {
         case "click":
           return `${selectorPart(command)}.click()`;
         case "type":
