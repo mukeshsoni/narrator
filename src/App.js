@@ -6,6 +6,7 @@ const { SIDE_PANEL_WIDTH, SidePanel } = require("./SidePanel");
 const {
   generatePuppeteerCode,
 } = require("./code-generator-puppeteer/code_generator");
+const generateCypressCode = require("./code-generator-cypress/code-generator");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
@@ -173,11 +174,22 @@ function App() {
     };
   }, [webviewRef.current, handleMessageFromSitePanel]);
 
-  const handleGenerateClick = React.useCallback(() => {
-    console.log(generatePuppeteerCode(commands));
-    setGeneratedCode(generatePuppeteerCode(commands));
-    setShowGeneratedCode(true);
-  }, [commands]);
+  const handleGenerateClick = React.useCallback(
+    (toolName) => {
+      switch (toolName) {
+        case "puppeteer":
+          generator = generatePuppeteerCode;
+          break;
+        case "cypress":
+          generator = generateCypressCode;
+      }
+
+      console.log(generator(commands));
+      setGeneratedCode(generator(commands));
+      setShowGeneratedCode(true);
+    },
+    [commands]
+  );
 
   const handleTestNewUrlClick = React.useCallback(() => {
     dispatch({ type: "SET_URL_TO_TEST", urlToTest: "" });
