@@ -1,6 +1,45 @@
 const { CommandTable, getEventValue } = require("./CommandTable");
+const onClickOutside = require("react-onclickoutside");
 
 const SIDE_PANEL_WIDTH = 600;
+
+function Menu({ buttonText, children }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  Menu.handleClickOutside = () => setMenuOpen(false);
+
+  return React.createElement(
+    "div",
+    {
+      className: "items-center relative bg-gray-500",
+    },
+    [
+      React.createElement(
+        "button",
+        {
+          className: "px-4 py-2",
+          onClick: () => (menuOpen ? setMenuOpen(false) : setMenuOpen(true)),
+        },
+        buttonText
+      ),
+      React.createElement(
+        "div",
+        {
+          className: menuOpen
+            ? "flex flex-col p-4 border absolute bg-gray-500 rounded-lg"
+            : "hidden",
+        },
+        children
+      ),
+    ]
+  );
+}
+
+const clickOutsideConfig = {
+  handleClickOutside: () => Menu.handleClickOutside,
+};
+
+const MenuWithClickOutside = onClickOutside.default(Menu, clickOutsideConfig);
 
 function SidePanel({
   urlToTest,
@@ -21,7 +60,10 @@ function SidePanel({
     [
       React.createElement(
         "div",
-        { className: "flex justify-between px-4 mb-4 w-full bg-gray-500" },
+        {
+          className:
+            "flex justify-between items-center px-4 mb-4 w-full bg-gray-500",
+        },
         [
           React.createElement("div", { className: "flex" }, [
             !isRecording
@@ -59,9 +101,29 @@ function SidePanel({
                 ),
           ]),
           React.createElement(
-            "button",
-            { className: "p-2", onClick: onGenerateClick },
-            "Generate code"
+            MenuWithClickOutside,
+            {
+              buttonText: "Generate code",
+            },
+            [
+              React.createElement(
+                "button",
+                {
+                  className: "mb-2",
+                  onClick: onGenerateClick.bind(null, "puppeteer"),
+                  key: "puppeteer",
+                },
+                "Puppeteer"
+              ),
+              React.createElement(
+                "button",
+                {
+                  onClick: onGenerateClick.bind(null, "cypress"),
+                  key: "cypress",
+                },
+                "Cypress"
+              ),
+            ]
           ),
         ]
       ),
