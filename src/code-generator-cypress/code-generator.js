@@ -19,7 +19,7 @@ function generateCode(commands) {
         case "click":
           return `${selectorPart(command)}.click()`;
         case "type":
-          return `cy.type("${command.value}")`;
+          return `${selectorPart(command)}.type("${command.value}")`;
         case "GOTO":
           return `cy.visit("${command.href}")`;
         default:

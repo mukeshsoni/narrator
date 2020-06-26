@@ -48,7 +48,6 @@ function cleanUp() {
 function getSelector(target) {
   const [selector, selectorType] = target;
 
-  console.log(selector, selectorType);
   if (selectorType === "name") {
     return [`[${selector}]`, selectorType];
   } else if (selectorType === "id") {
@@ -285,8 +284,6 @@ function parseEvents(commands) {
 
     switch (name) {
       case "type":
-        console.log("keycode", keyCode);
-        // tab key
         blocks.push(typeCode(command));
         break;
       case "click":

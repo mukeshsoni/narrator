@@ -3,7 +3,6 @@ const React = require("react");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 function getCommandValue(command) {
-  console.log("getCommandValue", command);
   switch (command.name) {
     case "click":
       return command.coordinates;
