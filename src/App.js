@@ -1,3 +1,4 @@
+const { ipcRenderer } = require("electron");
 const React = require("react");
 const Modal = require("react-modal");
 
@@ -9,7 +10,8 @@ const {
 const generateCypressCode = require("./code-generator-cypress/code-generator");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
-const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
+// const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
+const dummyUrlToTest = "https://google.com/";
 
 const initialState = {
   commands: [],
@@ -219,6 +221,12 @@ function App() {
     [dispatch]
   );
 
+  const handleReplayClick = React.useCallback(() => {
+    if (commands && commands.length > 0) {
+      ipcRenderer.send("replay", generatePuppeteerCode(commands));
+    }
+  }, [commands]);
+
   return React.createElement(
     "div",
     {
@@ -232,11 +240,10 @@ function App() {
         SidePanel,
         {
           isRecording,
-          urlToTest,
           commands,
           onGenerateClick: handleGenerateClick,
-          onTestNewUrlClick: handleTestNewUrlClick,
           onStartRecording: handleStartRecording,
+          onReplay: handleReplayClick,
           onPauseClick: handlePauseClick,
           onSelectorChange: handleSelectorChange,
         },

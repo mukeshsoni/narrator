@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
+const puppeteer = require("puppeteer");
 
 function createWindow() {
   let win = new BrowserWindow({
@@ -32,6 +33,11 @@ app.on("activate", () => {
   }
 });
 
-ipcMain.on("synchronous-message", (event, msg) => {
-  console.log("got message", msg);
+ipcMain.on("replay", (event, msg) => {
+  console.log("got puppeteer code to run", msg);
+  // might be better to get the commands and then run puppeteer commands
+  // by generating them here
+  // or
+  // instead write the generated code to a file and run the file
+  eval(msg);
 });

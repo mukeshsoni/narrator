@@ -42,12 +42,11 @@ const clickOutsideConfig = {
 const MenuWithClickOutside = onClickOutside.default(Menu, clickOutsideConfig);
 
 function SidePanel({
-  urlToTest,
   commands,
   onGenerateClick,
-  onTestNewUrlClick,
   isRecording,
   onStartRecording,
+  onReplay,
   onPauseClick,
   onSelectorChange,
 }) {
@@ -99,6 +98,35 @@ function SidePanel({
                     "Pause",
                   ]
                 ),
+            commands &&
+              commands.length > 0 &&
+              React.createElement(
+                "button",
+                {
+                  className:
+                    "p-2 mr-2 flex flex-col justify-center items-center text-xs uppercase",
+                  onClick: onReplay,
+                },
+                [
+                  React.createElement(
+                    "div",
+                    {
+                      className: "w-6 h-6 mb-1",
+                      style: {
+                        width: 24,
+                        height: 24,
+                        borderStyle: "solid",
+                        borderWidth: "12px 0px 12px 24px",
+                        borderColor:
+                          "transparent transparent transparent #48bb78",
+                        boxSizing: "border-box",
+                      },
+                    },
+                    null
+                  ),
+                  "Play",
+                ]
+              ),
           ]),
           React.createElement(
             MenuWithClickOutside,
@@ -136,21 +164,6 @@ function SidePanel({
             { commands, onSelectorChange },
             null
           ),
-          React.createElement("div", {}, [
-            React.createElement(
-              "div",
-              { className: "px-4 py-2 bg-gray-300" },
-              `Testing - ${urlToTest}`
-            ),
-            React.createElement(
-              "button",
-              {
-                className: "w-full py-2 hover:bg-gray-300",
-                onClick: onTestNewUrlClick,
-              },
-              "Test new url"
-            ),
-          ]),
         ]
       ),
     ]

@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@medv/finder": "^2.0.0",
-    "puppeteer": "^4.0.0",
+    "puppeteer": "^4.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-modal": "^3.11.2",

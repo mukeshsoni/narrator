@@ -5,10 +5,10 @@ const domEvents = require("./dom_events_to_record");
 const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
   let xpathEl;
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({headless: false})
   const page = await browser.newPage()\n`;
 
-const header = `const browser = await puppeteer.launch()
+const header = `const browser = await puppeteer.launch({headless: false})
 const page = await browser.newPage()`;
 
 const wrappedFooter = `  await browser.close()
@@ -68,7 +68,8 @@ function getHeader() {
 }
 
 function getFooter() {
-  return options.wrapAsync ? wrappedFooter : footer;
+  return "})()";
+  // return options.wrapAsync ? wrappedFooter : footer;
 }
 
 function setFrames(frameId, frameUrl) {
