@@ -277,7 +277,7 @@ function parseEvents(commands) {
 
   for (let i = 0; i < commands.length; i++) {
     const command = commands[i];
-    const { name, value, href, keyCode, tagName, frameId, frameUrl } = command;
+    const { name, value, href, tagName, frameId, frameUrl } = command;
 
     // we need to keep a handle on what frames commands originate from
     setFrames(frameId, frameUrl);

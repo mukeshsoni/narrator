@@ -85,6 +85,15 @@ function rootReducer(state, action) {
 }
 
 function App() {
+  // we give the webview a partition name on first load. We create a new
+  // partition name on every load so that a new session is created when
+  // the app starts and it clears all previous session data. Things like login
+  // information etc. are not remembered.
+  // I don't know if it's a good idea. I have added it for now because i need
+  // to continuously test the orangehrl login page. And i don't want to logout
+  // every time i want to test some bug fix or a feature.
+  const [partition, setPartition] =
+    React.useState(Math.round(Math.random() * 1000)) + "";
   const [locationBarUrl, setLocationBarUrl] = React.useState(dummyUrlToTest);
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
@@ -267,6 +276,7 @@ function App() {
                 preload: "webview-preload.js",
                 className: "flex-1 w-full h-screen",
                 ref: webviewRef,
+                partition,
               },
               null
             )
