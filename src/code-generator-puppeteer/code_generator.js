@@ -83,6 +83,25 @@ function setFrames(frameId, frameUrl) {
   }
 }
 
+function capitalize(str) {
+  return str[0].toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// for key presses like Enter, Tab etc.
+function keyPressCode(command) {
+  const { value } = command;
+  const regex = /{([^}]+)}/g;
+  const match = regex.exec(value);
+
+  const block = new Block(frameId);
+  block.addLine({
+    type: domEvents.KEYDOWN,
+    value: `await page.keyboard.press('${capitalize(match[1].split("_")[1])}')`,
+  });
+
+  return block;
+}
+
 function typeCode(command) {
   let { target, value, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
@@ -286,6 +305,9 @@ function parseEvents(commands) {
     switch (name) {
       case "type":
         blocks.push(typeCode(command));
+        break;
+      case "sendKeys":
+        blocks.push(keyPressCode(command));
         break;
       case "click":
         blocks.push(clickCode(command));

@@ -11,7 +11,8 @@ const generateCypressCode = require("./code-generator-cypress/code-generator");
 const pptrActions = require("./code-generator-puppeteer/pptr_actions");
 
 // const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
-const dummyUrlToTest = "https://google.com/";
+// const dummyUrlToTest = "https://google.com/";
+const dummyUrlToTest = "http://testing-ground.scraping.pro/login";
 
 const initialState = {
   commands: [],

@@ -7,6 +7,7 @@ function getCommandValue(command) {
     case "click":
       return command.coordinates;
     case "type":
+    case "sendKeys":
       return command.value;
     case "GOTO":
       return command.href;
