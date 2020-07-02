@@ -17,9 +17,45 @@
 
 // import browser from "webextension-polyfill";
 // import { handlers, observers } from "./record-handlers";
-const { handlers, observers } = require("./event_handlers");
+// const { handlers, observers } = require("./event_handlers");
+import { handlers, observers } from "./event_handlers";
 // import { attach, detach } from "./prompt-injector";
 
+function updateInputElementsOfRelevantType(action, win) {
+  let inp = win.document.getElementsByTagName("input");
+  for (let i = 0; i < inp.length; i++) {
+    if (Recorder.inputTypes.indexOf(inp[i].type) >= 0) {
+      action(inp[i]);
+    }
+  }
+}
+
+function focusEvent(recordingState, event) {
+  recordingState.focusTarget = event.target;
+  recordingState.focusValue = recordingState.focusTarget.value;
+  recordingState.tempValue = recordingState.focusValue;
+  recordingState.preventType = false;
+}
+
+function blurEvent(recordingState) {
+  recordingState.focusTarget = null;
+  recordingState.focusValue = null;
+  recordingState.tempValue = null;
+}
+
+function attachInputListeners(recordingState, win) {
+  updateInputElementsOfRelevantType((input) => {
+    input.addEventListener("focus", focusEvent.bind(null, recordingState));
+    input.addEventListener("blur", blurEvent.bind(null, recordingState));
+  }, win);
+}
+
+function detachInputListeners(recordingState, win) {
+  updateInputElementsOfRelevantType((input) => {
+    input.removeEventListener("focus", focusEvent.bind(null, recordingState));
+    input.removeEventListener("blur", blurEvent.bind(null, recordingState));
+  }, win);
+}
 /**
  * @param {Window} window
  */
@@ -332,40 +368,4 @@ observers.forEach((observer) => {
   Recorder.addMutationObserver(...observer);
 });
 
-function updateInputElementsOfRelevantType(action, win) {
-  let inp = win.document.getElementsByTagName("input");
-  for (let i = 0; i < inp.length; i++) {
-    if (Recorder.inputTypes.indexOf(inp[i].type) >= 0) {
-      action(inp[i]);
-    }
-  }
-}
-
-function focusEvent(recordingState, event) {
-  recordingState.focusTarget = event.target;
-  recordingState.focusValue = recordingState.focusTarget.value;
-  recordingState.tempValue = recordingState.focusValue;
-  recordingState.preventType = false;
-}
-
-function blurEvent(recordingState) {
-  recordingState.focusTarget = null;
-  recordingState.focusValue = null;
-  recordingState.tempValue = null;
-}
-
-function attachInputListeners(recordingState, win) {
-  updateInputElementsOfRelevantType((input) => {
-    input.addEventListener("focus", focusEvent.bind(null, recordingState));
-    input.addEventListener("blur", blurEvent.bind(null, recordingState));
-  }, win);
-}
-
-function detachInputListeners(recordingState, win) {
-  updateInputElementsOfRelevantType((input) => {
-    input.removeEventListener("focus", focusEvent.bind(null, recordingState));
-    input.removeEventListener("blur", blurEvent.bind(null, recordingState));
-  }, win);
-}
-
-module.exports = Recorder;
+export default Recorder;

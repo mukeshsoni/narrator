@@ -15,17 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const parser = require("ua-parser-js");
+import parser from "ua-parser-js";
 
-const isTest = process.env.NODE_ENV === "test";
+export const isTest = process.env.NODE_ENV === "test";
 
-const userAgent = parser(window.navigator.userAgent);
+export const userAgent = parser(window.navigator.userAgent);
 
-function isChrome() {
+export function isChrome() {
   userAgent.browser.name === "Chrome";
 }
 
-function isFirefox() {
+export function isFirefox() {
   userAgent.browser.name === "Firefox";
 }
 
@@ -35,7 +35,7 @@ function isFirefox() {
  *
  * @param locator  the locator to parse
  */
-function parse_locator(locator) {
+export function parse_locator(locator) {
   if (!locator) {
     throw new TypeError("Locator cannot be empty");
   }
@@ -56,7 +56,7 @@ function parse_locator(locator) {
  *
  * @param element  an HTMLElement
  */
-function getTagName(element) {
+export function getTagName(element) {
   let tagName;
   if (element && element.tagName && element.tagName.toLowerCase) {
     tagName = element.tagName.toLowerCase();

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-const findElement = require("../third-party/find-element");
-const { parse_locator } = require("./utils");
-const finder = require("./finder");
+import { finder } from "@medv/finder";
+import { parse_locator } from "./utils";
+import findElement from "../third-party/find-element";
 
 function LocatorBuilders(window) {
   this.window = window;
@@ -499,4 +499,4 @@ LocatorBuilders.add("xpath:innerText", function xpathInnerText(el) {
   }
 });
 
-module.exports = LocatorBuilders;
+export default LocatorBuilders;

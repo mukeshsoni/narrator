@@ -7,7 +7,7 @@
  * webview.on('ipc-message')
  */
 const { ipcRenderer } = require("electron");
-const Recorder = require("./src/recorder/recorder");
+const Recorder = require("./build/recorder");
 
 function sendCommandToParent(command) {
   console.log("sending command to parent", command);

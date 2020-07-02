@@ -1,6 +1,6 @@
 /* eslint-disable */
 // GENERATED CODE - DO NOT EDIT
-module.exports = function () {
+export default function findElement() {
   return function () {
     var k = this;
     function l(a) {
@@ -3232,4 +3232,4 @@ module.exports = function () {
     },
     arguments
   );
-};
+}

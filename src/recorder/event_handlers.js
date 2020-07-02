@@ -17,12 +17,12 @@
 // under the License.
 
 // import browser from "webextension-polyfill";
-const LocatorBuilders = require("./locator-builders");
-const { isTest, isFirefox } = require("./utils");
+import LocatorBuilders from "./locator-builders";
+import { isTest, isFirefox } from "./utils";
 
 const locatorBuilders = new LocatorBuilders(window);
-const handlers = [];
-const observers = [];
+export const handlers = [];
+export const observers = [];
 
 function eventIsTrusted(event) {
   return isTest ? true : event.isTrusted;
@@ -790,8 +790,3 @@ function getOptionLocator(option) {
     return "label=" + label;
   }
 }
-
-module.exports = {
-  handlers,
-  observers,
-};
