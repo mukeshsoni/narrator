@@ -6,7 +6,7 @@ require("electron-reload")(__dirname, {
   electron: path.join(__dirname, "node_modules", ".bin", "electron"),
 });
 
-const CONTROL_PANEL_WIDTH = 400;
+const CONTROL_PANEL_WIDTH = 600;
 
 // keeping the window reference for electron browser window outside
 // so that we can use it to send messages to the renderer script
@@ -31,7 +31,7 @@ function createWindow() {
   win.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  win.webContents.openDevTools({ mode: "detach" });
+  // win.webContents.openDevTools({ mode: "detach" });
 }
 
 app.whenReady().then(() => {

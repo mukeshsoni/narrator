@@ -1,7 +1,5 @@
 const React = require("react");
 
-const pptrActions = require("./code-generator-puppeteer/pptr_actions");
-
 function getCommandValue(command) {
   switch (command.name) {
     case "click":

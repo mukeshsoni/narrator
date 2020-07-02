@@ -6,9 +6,8 @@ const { SIDE_PANEL_WIDTH, SidePanel } = require("./SidePanel");
 
 const {
   generatePuppeteerCode,
-} = require("./code-generator-puppeteer/code_generator");
-const generateCypressCode = require("./code-generator-cypress/code-generator");
-const pptrActions = require("./code-generator-puppeteer/pptr_actions");
+} = require("../code-generator-puppeteer/code_generator");
+const generateCypressCode = require("../code-generator-cypress/code-generator");
 
 // const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
 // const dummyUrlToTest = "https://google.com/";
@@ -37,7 +36,7 @@ function rootReducer(state, action) {
         commands: [],
       };
     case "ADD_COMMAND":
-      if (state.isRecording || action.command.command === pptrActions.GOTO) {
+      if (state.isRecording || action.command.command === "GOTO") {
         return {
           ...state,
           commands: state.commands.concat({
@@ -152,7 +151,7 @@ function App() {
 
   React.useEffect(() => {
     if (urlToTest) {
-      // addCommand({ command: pptrActions.GOTO, href: urlToTest });
+      // addCommand({ command: 'GOTO', href: urlToTest });
     }
   }, [urlToTest]);
 
