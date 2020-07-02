@@ -17,7 +17,8 @@
 
 import parser from "ua-parser-js";
 
-export const isTest = process.env.NODE_ENV === "test";
+export const isTest =
+  typeof process === "object" && process.env && process.env.NODE_ENV === "test";
 
 export const userAgent = parser(window.navigator.userAgent);
 
@@ -63,12 +64,3 @@ export function getTagName(element) {
   }
   return tagName;
 }
-
-module.exports = {
-  isTest,
-  userAgent,
-  isChrome,
-  isFirefox,
-  parse_locator,
-  getTagName,
-};

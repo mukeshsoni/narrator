@@ -228,6 +228,12 @@ function App() {
     }
   }, [commands]);
 
+  React.useEffect(() => {
+    ipcRenderer.on("new-command", (event, command) => {
+      dispatch({ type: "ADD_COMMAND", command });
+    });
+  }, [dispatch]);
+
   return React.createElement(
     "div",
     {
@@ -250,57 +256,58 @@ function App() {
         },
         null
       ),
-      React.createElement("div", { className: "w-full" }, [
-        React.createElement(
-          "form",
-          {
-            onSubmit: handleUrlToTestSubmit,
-          },
-          [
-            React.createElement(
-              "input",
-              {
-                ref: urlInputRef,
-                value: locationBarUrl,
-                className:
-                  "w-full px-4 py-2 border border-gray-300 focus:bg-gray-100",
-                onChange: handleLocationBarUrlChange,
-                placeholder: "Url to test",
-                title: locationBarUrl,
-              },
-              null
-            ),
-          ]
-        ),
-        urlToTest
-          ? React.createElement(
-              "webview",
-              {
-                // if we want to keep the webview around, we need to keep busting
-                // the webview with key change, otherwise the previous rendered
-                // url does not go
-                key: urlToTest,
-                src: urlToTest,
-                preload: "webview-preload.js",
-                className: "flex-1 w-full h-screen",
-                ref: webviewRef,
-                partition,
-              },
-              null
-            )
-          : React.createElement(
-              "div",
-              {
-                className:
-                  "flex flex-1 justify-center items-center w-full h-screen font-bold text-6xl",
-              },
+      false &&
+        React.createElement("div", { className: "w-full" }, [
+          React.createElement(
+            "form",
+            {
+              onSubmit: handleUrlToTestSubmit,
+            },
+            [
               React.createElement(
-                "h3",
-                { className: "uppercase tracking-wide" },
-                "Test stuff"
+                "input",
+                {
+                  ref: urlInputRef,
+                  value: locationBarUrl,
+                  className:
+                    "w-full px-4 py-2 border border-gray-300 focus:bg-gray-100",
+                  onChange: handleLocationBarUrlChange,
+                  placeholder: "Url to test",
+                  title: locationBarUrl,
+                },
+                null
+              ),
+            ]
+          ),
+          urlToTest
+            ? React.createElement(
+                "webview",
+                {
+                  // if we want to keep the webview around, we need to keep busting
+                  // the webview with key change, otherwise the previous rendered
+                  // url does not go
+                  key: urlToTest,
+                  src: urlToTest,
+                  preload: "webview-preload.js",
+                  className: "flex-1 w-full h-screen",
+                  ref: webviewRef,
+                  partition,
+                },
+                null
               )
-            ),
-      ]),
+            : React.createElement(
+                "div",
+                {
+                  className:
+                    "flex flex-1 justify-center items-center w-full h-screen font-bold text-6xl",
+                },
+                React.createElement(
+                  "h3",
+                  { className: "uppercase tracking-wide" },
+                  "Test stuff"
+                )
+              ),
+        ]),
       showGeneratedCode &&
         React.createElement(
           Modal,

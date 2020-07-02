@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
-    (global = global || self, global.recorder = factory());
+    (global = global || self, global.PuppeteerRecorder = factory());
 }(this, (function () { 'use strict';
 
     var Limit;
@@ -1260,17 +1260,10 @@
 
     // Licensed to the Software Freedom Conservancy (SFC) under one
 
-    const isTest = process.env.NODE_ENV === "test";
+    const isTest =
+      typeof process === "object" && process.env && process.env.NODE_ENV === "test";
 
     const userAgent = uaParser(window.navigator.userAgent);
-
-    function isChrome() {
-      userAgent.browser.name === "Chrome";
-    }
-
-    function isFirefox() {
-      userAgent.browser.name === "Firefox";
-    }
 
     /**
      * Parses a Selenium locator, returning its type and the unprefixed locator
@@ -1293,28 +1286,6 @@
         "Implicit locators are obsolete, please prepend the strategy (e.g. id=element)."
       );
     }
-
-    /**
-     * Returns the tag name of an element lowercased.
-     *
-     * @param element  an HTMLElement
-     */
-    function getTagName(element) {
-      let tagName;
-      if (element && element.tagName && element.tagName.toLowerCase) {
-        tagName = element.tagName.toLowerCase();
-      }
-      return tagName;
-    }
-
-    module.exports = {
-      isTest,
-      userAgent,
-      isChrome,
-      isFirefox,
-      parse_locator,
-      getTagName,
-    };
 
     /* eslint-disable */
     // GENERATED CODE - DO NOT EDIT
