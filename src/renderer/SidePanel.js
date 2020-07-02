@@ -1,4 +1,4 @@
-const { CommandTable, getEventValue } = require("./CommandTable");
+const { CommandTable } = require("./CommandTable");
 const onClickOutside = require("react-onclickoutside");
 
 const SIDE_PANEL_WIDTH = 600;
