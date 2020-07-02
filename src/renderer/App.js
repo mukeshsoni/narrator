@@ -6,8 +6,8 @@ const { SIDE_PANEL_WIDTH, SidePanel } = require("./SidePanel");
 
 const {
   generatePuppeteerCode,
-} = require("../code-generator-puppeteer/code_generator");
-const generateCypressCode = require("../code-generator-cypress/code-generator");
+} = require("../code-generators/puppeteer/code-generator");
+const generateCypressCode = require("../code-generators/cypress/code-generator");
 
 // const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
 // const dummyUrlToTest = "https://google.com/";
