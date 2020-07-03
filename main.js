@@ -95,20 +95,24 @@ async function runBlocks(blocks) {
       puppeteerHandles
     );
 
+    // we want to bind to the element the function is called with
+    // e.g. page.keyboard.press should have page.keyboard as thi
+    const accessorToBindTo = block.accessors
+      .slice(0, block.accessors.length - 1)
+      .reduce((acc, accessor) => acc[accessor], puppeteerHandles);
+
     if (!block.lhs) {
       if (block.accessors[0] === "xpathEl") {
-        await functionToCall.bind(
-          puppeteerHandles[block.accessors[0]][block.accessors[1]]
-        )(...block.arguments);
+        // have to bind the action (like click, type etc.) calls the xpathEl
+        // In our case it's puppeteerHandles['xpathEl'][0]
+        await functionToCall.bind(accessorToBindTo)(...block.arguments);
       } else {
-        await functionToCall.bind(puppeteerHandles[block.accessors[0]])(
-          ...block.arguments
-        );
+        await functionToCall.bind(accessorToBindTo)(...block.arguments);
       }
     } else {
-      puppeteerHandles[block.lhs] = await functionToCall.bind(
-        puppeteerHandles[block.accessors[0]]
-      )(...block.arguments);
+      puppeteerHandles[block.lhs] = await functionToCall.bind(accessorToBindTo)(
+        ...block.arguments
+      );
     }
   }
 }
