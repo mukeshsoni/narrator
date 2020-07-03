@@ -55,14 +55,14 @@ function rootReducer(state, action) {
         urlToTest: addHttpsIfRequired(action.urlToTest),
       };
     case "START_RECORDING":
-      console.log("starting recording");
+      console.log("starting recording. url: ", action.url);
       return {
         ...state,
         isRecording: true,
         commands:
-          state.commands.lenght > 0
+          state.commands.length > 0
             ? state.commands
-            : [{ name: "GOTO", href: state.urlToTest }],
+            : [{ name: "GOTO", href: action.url }],
       };
     case "PAUSE_RECORDING":
       console.log("pausing recording");
@@ -130,7 +130,10 @@ function App() {
   );
 
   const handleStartRecording = React.useCallback(() => {
-    dispatch({ type: "START_RECORDING" });
+    // When recording starts, give the renderer the current url. The first
+    // command can then be to goto(url)
+    const url = ipcRenderer.sendSync("recording", { type: "START" });
+    dispatch({ type: "START_RECORDING", url });
   }, [dispatch]);
 
   const handlePauseClick = React.useCallback(() => {
@@ -147,7 +150,7 @@ function App() {
 
   const handleReplayClick = React.useCallback(() => {
     if (commands && commands.length > 0) {
-      ipcRenderer.send("replay", generatePuppeteerCode(commands));
+      ipcRenderer.send("replay", commands);
     }
   }, [commands]);
 

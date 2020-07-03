@@ -68,8 +68,7 @@ function getHeader() {
 }
 
 function getFooter() {
-  return "})()";
-  // return options.wrapAsync ? wrappedFooter : footer;
+  return options.wrapAsync ? wrappedFooter : footer;
 }
 
 function setFrames(frameId, frameUrl) {
@@ -93,118 +92,142 @@ function keyPressCode(command) {
   const regex = /{([^}]+)}/g;
   const match = regex.exec(value);
 
-  const block = new Block(frameId);
-  block.addLine({
-    type: domEvents.KEYDOWN,
-    value: `await page.keyboard.press('${capitalize(match[1].split("_")[1])}')`,
-  });
-
-  return block;
+  return {
+    accessors: ["page", "keyboard", "press"],
+    arguments: [capitalize(match[1].split("_")[1])],
+  };
 }
 
+function getXpathSelectorIndex(selector) {
+  // it's always 0. Like xpathEl[0]. Because the index of the element is
+  // encoded in the xpath selector itself. E.g.
+  // (//div[@id='content']/h1)[1]
+  return 0;
+}
+
+// The block should have all data required to construct a line
+// instead of the line itself
+// E.g. Block {
+//    accessors: ['page', 'keyboard', 'press'],
+//    arguments: [selector, value?],
+//    lhs: 'string' | null // e.g. xpathEl
+// }
+// The above structure can be used to
+// 1. Generate code
+// 2. Or execute code
+//    E.g. lhs = await accessors[0][accessors[1]][accessors[2]](...arguments)
+//    The only thing to figure out is how to map accessors[0] to a real variable
+//    e.g. to page?
+//    we can store the page variable in some other object
+//    pup = { page };
+//    then await pup[accessors[0]][accessors[1]](...arguments) should work
 function typeCode(command) {
   let { target, value, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
 
-  const block = new Block(frameId);
+  const blocks = [];
 
   if (!selectorType.startsWith("xpath")) {
-    block.addLine({
-      type: domEvents.KEYDOWN,
-      value: `await ${frame}.type("${selector}", "${value}")`,
+    blocks.push({
+      accessors: [frame, "type"],
+      arguments: [selector, value],
     });
   } else {
-    block.addLine({
-      type: domEvents.KEYDOWN,
-      value: `xpathEl = await page.$x("${selector}");`,
+    blocks.push({
+      accessors: [frame, "$x"],
+      arguments: [selector],
+      lhs: "xpathEl",
     });
-    block.addLine({
-      type: domEvents.KEYDOWN,
-      value: `await xpathEl.type("${value}");`,
+    blocks.push({
+      accessors: ["xpathEl", getXpathSelectorIndex(selector), "type"],
+      arguments: [value],
     });
   }
 
-  return block;
+  return blocks;
 }
 
 function clickCode(command) {
   let { target, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
 
-  const block = new Block(frameId);
+  const blocks = [];
+
   if (options.waitForSelectorOnClick) {
     if (!selectorType.startsWith("xpath")) {
-      block.addLine({
-        type: domEvents.CLICK,
-        value: `await ${frame}.waitForSelector('${selector}')`,
+      blocks.push({
+        accessors: [frame, "waitForSelector"],
+        arguments: [selector],
       });
     } else {
-      block.addLine({
-        type: domEvents.CLICK,
-        value: `await ${frame}.waitForXPath("${selector}")`,
+      blocks.push({
+        accessors: [frame, "waitForXPath"],
+        arguments: [selector],
       });
     }
   }
 
   if (!selectorType.startsWith("xpath")) {
-    block.addLine({
-      type: domEvents.CLICK,
-      value: `await ${frame}.click("${selector}")`,
+    blocks.push({
+      accessors: [frame, "click"],
+      arguments: [selector],
     });
   } else {
-    block.addLine({
-      type: domEvents.CLICK,
-      value: `xpathEl = await ${frame}.$x("${selector}");`,
+    blocks.push({
+      accessors: [frame, "$x"],
+      arguments: [selector],
+      lhs: "xpathEl",
     });
-    block.addLine({
-      type: domEvents.CLICK,
-      value: `await xpathEl.click();`,
+    blocks.push({
+      accessors: ["xpathEl", getXpathSelectorIndex(selector), "click"],
+      arguments: [],
     });
   }
 
-  return block;
+  return blocks;
 }
 
 function changeCode(command) {
   let { target, value, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
-  const block = new Block(frameId);
+  const blocks = [];
 
   if (!selectorType.startsWith("xpath")) {
-    block.addLine({
-      type: domEvents.CLICK,
-      value: `await ${frame}.select("${selector}", "${value}")`,
+    blocks.push({
+      accessors: [frame, "select"],
+      arguments: [selector, value],
     });
   } else {
-    block.addLine({
-      type: domEvents.CLICK,
-      value: `xpathEl = await ${frame}.$x("${selector}");`,
+    blocks.push({
+      accessors: [frame, "$x"],
+      arguments: [selector],
+      lhs: "xpathEl",
     });
-    block.addLine({
-      type: domEvents.CLICK,
-      value: `await xpathEl.select("${selector}");`,
+    blocks.push({
+      accessors: ["xpathEl", getXpathSelectorIndex(selector), "select"],
+      arguments: [],
     });
   }
 
-  return block;
+  return blocks;
 }
 
 function gotoCode(href) {
-  return new Block(frameId, {
-    type: pptrActions.GOTO,
-    value: `await ${frame}.goto('${href}')`,
-  });
+  return {
+    accessors: [frame, "goto"],
+    arguments: [href],
+  };
 }
 
 function viewportCode(width, height) {
-  return new Block(frameId, {
-    type: pptrActions.VIEWPORT,
-    value: `await ${frame}.setViewport({ width: ${width}, height: ${height} })`,
-  });
+  return {
+    accessors: [frame, "setViewport"],
+    arguments: [{ width, height }],
+  };
 }
 
 function handleScreenshot(options) {
-  let block;
+  let blocks = [];
 
   if (options && options.x && options.y && options.width && options.height) {
     // remove the tailing 'px'
@@ -214,30 +237,28 @@ function handleScreenshot(options) {
       }
     }
 
-    block = new Block(frameId, {
+    blocks.push({
       type: pptrActions.SCREENSHOT,
       value: `await ${frame}.screenshot({ path: 'screenshot${screenshotCounter}.png', clip: { x: ${options.x}, y: ${options.y}, width: ${options.width}, height: ${options.height} } })`,
     });
   } else {
-    block = new Block(frameId, {
+    blocks.push({
       type: pptrActions.SCREENSHOT,
       value: `await ${frame}.screenshot({ path: 'screenshot${screenshotCounter}.png' })`,
     });
   }
 
   screenshotCounter++;
-  return block;
+  return blocks;
 }
 
 function waitForNavigationCode() {
-  const block = new Block(frameId);
   if (options.waitForNavigation) {
-    block.addLine({
-      type: pptrActions.NAVIGATION,
-      value: `await navigationPromise`,
-    });
+    return {
+      accessors: ["navigationPromise"],
+    };
   }
-  return block;
+  return [];
 }
 
 function postProcessSetFrames() {
@@ -269,8 +290,8 @@ function postProcessSetFrames() {
 function postProcessAddBlankLines() {
   let i = 0;
   while (i <= blocks.length) {
-    const blankLine = new Block();
-    blankLine.addLine({ type: null, value: "" });
+    const blankLine = [];
+    blankLine.push({ type: null, value: "" });
     blocks.splice(i, 0, blankLine);
     i += 2;
   }
@@ -283,11 +304,42 @@ function postProcess() {
   }
 
   if (options.blankLinesBetweenBlocks && blocks.length > 0) {
-    postProcessAddBlankLines();
+    // postProcessAddBlankLines();
   }
 }
 
-function parseEvents(commands) {
+function getCommandBlocks(command) {
+  const { name, value, href, tagName, frameId, frameUrl } = command;
+
+  // we need to keep a handle on what frames commands originate from
+  setFrames(frameId, frameUrl);
+
+  switch (name) {
+    case "type":
+      return typeCode(command);
+    case "sendKeys":
+      return keyPressCode(command);
+    case "click":
+      return clickCode(command);
+    case "change":
+      if (tagName === "SELECT") {
+        return changeCode(command);
+      } else {
+        return [];
+      }
+    case "GOTO":
+      return gotoCode(href);
+    case pptrActions.VIEWPORT:
+      return viewportCode(value.width, value.height);
+    case pptrActions.NAVIGATION:
+      hasNavigation = true;
+      return waitForNavigationCode();
+    case pptrActions.SCREENSHOT:
+      return handleScreenshot(value);
+  }
+}
+
+function parseCommands(commands) {
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
   );
@@ -295,51 +347,17 @@ function parseEvents(commands) {
 
   if (!commands) return result;
 
-  for (let i = 0; i < commands.length; i++) {
-    const command = commands[i];
-    const { name, value, href, tagName, frameId, frameUrl } = command;
-
-    // we need to keep a handle on what frames commands originate from
-    setFrames(frameId, frameUrl);
-
-    switch (name) {
-      case "type":
-        blocks.push(typeCode(command));
-        break;
-      case "sendKeys":
-        blocks.push(keyPressCode(command));
-        break;
-      case "click":
-        blocks.push(clickCode(command));
-        break;
-      case "change":
-        if (tagName === "SELECT") {
-          blocks.push(changeCode(command));
-        }
-        break;
-      case "GOTO":
-        blocks.push(gotoCode(href));
-        break;
-      case pptrActions.VIEWPORT:
-        blocks.push(viewportCode(value.width, value.height));
-        break;
-      case pptrActions.NAVIGATION:
-        blocks.push(waitForNavigationCode());
-        hasNavigation = true;
-        break;
-      case pptrActions.SCREENSHOT:
-        blocks.push(handleScreenshot(value));
-        break;
-    }
-  }
+  commands.forEach((command) => {
+    blocks = blocks.concat(getCommandBlocks(command));
+  });
 
   if (hasNavigation && options.waitForNavigation) {
     console.debug("Adding navigationPromise declaration");
-    const block = new Block(frameId, {
-      type: pptrActions.NAVIGATIONPROMISE,
-      value: "const navigationPromise = page.waitForNavigation()",
-    });
-    blocks.unshift(block);
+    const navigationBlock = {
+      accessors: ["page", "waitForNavigation"],
+      lhs: "navigationPromise",
+    };
+    blocks.unshift(navigationBlock);
   }
 
   console.debug("post processing blocks:", blocks);
@@ -349,20 +367,43 @@ function parseEvents(commands) {
   const newLine = `\n`;
 
   for (let block of blocks) {
-    const lines = block.getLines();
-    for (let line of lines) {
-      result += indent + line.value + newLine;
-    }
+    result += indent + getCodeString(block) + newLine;
   }
 
   return result;
 }
 
-function generate(commands) {
+function getCodeString(block) {
+  const { accessors, arguments, lhs } = block;
+
+  const accessor = accessors.reduce(
+    (acc, item) => (acc ? `${acc}.${item}` : item),
+    ""
+  );
+
+  const argumentsString = arguments
+    .map((arg) => (typeof arg === "string" ? `"${arg}"` : arg.toString()))
+    .join(", ");
+
+  if (lhs) {
+    return `${lhs} = await ${accessor}(${argumentsString})`;
+  } else {
+    return `await ${accessor}(${argumentsString})`;
+  }
+}
+
+function generate(commands, opts) {
+  options = {
+    ...options,
+    ...opts,
+  };
+
   cleanUp();
-  return importPuppeteer + getHeader() + parseEvents(commands) + getFooter();
+  return importPuppeteer + getHeader() + parseCommands(commands) + getFooter();
 }
 
 module.exports = {
   generatePuppeteerCode: generate,
+  getCommandBlocks,
+  parseCommands,
 };

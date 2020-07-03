@@ -1,12 +1,16 @@
 const path = require("path");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const puppeteer = require("puppeteer");
+const {
+  getCommandBlocks,
+} = require("./src/code-generators/puppeteer/code-generator.js");
 
 require("electron-reload")(__dirname, {
   electron: path.join(__dirname, "node_modules", ".bin", "electron"),
 });
 
 const CONTROL_PANEL_WIDTH = 600;
+let commands = [];
 
 // keeping the window reference for electron browser window outside
 // so that we can use it to send messages to the renderer script
@@ -52,14 +56,66 @@ app.on("activate", () => {
   }
 });
 
-ipcMain.on("replay", (event, msg) => {
-  console.log("got puppeteer code to run", msg);
+ipcMain.on("replay", (event, commands) => {
+  console.log("got puppeteer code to run", commands);
   // might be better to get the commands and then run puppeteer commands
   // by generating them here
   // or
   // instead write the generated code to a file and run the file
-  eval(msg);
+  const blocks = commands
+    .reduce((acc, command) => acc.concat(getCommandBlocks(command)), [])
+    .filter((block) => block);
+  console.log("blocks", blocks);
+  runBlocks(blocks);
 });
+
+ipcMain.on("recording", (event, action) => {
+  if (action.type === "START") {
+    // When recording starts, give the renderer the current url. The first
+    // command can then be to goto(url)
+    event.returnValue = puppeteerHandles.page.url.bind(puppeteerHandles.page)();
+  }
+});
+// we construct the function to call using the accessors array
+// and the puppeteerHandles properties
+// E.g. if accessors = ['page', 'waitForNavigation']
+// we construct functionToCall as puppeteerHandles['page']['waitForNavigation']
+// We bind the call to page object since many of the functions use `this`
+// internally
+async function runBlocks(blocks) {
+  console.log("running blocks");
+  // didn't know for loops work with async await. I mean the whole loop blocks
+  // when there's an await statement
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+
+    console.log(i, block);
+    const functionToCall = block.accessors.reduce(
+      (acc, accessor) => acc[accessor],
+      puppeteerHandles
+    );
+
+    if (!block.lhs) {
+      if (block.accessors[0] === "xpathEl") {
+        await functionToCall.bind(
+          puppeteerHandles[block.accessors[0]][block.accessors[1]]
+        )(...block.arguments);
+      } else {
+        await functionToCall.bind(puppeteerHandles[block.accessors[0]])(
+          ...block.arguments
+        );
+      }
+    } else {
+      puppeteerHandles[block.lhs] = await functionToCall.bind(
+        puppeteerHandles[block.accessors[0]]
+      )(...block.arguments);
+    }
+  }
+}
+
+let puppeteerHandles = {
+  page: null,
+};
 
 async function runPup() {
   const browser = await puppeteer.launch({
@@ -80,11 +136,16 @@ async function runPup() {
     ],
   });
   const page = (await browser.pages())[0];
+  puppeteerHandles.page = page;
   await page.goto("http://testing-ground.scraping.pro/login");
   const recorderScriptPath = path.resolve(process.cwd(), "build/recorder.js");
   await page.addScriptTag({ path: recorderScriptPath });
 
+  //input[@id='usr']"
+  // let xpathEl = await page.$x("(//input[@id='usr'])[1]");
+  // await xpathEl[0].type("admin");
   await page.exposeFunction("sendCommandToParent", (command) => {
+    commands.push(command);
     // This is how we send message from the main process to our
     // renderer script which renders the control panel
     win.webContents.send("new-command", command);
