@@ -1,4 +1,5 @@
 const path = require("path");
+
 const { app, BrowserWindow, ipcMain } = require("electron");
 const puppeteer = require("puppeteer");
 const {
@@ -90,16 +91,14 @@ async function runBlocks(blocks) {
     const block = blocks[i];
 
     console.log(i, block);
-    const functionToCall = block.accessors.reduce(
-      (acc, accessor) => acc[accessor],
-      puppeteerHandles
-    );
 
     // we want to bind to the element the function is called with
     // e.g. page.keyboard.press should have page.keyboard as thi
     const accessorToBindTo = block.accessors
       .slice(0, block.accessors.length - 1)
       .reduce((acc, accessor) => acc[accessor], puppeteerHandles);
+    const functionToCall =
+      accessorToBindTo[block.accessors[block.accessors.length - 1]];
 
     if (!block.lhs) {
       if (block.accessors[0] === "xpathEl") {

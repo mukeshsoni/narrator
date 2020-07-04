@@ -158,7 +158,9 @@ function App() {
     // the first argument allows the renderer process to reply back on the
     // same channel. It has helpers methods for the same.
     ipcRenderer.on("new-command", (_, command) => {
-      addCommand(command);
+      if (command.command) {
+        addCommand(command);
+      }
     });
   }, [addCommand]);
 

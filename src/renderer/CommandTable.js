@@ -88,6 +88,7 @@ function CommandDetails({ command, onRemoveClick, onSelectorChange }) {
                 className:
                   "flex-1 ml-4 px-4 py-2 border border-gray-300 rounded-md",
                 value: command.name,
+                disabled: true,
               },
               null
             ),
