@@ -64,6 +64,7 @@ ipcMain.on("replay", (event, commands) => {
   // or
   // instead write the generated code to a file and run the file
   const blocks = commands
+    .filter((command) => !command.ignore)
     .reduce((acc, command) => acc.concat(getCommandBlocks(command)), [])
     .filter((block) => block);
   console.log("blocks", blocks);

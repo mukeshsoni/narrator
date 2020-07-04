@@ -26,8 +26,9 @@
     "tailwindcss": "^1.4.6"
   },
   "dependencies": {
-    "electron-reload": "^1.5.0",
     "@medv/finder": "^2.0.0",
+    "classnames": "^2.2.6",
+    "electron-reload": "^1.5.0",
     "puppeteer": "^4.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

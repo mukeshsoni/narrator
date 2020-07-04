@@ -1,4 +1,5 @@
 const React = require("react");
+const classNames = require("classnames");
 
 function getCommandValue(command) {
   switch (command.name) {
@@ -28,7 +29,7 @@ function CommandRow({ command, onCommandRowClick }) {
       React.createElement(
         "div",
         { className: "flex-1 px-4 py-2 truncate" },
-        command.name
+        command.ignore ? `// ${command.name}` : command.name
       ),
       React.createElement(
         "div",
@@ -64,7 +65,12 @@ function CommandRowHeader() {
   ]);
 }
 
-function CommandDetails({ command, onRemoveClick, onSelectorChange }) {
+function CommandDetails({
+  command,
+  onRemoveClick,
+  onSelectorChange,
+  onCommandIgoreClick,
+}) {
   return React.createElement(
     "div",
     { className: "mt-6 px-4 py-2 bg-indigo-100" },
@@ -91,6 +97,18 @@ function CommandDetails({ command, onRemoveClick, onSelectorChange }) {
                 disabled: true,
               },
               null
+            ),
+            React.createElement(
+              "button",
+              {
+                className: "cursor-pointer p-2 ml-2",
+                onClick: (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onCommandIgoreClick();
+                },
+              },
+              "//"
             ),
           ]
         ),
@@ -141,7 +159,7 @@ function CommandDetails({ command, onRemoveClick, onSelectorChange }) {
   );
 }
 
-function CommandTable({ commands, onSelectorChange }) {
+function CommandTable({ commands, onSelectorChange, onCommandIgoreClick }) {
   const [selectedCommandIndex, setSelectedCommandIndex] = React.useState(null);
 
   function handleCommandRowClick(commandIndex) {
@@ -156,7 +174,12 @@ function CommandTable({ commands, onSelectorChange }) {
       commands.map((command, i) => {
         return React.createElement(
           "li",
-          { key: `action_no_${i}`, className: "bg-gray-200 mb-px" },
+          {
+            key: `action_no_${i}`,
+            className: classNames("bg-gray-200 mb-px", {
+              "bg-gray-300 text-gray-500": command.ignore,
+            }),
+          },
           React.createElement(
             CommandRow,
             {
@@ -175,6 +198,7 @@ function CommandTable({ commands, onSelectorChange }) {
           command: commands[selectedCommandIndex],
           onRemoveClick: () => setSelectedCommandIndex(null),
           onSelectorChange: onSelectorChange.bind(null, selectedCommandIndex),
+          onCommandIgoreClick: () => onCommandIgoreClick(selectedCommandIndex),
         },
         null
       ),

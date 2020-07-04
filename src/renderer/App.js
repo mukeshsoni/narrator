@@ -81,6 +81,18 @@ function rootReducer(state, action) {
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
       };
+    case "TOGGLE_IGNORE":
+      console.log("TOGGLE_IGNORE", action);
+      return {
+        ...state,
+        commands: state.commands
+          .slice(0, action.commandIndex)
+          .concat({
+            ...state.commands[action.commandIndex],
+            ignore: !state.commands[action.commandIndex].ignore,
+          })
+          .concat(state.commands.slice(action.commandIndex + 1)),
+      };
     default:
       return state;
   }
@@ -164,6 +176,13 @@ function App() {
     });
   }, [addCommand]);
 
+  const handleCommandIgnoreClick = React.useCallback(
+    (commandIndex) => {
+      dispatch({ type: "TOGGLE_IGNORE", commandIndex });
+    },
+    [dispatch]
+  );
+
   return React.createElement(
     "div",
     {
@@ -183,7 +202,9 @@ function App() {
           onReplay: handleReplayClick,
           onPauseClick: handlePauseClick,
           onSelectorChange: handleSelectorChange,
+          onCommandIgoreClick: handleCommandIgnoreClick,
         },
+
         null
       ),
       showGeneratedCode &&

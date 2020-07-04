@@ -49,6 +49,7 @@ function SidePanel({
   onReplay,
   onPauseClick,
   onSelectorChange,
+  onCommandIgoreClick,
 }) {
   return React.createElement(
     "div",
@@ -161,7 +162,7 @@ function SidePanel({
         [
           React.createElement(
             CommandTable,
-            { commands, onSelectorChange },
+            { commands, onSelectorChange, onCommandIgoreClick },
             null
           ),
         ]
