@@ -101,7 +101,8 @@ function CommandDetails({
             React.createElement(
               "button",
               {
-                className: "cursor-pointer p-2 ml-2",
+                className:
+                  "cursor-pointer p-2 ml-2 hover:bg-blue-300 rounded-md",
                 onClick: (e) => {
                   e.preventDefault();
                   e.stopPropagation();

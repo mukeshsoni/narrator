@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 const { app, BrowserWindow, ipcMain } = require("electron");
 const puppeteer = require("puppeteer");
@@ -121,6 +122,18 @@ let puppeteerHandles = {
   page: null,
 };
 
+const recorderScriptPath = path.resolve(process.cwd(), "build/recorder.js");
+const recorderScript = fs.readFileSync(recorderScriptPath);
+
+async function injectScripts(page) {
+  await page.addScriptTag({ path: recorderScriptPath });
+  await page.evaluate(() => {
+    const recorder = new window.PuppeteerRecorder(window);
+
+    recorder.onNewCommand(sendCommandToParent);
+  });
+}
+
 async function runPup() {
   const browser = await puppeteer.launch({
     headless: false,
@@ -142,12 +155,6 @@ async function runPup() {
   const page = (await browser.pages())[0];
   puppeteerHandles.page = page;
   await page.goto("http://testing-ground.scraping.pro/login");
-  const recorderScriptPath = path.resolve(process.cwd(), "build/recorder.js");
-  await page.addScriptTag({ path: recorderScriptPath });
-
-  //input[@id='usr']"
-  // let xpathEl = await page.$x("(//input[@id='usr'])[1]");
-  // await xpathEl[0].type("admin");
   await page.exposeFunction("sendCommandToParent", (command) => {
     commands.push(command);
     // This is how we send message from the main process to our
@@ -155,14 +162,15 @@ async function runPup() {
     win.webContents.send("new-command", command);
   });
 
-  try {
-    await page.evaluate(() => {
-      const recorder = new window.PuppeteerRecorder(window);
+  await injectScripts(page);
 
-      sendCommandToParent("new command");
-      recorder.onNewCommand(sendCommandToParent);
-    });
-  } catch (e) {
-    console.log("error evaluating our script", e);
-  }
+  await page.exposeFunction("injectScriptsOnNavigation", async () => {
+    await injectScripts(page);
+  });
+
+  // when the user does something which changes the url, we need to inejct
+  // the recorder again in the newly loaded page
+  await page.evaluateOnNewDocument(() => {
+    injectScriptsOnNavigation();
+  });
 }
