@@ -1,5 +1,4 @@
 const path = require("path");
-const fs = require("fs");
 
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const pie = require("puppeteer-in-electron");
@@ -68,7 +67,7 @@ ipcMain.on("url-to-test", (event, url) => {
 });
 
 ipcMain.on("replay", (event, commands) => {
-  console.log("got puppeteer code to run", commands);
+  console.log("got some puppeteer code to run", commands);
   // might be better to get the commands and then run puppeteer commands
   // by generating them here
   // or
@@ -77,7 +76,6 @@ ipcMain.on("replay", (event, commands) => {
     .filter((command) => !command.ignore)
     .reduce((acc, command) => acc.concat(getCommandBlocks(command)), [])
     .filter((block) => block);
-  console.log("blocks", blocks);
   runBlocks(blocks);
 });
 
@@ -87,6 +85,10 @@ ipcMain.on("recording", (event, action) => {
     // command can then be to goto(url)
     event.returnValue = puppeteerHandles.page.url.bind(puppeteerHandles.page)();
   }
+});
+
+ipcMain.on("select-assertion-target", () => {
+  selectTarget(puppeteerHandles.page);
 });
 // we construct the function to call using the accessors array
 // and the puppeteerHandles properties
@@ -100,8 +102,6 @@ async function runBlocks(blocks) {
   // when there's an await statement
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
-
-    console.log(i, block);
 
     // we want to bind to the element the function is called with
     // e.g. page.keyboard.press should have page.keyboard as thi
@@ -132,14 +132,67 @@ let puppeteerHandles = {
 };
 
 const recorderScriptPath = path.resolve(process.cwd(), "build/recorder.js");
-const recorderScript = fs.readFileSync(recorderScriptPath);
+const highlightCssPath = path.resolve(
+  process.cwd(),
+  "build/find-and-select/highlight.css"
+);
+const findAndSelectPath = path.resolve(
+  process.cwd(),
+  "build/find-and-select.js"
+);
 
+async function startRecording(page) {
+  await page.evaluate(() => {
+    if (
+      window.puppeteerPuppeteerStuff &&
+      window.puppeteerPuppeteerStuff.recorder
+    ) {
+      window.puppeteerPuppeteerStuff.attach();
+    }
+  });
+}
+
+async function stopRecording(page) {
+  await page.evaluate(() => {
+    if (
+      window.puppeteerPuppeteerStuff &&
+      window.puppeteerPuppeteerStuff.recorder
+    ) {
+      window.puppeteerPuppeteerStuff.detach();
+    }
+  });
+}
+
+async function selectTarget(page) {
+  testingWindow.focus();
+  await page.evaluate(() => {
+    if (window.PuppeteerFindAndSelect) {
+      window.PuppeteerFindAndSelect.startSelection().then((target) => {
+        // call the exposed function from our puppeteer instance
+        // which will then pass the message to our control center window
+        sendFindAndSelectTargetToParent(target);
+      });
+    }
+  });
+}
 async function injectScripts(page) {
   await page.addScriptTag({ path: recorderScriptPath });
-  await page.evaluate(() => {
-    const recorder = new window.PuppeteerRecorder(window);
+  await page.addStyleTag({ path: highlightCssPath });
+  await page.addScriptTag({ path: findAndSelectPath });
 
-    recorder.onNewCommand(sendCommandToParent);
+  await page.evaluate(() => {
+    window.puppeteerPuppeteerStuff = window.puppeteerPuppeteerStuff || {};
+
+    window.puppeteerPuppeteerStuff.recorder = new window.PuppeteerRecorder(
+      window
+    );
+    // let's not start the recording until required
+    // TODO: This is not working. I thought i would detach event listeners when
+    // we first load or whenever user stops recording and then call attach when
+    // user starts recording.
+    // window.puppeteerPuppeteerStuff.recorder.detach();
+
+    window.puppeteerPuppeteerStuff.recorder.onNewCommand(sendCommandToParent);
   });
 }
 
@@ -159,10 +212,14 @@ function closeTestWindows() {
 async function createTestBrowserWindow(url) {
   shiftControlPanelWindowToSide();
   closeTestWindows();
-  const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+  const {
+    height: screenHeight,
+    width: screenWidth,
+  } = screen.getPrimaryDisplay().workAreaSize;
   const [controlPanelXPos] = controlPanelWindow.getPosition();
   const [controlPanelWidth] = controlPanelWindow.getSize();
   testingWindow = new BrowserWindow({
+    width: screenWidth - controlPanelWidth - 1,
     height: screenHeight,
     x: controlPanelXPos + controlPanelWidth + 1,
     // if i don't specify the y coordinate, the x coordinate is not honored
@@ -175,6 +232,7 @@ async function createTestBrowserWindow(url) {
   await testingWindow.loadURL(url);
   const page = await pie.getPage(browserForPuppeteer, testingWindow);
   puppeteerHandles.page = page;
+  testingWindow.openDevTools();
 
   controlPanelWindow.focus();
   // const browser = await puppeteer.launch({
@@ -210,6 +268,9 @@ async function createTestBrowserWindow(url) {
     await injectScripts(page);
   });
 
+  await page.exposeFunction("sendFindAndSelectTargetToParent", (target) => {
+    controlPanelWindow.webContents.send("assertion-target", target);
+  });
   // when the user does something which changes the url, we need to inejct
   // the recorder again in the newly loaded page
   await page.evaluateOnNewDocument(() => {

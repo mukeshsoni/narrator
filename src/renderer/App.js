@@ -102,6 +102,7 @@ function App() {
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
+  const [showAssertionPanel, setShowAssertionPanel] = React.useState(false);
   const urlInputRef = React.useRef(null);
   const { urlToTest, commands, isRecording } = state;
 
@@ -163,6 +164,10 @@ function App() {
 
   const handleReplayClick = React.useCallback(() => {
     if (commands && commands.length > 0) {
+      // let's pause the recording when we start the replay. Keep it paused
+      // even if the replay has ended. Let the user restart recording if they
+      // want to.
+      dispatch({ type: "PAUSE_RECORDING" });
       ipcRenderer.send("replay", commands);
     }
   }, [commands]);
@@ -174,6 +179,10 @@ function App() {
       if (command.command) {
         addCommand(command);
       }
+    });
+
+    ipcRenderer.on("assertion-target", (_, targets) => {
+      console.log("Got assertion target", targets);
     });
   }, [addCommand]);
 
@@ -199,6 +208,12 @@ function App() {
     [urlInputRef, dispatch]
   );
 
+  const handleAddAssertionClick = React.useCallback(() => {
+    dispatch({ type: "PAUSE_RECORDING" });
+    setShowAssertionPanel(true);
+    ipcRenderer.send("select-assertion-target");
+  }, [dispatch]);
+
   return React.createElement(
     "div",
     {
@@ -220,6 +235,7 @@ function App() {
               onPauseClick: handlePauseClick,
               onSelectorChange: handleSelectorChange,
               onCommandIgoreClick: handleCommandIgnoreClick,
+              onAddAssertionClick: handleAddAssertionClick,
             },
 
             null
@@ -260,7 +276,7 @@ function App() {
           "div",
           {
             className:
-              "flex w-full h-screen justify-center items-center bg-gray-700",
+              "flex w-full h-screen justify-center items-center bg-blue-800",
           },
           React.createElement(
             "form",
@@ -275,7 +291,7 @@ function App() {
                   defaultValue: urlToTest,
                   placeholder: "Enter url to test",
                   className:
-                    "border w-64 px-4 py-2 bg-gray-300 text-gray-800 text-xl rounded-lg ",
+                    "border w-64 px-4 py-2 bg-gray-100 text-gray-900 text-xl rounded-lg ",
                 },
                 null
               ),

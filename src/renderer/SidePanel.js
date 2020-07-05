@@ -50,6 +50,7 @@ function SidePanel({
   onPauseClick,
   onSelectorChange,
   onCommandIgoreClick,
+  onAddAssertionClick,
 }) {
   return React.createElement(
     "div",
@@ -132,7 +133,13 @@ function SidePanel({
           React.createElement("div", { className: "flex" }, [
             React.createElement(
               "button",
-              { className: "mr-2" },
+              {
+                className: "mr-2",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onAddAssertionClick();
+                },
+              },
               "Add assertion"
             ),
             React.createElement(
