@@ -15,7 +15,7 @@ const dummyUrlToTest = "http://testing-ground.scraping.pro/login";
 
 const initialState = {
   commands: [],
-  urlToTest: dummyUrlToTest,
+  urlToTest: "",
   isRecording: false,
 };
 
@@ -121,6 +121,7 @@ function App() {
   React.useEffect(() => {
     if (urlToTest) {
       // addCommand({ command: 'GOTO', href: urlToTest });
+      ipcRenderer.send("url-to-test", urlToTest);
     }
   }, [urlToTest]);
 
@@ -183,6 +184,21 @@ function App() {
     [dispatch]
   );
 
+  const handleUrlInputSubmit = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (urlInputRef.current) {
+        dispatch({
+          type: "SET_URL_TO_TEST",
+          urlToTest: urlInputRef.current.value,
+        });
+      }
+    },
+    [urlInputRef, dispatch]
+  );
+
   return React.createElement(
     "div",
     {
@@ -191,54 +207,81 @@ function App() {
 
       style: { display: "flex" },
     },
-    [
-      React.createElement(
-        SidePanel,
-        {
-          isRecording,
-          commands,
-          onGenerateClick: handleGenerateClick,
-          onStartRecording: handleStartRecording,
-          onReplay: handleReplayClick,
-          onPauseClick: handlePauseClick,
-          onSelectorChange: handleSelectorChange,
-          onCommandIgoreClick: handleCommandIgnoreClick,
-        },
+    urlToTest
+      ? [
+          React.createElement(
+            SidePanel,
+            {
+              isRecording,
+              commands,
+              onGenerateClick: handleGenerateClick,
+              onStartRecording: handleStartRecording,
+              onReplay: handleReplayClick,
+              onPauseClick: handlePauseClick,
+              onSelectorChange: handleSelectorChange,
+              onCommandIgoreClick: handleCommandIgnoreClick,
+            },
 
-        null
-      ),
-      showGeneratedCode &&
-        React.createElement(
-          Modal,
-          {
-            isOpen: showGeneratedCode,
-            onRequestClose: () => setShowGeneratedCode(false),
-          },
-          [
-            React.createElement("div", {}, [
-              React.createElement(
-                "div",
-                { className: "flex flex-row-reverse" },
-                [
+            null
+          ),
+          showGeneratedCode &&
+            React.createElement(
+              Modal,
+              {
+                isOpen: showGeneratedCode,
+                onRequestClose: () => setShowGeneratedCode(false),
+              },
+              [
+                React.createElement("div", {}, [
                   React.createElement(
-                    "button",
-                    {
-                      className: "p-2",
-                      onClick: () => setShowGeneratedCode(false),
-                    },
-                    "X"
+                    "div",
+                    { className: "flex flex-row-reverse" },
+                    [
+                      React.createElement(
+                        "button",
+                        {
+                          className: "p-2",
+                          onClick: () => setShowGeneratedCode(false),
+                        },
+                        "X"
+                      ),
+                    ]
                   ),
-                ]
-              ),
+                  React.createElement(
+                    "pre",
+                    { className: "whitespace-pre" },
+                    generatedCode
+                  ),
+                ]),
+              ]
+            ),
+        ]
+      : React.createElement(
+          "div",
+          {
+            className:
+              "flex w-full h-screen justify-center items-center bg-gray-700",
+          },
+          React.createElement(
+            "form",
+            {
+              onSubmit: handleUrlInputSubmit,
+            },
+            [
               React.createElement(
-                "pre",
-                { className: "whitespace-pre" },
-                generatedCode
+                "input",
+                {
+                  ref: urlInputRef,
+                  defaultValue: urlToTest,
+                  placeholder: "Enter url to test",
+                  className:
+                    "border w-64 px-4 py-2 bg-gray-300 text-gray-800 text-xl rounded-lg ",
+                },
+                null
               ),
-            ]),
-          ]
-        ),
-    ]
+            ]
+          )
+        )
   );
 }
 

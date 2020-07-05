@@ -129,31 +129,38 @@ function SidePanel({
                 ]
               ),
           ]),
-          React.createElement(
-            MenuWithClickOutside,
-            {
-              buttonText: "Generate code",
-            },
-            [
-              React.createElement(
-                "button",
-                {
-                  className: "mb-2",
-                  onClick: onGenerateClick.bind(null, "puppeteer"),
-                  key: "puppeteer",
-                },
-                "Puppeteer"
-              ),
-              React.createElement(
-                "button",
-                {
-                  onClick: onGenerateClick.bind(null, "cypress"),
-                  key: "cypress",
-                },
-                "Cypress"
-              ),
-            ]
-          ),
+          React.createElement("div", { className: "flex" }, [
+            React.createElement(
+              "button",
+              { className: "mr-2" },
+              "Add assertion"
+            ),
+            React.createElement(
+              MenuWithClickOutside,
+              {
+                buttonText: "Generate code",
+              },
+              [
+                React.createElement(
+                  "button",
+                  {
+                    className: "mb-2",
+                    onClick: onGenerateClick.bind(null, "puppeteer"),
+                    key: "puppeteer",
+                  },
+                  "Puppeteer"
+                ),
+                React.createElement(
+                  "button",
+                  {
+                    onClick: onGenerateClick.bind(null, "cypress"),
+                    key: "cypress",
+                  },
+                  "Cypress"
+                ),
+              ]
+            ),
+          ]),
         ]
       ),
       React.createElement(

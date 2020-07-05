@@ -15,9 +15,11 @@ require("electron-reload")(__dirname, {
 const CONTROL_PANEL_WIDTH = 600;
 let commands = [];
 let browserForPuppeteer;
+let testingWindow;
 
 async function initializePie() {
   await pie.initialize(app);
+  browserForPuppeteer = await pie.connect(app, puppeteer);
 }
 
 // keeping the window reference for electron browser window outside
@@ -46,8 +48,6 @@ function createControlPanelWindow() {
 initializePie().then(() => {
   app.whenReady().then(() => {
     createControlPanelWindow();
-
-    runPup();
   });
 });
 
@@ -61,6 +61,10 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createControlPanelWindow();
   }
+});
+
+ipcMain.on("url-to-test", (event, url) => {
+  createTestBrowserWindow(url);
 });
 
 ipcMain.on("replay", (event, commands) => {
@@ -139,24 +143,37 @@ async function injectScripts(page) {
   });
 }
 
-async function runPup() {
-  const browser = await pie.connect(app, puppeteer);
+function shiftControlPanelWindowToSide() {
+  const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+  controlPanelWindow.setPosition(0, 0);
+  controlPanelWindow.setSize(CONTROL_PANEL_WIDTH, screenHeight);
+}
+
+function closeTestWindows() {
+  if (testingWindow) {
+    testingWindow.destroy();
+    testingWindow = null;
+  }
+}
+
+async function createTestBrowserWindow(url) {
+  shiftControlPanelWindowToSide();
+  closeTestWindows();
   const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
   const [controlPanelXPos] = controlPanelWindow.getPosition();
   const [controlPanelWidth] = controlPanelWindow.getSize();
-  const window = new BrowserWindow({
+  testingWindow = new BrowserWindow({
     height: screenHeight,
     x: controlPanelXPos + controlPanelWidth + 1,
     // if i don't specify the y coordinate, the x coordinate is not honored
     y: 0,
     webPreferences: {
       nodeIntegration: true,
-      // webviewTag: true,
     },
   });
-  const url = "http://testing-ground.scraping.pro/login";
-  await window.loadURL(url);
-  const page = await pie.getPage(browser, window);
+
+  await testingWindow.loadURL(url);
+  const page = await pie.getPage(browserForPuppeteer, testingWindow);
   puppeteerHandles.page = page;
 
   controlPanelWindow.focus();
