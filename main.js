@@ -1,8 +1,9 @@
 const path = require("path");
 const fs = require("fs");
 
-const { app, BrowserWindow, ipcMain } = require("electron");
-const puppeteer = require("puppeteer");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
+const pie = require("puppeteer-in-electron");
+const puppeteer = require("puppeteer-core");
 const {
   getCommandBlocks,
 } = require("./src/code-generators/puppeteer/code-generator.js");
@@ -13,17 +14,19 @@ require("electron-reload")(__dirname, {
 
 const CONTROL_PANEL_WIDTH = 600;
 let commands = [];
+let browserForPuppeteer;
+
+async function initializePie() {
+  await pie.initialize(app);
+}
 
 // keeping the window reference for electron browser window outside
 // so that we can use it to send messages to the renderer script
-let win;
-function createWindow() {
-  win = new BrowserWindow({
-    width: CONTROL_PANEL_WIDTH,
-    height: 1200,
+let controlPanelWindow;
+function createControlPanelWindow() {
+  controlPanelWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      webviewTag: true,
     },
   });
 
@@ -31,19 +34,21 @@ function createWindow() {
   // and then position the puppeteer browser right besides the control
   // panel, using the args --window-position option when launching
   // browser window
-  win.setPosition(0, 0);
-  win.loadFile("index.html");
+  // controlPanelWindow.setPosition(0, 0);
+  controlPanelWindow.loadFile("index.html");
 
-  win.webContents.on("will-navigate", () => {
+  controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  // win.webContents.openDevTools({ mode: "detach" });
+  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
 }
 
-app.whenReady().then(() => {
-  createWindow();
+initializePie().then(() => {
+  app.whenReady().then(() => {
+    createControlPanelWindow();
 
-  runPup();
+    runPup();
+  });
 });
 
 app.on("window-all-closed", () => {
@@ -54,7 +59,7 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createControlPanelWindow();
   }
 });
 
@@ -135,31 +140,51 @@ async function injectScripts(page) {
 }
 
 async function runPup() {
-  const browser = await puppeteer.launch({
-    headless: false,
-    // opens devtools when the window is launched
-    devtools: true,
-    // otherwise puppeteer sets a viewport height which is too less for larger
-    // screens. Setting it to null takes up whatever space is available
-    defaultViewport: null,
-    args: [
-      // "--window-size=1000",
-      // We open the window to the right of our electron based control panel
-      `--window-position=${CONTROL_PANEL_WIDTH},0`,
-      // "--no-sandbox",
-      // "--disable-setuid-sandbox",
-      // // '--disable-gpu',
-      // "--hide-scrollbars",
-    ],
+  const browser = await pie.connect(app, puppeteer);
+  const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+  const [controlPanelXPos] = controlPanelWindow.getPosition();
+  const [controlPanelWidth] = controlPanelWindow.getSize();
+  const window = new BrowserWindow({
+    height: screenHeight,
+    x: controlPanelXPos + controlPanelWidth + 1,
+    // if i don't specify the y coordinate, the x coordinate is not honored
+    y: 0,
+    webPreferences: {
+      nodeIntegration: true,
+      // webviewTag: true,
+    },
   });
-  const page = (await browser.pages())[0];
+  const url = "http://testing-ground.scraping.pro/login";
+  await window.loadURL(url);
+  const page = await pie.getPage(browser, window);
   puppeteerHandles.page = page;
-  await page.goto("http://testing-ground.scraping.pro/login");
+
+  controlPanelWindow.focus();
+  // const browser = await puppeteer.launch({
+  // headless: false,
+  // // opens devtools when the window is launched
+  // devtools: true,
+  // // otherwise puppeteer sets a viewport height which is too less for larger
+  // // screens. Setting it to null takes up whatever space is available
+  // defaultViewport: null,
+  // args: [
+  // // "--window-size=1000",
+  // // We open the window to the right of our electron based control panel
+  // `--window-position=${CONTROL_PANEL_WIDTH},0`,
+  // // "--no-sandbox",
+  // // "--disable-setuid-sandbox",
+  // // // '--disable-gpu',
+  // // "--hide-scrollbars",
+  // ],
+  // });
+  // const page = (await browser.pages())[0];
+  // puppeteerHandles.page = page;
+  // await page.goto(url);
   await page.exposeFunction("sendCommandToParent", (command) => {
     commands.push(command);
     // This is how we send message from the main process to our
     // renderer script which renders the control panel
-    win.webContents.send("new-command", command);
+    controlPanelWindow.webContents.send("new-command", command);
   });
 
   await injectScripts(page);
