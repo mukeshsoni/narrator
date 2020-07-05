@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "build:recorder": "rollup -c rollup.config.js src/recorder/recorder.js --file ./build/recorder.js --format umd --name PuppeteerRecorder",
+    "build:findandselect": "rollup -c rollup.config.js src/find-and-select/find-and-select.js --file ./build/find-and-select.js --format umd --name PuppeteerFindAndSelect",
     "start:css": "postcss src/tailwind.css -o src/tailwind_generated.css",
     "watch:css": "postcss src/tailwind.css -o src/tailwind_generated.css",
     "build:css:prod": "postcss ./src/tailwind.css -o ./src/tailwind_generated.css --env production",
@@ -35,6 +36,7 @@
     "react-dom": "^16.13.1",
     "react-modal": "^3.11.2",
     "react-onclickoutside": "^6.9.0",
+    "scroll-into-view-if-needed": "^2.2.25",
     "ua-parser-js": "^0.7.21"
   }
 }
