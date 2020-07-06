@@ -135,7 +135,7 @@ function typeCode(command) {
   console.log({ selector, selectorType });
   const blocks = [];
 
-  if (!selectorType === "xpath") {
+  if (selectorType !== "xpath") {
     blocks.push({
       accessors: [frame, "type"],
       arguments: [selector, value],
@@ -162,7 +162,7 @@ function clickCode(command) {
   const blocks = [];
 
   if (options.waitForSelectorOnClick) {
-    if (!selectorType === "xpath") {
+    if (selectorType !== "xpath") {
       blocks.push({
         accessors: [frame, "waitForSelector"],
         arguments: [selector],
@@ -175,7 +175,7 @@ function clickCode(command) {
     }
   }
 
-  if (!selectorType === "xpath") {
+  if (selectorType !== "xpath") {
     blocks.push({
       accessors: [frame, "click"],
       arguments: [selector],
@@ -200,7 +200,7 @@ function changeCode(command) {
   const [selector, selectorType] = getSelector(target[selectedTarget]);
   const blocks = [];
 
-  if (!selectorType === "xpath") {
+  if (selectorType !== "xpath") {
     blocks.push({
       accessors: [frame, "select"],
       arguments: [selector, value],
@@ -232,6 +232,23 @@ function viewportCode(width, height) {
     accessors: [frame, "setViewport"],
     arguments: [{ width, height }],
   };
+}
+
+function assertVisibilityCode(command) {
+  let { target, selectedTarget } = command;
+  const [selector, selectorType] = getSelector(target[selectedTarget]);
+
+  if (selectorType !== "xpath") {
+    return {
+      accessors: [frame, "waitForSelector"],
+      arguments: [selector],
+    };
+  } else {
+    return {
+      accessors: [frame, "waitForXPath"],
+      arguments: [selector],
+    };
+  }
 }
 
 function handleScreenshot(options) {
@@ -359,6 +376,10 @@ function getCommandBlocks(command) {
       return waitForNavigationCode();
     case pptrActions.SCREENSHOT:
       return handleScreenshot(value);
+    case "assertVisibility":
+      return assertVisibilityCode(command);
+    // default:
+    // return [];
   }
 }
 
@@ -371,7 +392,7 @@ function parseCommands(commands) {
   if (!commands) return result;
 
   commands.forEach((command) => {
-    blocks = blocks.concat(getCommandBlocks(command));
+    blocks = blocks.concat(getCommandBlocks(command)).filter((block) => block);
   });
 
   if (hasNavigation && options.waitForNavigation) {

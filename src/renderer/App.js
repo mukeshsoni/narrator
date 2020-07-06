@@ -18,7 +18,7 @@ const initialState = {
   commands: [],
   urlToTest: dummyUrlToTest,
   isRecording: false,
-  showAssertionPanel: true,
+  showAssertionPanel: false,
 };
 
 function addHttpsIfRequired(url) {
@@ -38,10 +38,18 @@ function rootReducer(state, action) {
         commands: [],
       };
     case "ADD_COMMAND":
-      if (state.isRecording || action.command.command === "GOTO") {
+      if (
+        (state.isRecording || action.command.command.startsWith("assert")) &&
+        state.urlToTest
+      ) {
+        let currentCommands = state.commands;
+        if (currentCommands.length === 0) {
+          currentCommands.push({ name: "GOTO", href: state.urlToTest });
+        }
+
         return {
           ...state,
-          commands: state.commands.concat({
+          commands: currentCommands.concat({
             ...action.command,
             name: action.command.command,
             selectedTarget: 0,
@@ -50,7 +58,6 @@ function rootReducer(state, action) {
       } else {
         return state;
       }
-
     case "SET_URL_TO_TEST":
       return {
         ...state,
@@ -61,10 +68,6 @@ function rootReducer(state, action) {
       return {
         ...state,
         isRecording: true,
-        commands:
-          state.commands.length > 0
-            ? state.commands
-            : [{ name: "GOTO", href: action.url }],
       };
     case "PAUSE_RECORDING":
       console.log("pausing recording");
@@ -101,7 +104,7 @@ function rootReducer(state, action) {
         isRecording: false,
         showAssertionPanel: true,
       };
-    case "CANCEL_ASSERTION_PANEL":
+    case "HIDE_ASSERTION_PANEL":
       return {
         ...state,
         showAssertionPanel: false,
@@ -180,19 +183,28 @@ function App() {
       // even if the replay has ended. Let the user restart recording if they
       // want to.
       dispatch({ type: "PAUSE_RECORDING" });
+      // setTimeout(() => {
       ipcRenderer.send("replay", commands);
+      // }, 500);
     }
   }, [commands]);
 
-  React.useEffect(() => {
-    // the first argument allows the renderer process to reply back on the
-    // same channel. It has helpers methods for the same.
-    ipcRenderer.on("new-command", (_, command) => {
+  const handleNewCommand = React.useCallback(
+    (_, command) => {
       if (command.command) {
+        console.log("got command to add", command);
         addCommand(command);
       }
-    });
-  }, [addCommand]);
+    },
+    [addCommand]
+  );
+
+  React.useEffect(() => {
+    ipcRenderer.removeListener("new-command", handleNewCommand);
+    // the first argument allows the renderer process to reply back on the
+    // same channel. It has helpers methods for the same.
+    ipcRenderer.on("new-command", handleNewCommand);
+  }, [handleNewCommand]);
 
   const handleCommandIgnoreClick = React.useCallback(
     (commandIndex) => {
@@ -224,12 +236,14 @@ function App() {
   const handleAssertionSave = React.useCallback(
     (command) => {
       console.log("let us save the assertion", command);
+      dispatch({ type: "HIDE_ASSERTION_PANEL" });
+      addCommand(command);
     },
-    [dispatch]
+    [dispatch, addCommand]
   );
 
   const handleAssertionCancel = React.useCallback(() => {
-    dispatch({ type: "CANCEL_ASSERTION_PANEL" });
+    dispatch({ type: "HIDE_ASSERTION_PANEL" });
     ipcRenderer.send("stop-find-and-select");
   }, [dispatch]);
 

@@ -5502,21 +5502,13 @@
   // .catch(() => {})
 
   function startSelection() {
-    console.log("starting selection");
     return new Promise((resolve, reject) => {
       targetSelector = new TargetSelector(function (element, win) {
-        console.log("selected", element);
         if (element && win) {
           const target = locatorBuilders.buildAll(element);
           if (target != null && target instanceof Array) {
             if (target) {
-              console.log("selected target", target);
               resolve(target);
-              // browser.runtime.sendMessage({
-              // action: "select",
-              // selectTarget: true,
-              // target,
-              // });
             }
           } else {
             reject(new Error("Target not found"));
@@ -5528,17 +5520,16 @@
   }
 
   function cleanSelection() {
-    targetSelector.cleanup();
-    targetSelector = null;
+    if (targetSelector) {
+      targetSelector.cleanup();
+      targetSelector = null;
+    }
   }
 
   function highlight(element) {
     return new Promise((res) => {
       const elementForInjectingStyle = document.createElement("link");
       elementForInjectingStyle.rel = "stylesheet";
-      // elementForInjectingStyle.href = browser.runtime.getURL(
-      // "/assets/highlight.css"
-      // );
       (document.head || document.documentElement).appendChild(
         elementForInjectingStyle
       );

@@ -84,8 +84,10 @@ export function startSelection() {
 }
 
 export function cleanSelection() {
-  targetSelector.cleanup();
-  targetSelector = null;
+  if (targetSelector) {
+    targetSelector.cleanup();
+    targetSelector = null;
+  }
 }
 
 function highlight(element) {

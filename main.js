@@ -67,7 +67,7 @@ ipcMain.on("url-to-test", (event, url) => {
 });
 
 ipcMain.on("replay", (event, commands) => {
-  console.log("got some puppeteer code to run", commands);
+  console.log("got some puppeteer commands to run", commands);
   // might be better to get the commands and then run puppeteer commands
   // by generating them here
   // or
@@ -102,12 +102,12 @@ ipcMain.on("stop-find-and-select", () => {
 // We bind the call to page object since many of the functions use `this`
 // internally
 async function runBlocks(blocks) {
-  console.log("running blocks");
   // didn't know for loops work with async await. I mean the whole loop blocks
   // when there's an await statement
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
 
+    console.log("running block", block);
     // we want to bind to the element the function is called with
     // e.g. page.keyboard.press should have page.keyboard as thi
     const accessorToBindTo = block.accessors
@@ -116,18 +116,25 @@ async function runBlocks(blocks) {
     const functionToCall =
       accessorToBindTo[block.accessors[block.accessors.length - 1]];
 
-    if (!block.lhs) {
-      if (block.accessors[0] === "xpathEl") {
-        // have to bind the action (like click, type etc.) calls the xpathEl
-        // In our case it's puppeteerHandles['xpathEl'][0]
-        await functionToCall.bind(accessorToBindTo)(...block.arguments);
+    try {
+      if (!block.lhs) {
+        if (block.accessors[0] === "xpathEl") {
+          // have to bind the action (like click, type etc.) calls the xpathEl
+          // In our case it's puppeteerHandles['xpathEl'][0]
+          await functionToCall.bind(accessorToBindTo)(...block.arguments);
+        } else {
+          await functionToCall.bind(accessorToBindTo)(...block.arguments);
+        }
       } else {
-        await functionToCall.bind(accessorToBindTo)(...block.arguments);
+        puppeteerHandles[block.lhs] = await functionToCall.bind(
+          accessorToBindTo
+        )(...block.arguments);
       }
-    } else {
-      puppeteerHandles[block.lhs] = await functionToCall.bind(accessorToBindTo)(
-        ...block.arguments
-      );
+    } catch (e) {
+      console.log("Error trying to execute step", block);
+      puppeteerHandles.page.evaluate((errorMessage) => {
+        alert(`could not execute step: ${errorMessage}`);
+      }, e.toString());
     }
   }
 }
@@ -172,11 +179,20 @@ async function selectTarget(page) {
   testingWindow.focus();
   await page.evaluate(() => {
     if (window.PuppeteerFindAndSelect) {
-      window.PuppeteerFindAndSelect.startSelection().then((target) => {
-        // call the exposed function from our puppeteer instance
-        // which will then pass the message to our control center window
-        sendFindAndSelectTargetToParent(target);
-      });
+      console.log("will start find and select");
+      window.PuppeteerFindAndSelect.cleanSelection();
+      window.PuppeteerFindAndSelect.startSelection()
+        .then((target) => {
+          console.log("found target", target);
+          // call the exposed function from our puppeteer instance
+          // which will then pass the message to our control center window
+          sendFindAndSelectTargetToParent(target);
+        })
+        .catch((e) => {
+          console.log("Error trying to find and select", e);
+        });
+    } else {
+      console.log("could not find PuppeteerFindAndSelect");
     }
   });
 }
@@ -184,6 +200,7 @@ async function selectTarget(page) {
 async function stopFindAndSelect(page) {
   await page.evaluate(() => {
     if (window.PuppeteerFindAndSelect) {
+      console.log("will clean selection");
       window.PuppeteerFindAndSelect.cleanSelection();
     }
   });
