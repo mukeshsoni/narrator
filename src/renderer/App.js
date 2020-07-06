@@ -218,15 +218,19 @@ function App() {
 
   const handleAddAssertionClick = React.useCallback(() => {
     dispatch({ type: "SHOW_ASSERTION_PANEL" });
-    ipcRenderer.send("select-assertion-target");
+    ipcRenderer.send("start-find-and-select");
   }, [dispatch]);
 
-  const handleAssertionSave = React.useCallback(() => {
-    console.log("let us save the assertion");
-  }, [dispatch]);
+  const handleAssertionSave = React.useCallback(
+    (command) => {
+      console.log("let us save the assertion", command);
+    },
+    [dispatch]
+  );
 
   const handleAssertionCancel = React.useCallback(() => {
     dispatch({ type: "CANCEL_ASSERTION_PANEL" });
+    ipcRenderer.send("stop-find-and-select");
   }, [dispatch]);
 
   return React.createElement(

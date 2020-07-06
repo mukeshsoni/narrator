@@ -87,9 +87,14 @@ ipcMain.on("recording", (event, action) => {
   }
 });
 
-ipcMain.on("select-assertion-target", () => {
+ipcMain.on("start-find-and-select", () => {
   selectTarget(puppeteerHandles.page);
 });
+
+ipcMain.on("stop-find-and-select", () => {
+  stopFindAndSelect(puppeteerHandles.page);
+});
+
 // we construct the function to call using the accessors array
 // and the puppeteerHandles properties
 // E.g. if accessors = ['page', 'waitForNavigation']
@@ -175,6 +180,15 @@ async function selectTarget(page) {
     }
   });
 }
+
+async function stopFindAndSelect(page) {
+  await page.evaluate(() => {
+    if (window.PuppeteerFindAndSelect) {
+      window.PuppeteerFindAndSelect.cleanSelection();
+    }
+  });
+}
+
 async function injectScripts(page) {
   await page.addScriptTag({ path: recorderScriptPath });
   await page.addStyleTag({ path: highlightCssPath });
