@@ -329,6 +329,21 @@ function getCommandBlocks(command) {
       return keyPressCode(command);
     case "click":
       return clickCode(command);
+    // TODO
+    // case "clickAt":
+    // // return clickCode(command);
+    // TODO
+    // case "doubleClick":
+    // TODO
+    // case "doubleClickAt":
+    // TODO
+    // case "check":
+    // TODO
+    // case "uncheck":
+    // TODO
+    // case "dragAndDropToObject"
+    // TODO
+    // case "editContent"
     case "change":
       if (tagName === "SELECT") {
         return changeCode(command);

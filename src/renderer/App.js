@@ -3,6 +3,7 @@ const React = require("react");
 const Modal = require("react-modal");
 
 const { SidePanel } = require("./SidePanel");
+const AssertionForm = require("./AssertionForm");
 
 const {
   generatePuppeteerCode,
@@ -15,8 +16,9 @@ const dummyUrlToTest = "http://testing-ground.scraping.pro/login";
 
 const initialState = {
   commands: [],
-  urlToTest: "",
+  urlToTest: dummyUrlToTest,
   isRecording: false,
+  showAssertionPanel: true,
 };
 
 function addHttpsIfRequired(url) {
@@ -93,6 +95,17 @@ function rootReducer(state, action) {
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
       };
+    case "SHOW_ASSERTION_PANEL":
+      return {
+        ...state,
+        isRecording: false,
+        showAssertionPanel: true,
+      };
+    case "CANCEL_ASSERTION_PANEL":
+      return {
+        ...state,
+        showAssertionPanel: false,
+      };
     default:
       return state;
   }
@@ -102,9 +115,8 @@ function App() {
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
-  const [showAssertionPanel, setShowAssertionPanel] = React.useState(false);
   const urlInputRef = React.useRef(null);
-  const { urlToTest, commands, isRecording } = state;
+  const { urlToTest, commands, isRecording, showAssertionPanel } = state;
 
   const addCommand = React.useCallback(
     (command) => {
@@ -180,10 +192,6 @@ function App() {
         addCommand(command);
       }
     });
-
-    ipcRenderer.on("assertion-target", (_, targets) => {
-      console.log("Got assertion target", targets);
-    });
   }, [addCommand]);
 
   const handleCommandIgnoreClick = React.useCallback(
@@ -209,9 +217,16 @@ function App() {
   );
 
   const handleAddAssertionClick = React.useCallback(() => {
-    dispatch({ type: "PAUSE_RECORDING" });
-    setShowAssertionPanel(true);
+    dispatch({ type: "SHOW_ASSERTION_PANEL" });
     ipcRenderer.send("select-assertion-target");
+  }, [dispatch]);
+
+  const handleAssertionSave = React.useCallback(() => {
+    console.log("let us save the assertion");
+  }, [dispatch]);
+
+  const handleAssertionCancel = React.useCallback(() => {
+    dispatch({ type: "CANCEL_ASSERTION_PANEL" });
   }, [dispatch]);
 
   return React.createElement(
@@ -223,55 +238,64 @@ function App() {
       style: { display: "flex" },
     },
     urlToTest
-      ? [
-          React.createElement(
-            SidePanel,
+      ? showAssertionPanel
+        ? React.createElement(
+            AssertionForm,
             {
-              isRecording,
-              commands,
-              onGenerateClick: handleGenerateClick,
-              onStartRecording: handleStartRecording,
-              onReplay: handleReplayClick,
-              onPauseClick: handlePauseClick,
-              onSelectorChange: handleSelectorChange,
-              onCommandIgoreClick: handleCommandIgnoreClick,
-              onAddAssertionClick: handleAddAssertionClick,
+              onSave: handleAssertionSave,
+              onCancel: handleAssertionCancel,
             },
-
             null
-          ),
-          showGeneratedCode &&
+          )
+        : [
             React.createElement(
-              Modal,
+              SidePanel,
               {
-                isOpen: showGeneratedCode,
-                onRequestClose: () => setShowGeneratedCode(false),
+                isRecording,
+                commands,
+                onGenerateClick: handleGenerateClick,
+                onStartRecording: handleStartRecording,
+                onReplay: handleReplayClick,
+                onPauseClick: handlePauseClick,
+                onSelectorChange: handleSelectorChange,
+                onCommandIgoreClick: handleCommandIgnoreClick,
+                onAddAssertionClick: handleAddAssertionClick,
               },
-              [
-                React.createElement("div", {}, [
-                  React.createElement(
-                    "div",
-                    { className: "flex flex-row-reverse" },
-                    [
-                      React.createElement(
-                        "button",
-                        {
-                          className: "p-2",
-                          onClick: () => setShowGeneratedCode(false),
-                        },
-                        "X"
-                      ),
-                    ]
-                  ),
-                  React.createElement(
-                    "pre",
-                    { className: "whitespace-pre" },
-                    generatedCode
-                  ),
-                ]),
-              ]
+
+              null
             ),
-        ]
+            showGeneratedCode &&
+              React.createElement(
+                Modal,
+                {
+                  isOpen: showGeneratedCode,
+                  onRequestClose: () => setShowGeneratedCode(false),
+                },
+                [
+                  React.createElement("div", {}, [
+                    React.createElement(
+                      "div",
+                      { className: "flex flex-row-reverse" },
+                      [
+                        React.createElement(
+                          "button",
+                          {
+                            className: "p-2",
+                            onClick: () => setShowGeneratedCode(false),
+                          },
+                          "X"
+                        ),
+                      ]
+                    ),
+                    React.createElement(
+                      "pre",
+                      { className: "whitespace-pre" },
+                      generatedCode
+                    ),
+                  ]),
+                ]
+              ),
+          ]
       : React.createElement(
           "div",
           {
