@@ -46,17 +46,24 @@ function cleanUp() {
 }
 
 function getSelector(target) {
-  const [selector, selectorType] = target;
+  const [selectorType, ...selectorParts] = target[0].split("=");
+  const selector = selectorParts.join("=");
 
-  if (selectorType === "name") {
-    return [`[${selector}]`, selectorType];
-  } else if (selectorType === "id") {
-    return [`#${selector.split("=")[1]}`, selectorType];
-  } else if (selectorType.startsWith("xpath")) {
-    return [`${selector.slice(6)}`, selectorType];
+  switch (selectorType) {
+    case "css":
+      return [selector, selectorType];
+    case "id": {
+      return [`#${selector}`, selectorType];
+    }
+    case "name": {
+      return [`[${selectorType}=${selector}]`, selectorType];
+    }
+    case "xpath": {
+      return [`${selector}`, selectorType];
+    }
+    default:
+      return [`[${selectorType}=${selector}]`, selectorType];
   }
-
-  return [`${selector}`, selectorType];
 }
 
 function getHeader() {
@@ -125,9 +132,10 @@ function typeCode(command) {
   let { target, value, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
 
+  console.log({ selector, selectorType });
   const blocks = [];
 
-  if (!selectorType.startsWith("xpath")) {
+  if (!selectorType === "xpath") {
     blocks.push({
       accessors: [frame, "type"],
       arguments: [selector, value],
@@ -154,7 +162,7 @@ function clickCode(command) {
   const blocks = [];
 
   if (options.waitForSelectorOnClick) {
-    if (!selectorType.startsWith("xpath")) {
+    if (!selectorType === "xpath") {
       blocks.push({
         accessors: [frame, "waitForSelector"],
         arguments: [selector],
@@ -167,7 +175,7 @@ function clickCode(command) {
     }
   }
 
-  if (!selectorType.startsWith("xpath")) {
+  if (!selectorType === "xpath") {
     blocks.push({
       accessors: [frame, "click"],
       arguments: [selector],
@@ -192,7 +200,7 @@ function changeCode(command) {
   const [selector, selectorType] = getSelector(target[selectedTarget]);
   const blocks = [];
 
-  if (!selectorType.startsWith("xpath")) {
+  if (!selectorType === "xpath") {
     blocks.push({
       accessors: [frame, "select"],
       arguments: [selector, value],

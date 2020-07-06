@@ -41,7 +41,7 @@ function createControlPanelWindow() {
   controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+  controlPanelWindow.webContents.openDevTools({ mode: "detach" });
 }
 
 initializePie().then(() => {
@@ -202,8 +202,9 @@ function shiftControlPanelWindowToSide() {
   controlPanelWindow.setSize(CONTROL_PANEL_WIDTH, screenHeight);
 }
 
-function closeTestWindows() {
-  if (testingWindow) {
+function closeTestWindow() {
+  if (testingWindow && puppeteerHandles.page) {
+    puppeteerHandles.page.close();
     testingWindow.destroy();
     testingWindow = null;
   }
@@ -211,7 +212,7 @@ function closeTestWindows() {
 
 async function createTestBrowserWindow(url) {
   shiftControlPanelWindowToSide();
-  closeTestWindows();
+  closeTestWindow();
   const {
     height: screenHeight,
     width: screenWidth,
