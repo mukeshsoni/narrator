@@ -1,0 +1,173 @@
+import * as React from "react";
+import onClickOutside from "react-onclickoutside";
+
+import CommandTable from "./CommandTable";
+import { Command } from "./command";
+
+const SIDE_PANEL_WIDTH = 600;
+
+interface MenuProps {
+  buttonText: string;
+  children: React.ReactNode | React.ReactNodeArray;
+}
+
+function Menu({ buttonText, children }: MenuProps) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  Menu.handleClickOutside = () => setMenuOpen(false);
+
+  return React.createElement(
+    "div",
+    {
+      className: "items-center relative bg-gray-500",
+    },
+    [
+      React.createElement(
+        "button",
+        {
+          className: "px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white",
+          onClick: () => (menuOpen ? setMenuOpen(false) : setMenuOpen(true)),
+        },
+        buttonText
+      ),
+      React.createElement(
+        "div",
+        {
+          className: menuOpen
+            ? "flex flex-col border absolute bg-gray-500 rounded-lg"
+            : "hidden",
+        },
+        children
+      ),
+    ]
+  );
+}
+
+namespace Menu {
+  export let handleClickOutside: () => void;
+}
+
+const clickOutsideConfig = {
+  handleClickOutside: () => Menu.handleClickOutside,
+};
+
+const MenuWithClickOutside = onClickOutside(Menu, clickOutsideConfig);
+
+interface Props {
+  commands: Array<Command>;
+  onGenerateClick: (toolName: string) => void;
+  isRecording: boolean;
+  onStartRecording: () => void;
+  onReplay: () => void;
+  onPauseClick: () => void;
+  onSelectorChange: (commandIndex: number, selectorIndex: number) => void;
+  onCommandIgoreClick: (commandIndex: number) => void;
+  onAddAssertionClick: () => void;
+}
+
+export default function SidePanel({
+  commands,
+  onGenerateClick,
+  isRecording,
+  onStartRecording,
+  onReplay,
+  onPauseClick,
+  onSelectorChange,
+  onCommandIgoreClick,
+  onAddAssertionClick,
+}: Props) {
+  return (
+    <div
+      className="flex flex-col border border-gray-300"
+      style={{ width: SIDE_PANEL_WIDTH }}
+    >
+      <div className="flex items-center justify-between w-full px-4 mb-4 bg-gray-500">
+        <div className="flex">
+          {!isRecording ? (
+            <button
+              className="flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white"
+              onClick={onStartRecording}
+            >
+              <div className="w-5 h-5 mb-1 bg-red-700 rounded-full" />
+              <span>Rec</span>
+            </button>
+          ) : (
+            <button
+              className="flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white"
+              onClick={onPauseClick}
+            >
+              <svg
+                width={24}
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Pause</span>
+            </button>
+          )}
+          {commands && commands.length > 0 && (
+            <button
+              className="flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white"
+              onClick={onReplay}
+            >
+              <svg
+                width={24}
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Play</span>
+            </button>
+          )}
+        </div>
+        <div className="flex">
+          <button
+            className="px-4 py-2 mr-2 rounded-md hover:bg-blue-500 hover:text-white"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              onAddAssertionClick();
+            }}
+          >
+            Add assertion
+          </button>
+          <MenuWithClickOutside buttonText="Generate code">
+            <>
+              <button
+                className="px-4 py-2 mb-2 hover:bg-blue-500 hover:text-white"
+                onClick={onGenerateClick.bind(null, "puppeteer")}
+                key="puppeteer"
+              >
+                Puppeteer
+              </button>
+              <button
+                className="px-4 py-2 hover:bg-blue-500 hover:text-white"
+                onClick={onGenerateClick.bind(null, "cypress")}
+                key="cypress"
+              >
+                Cypress
+              </button>
+            </>
+          </MenuWithClickOutside>
+        </div>
+      </div>
+      <div className="flex flex-col justify-between h-full">
+        <CommandTable
+          commands={commands}
+          onSelectorChange={onSelectorChange}
+          onCommandIgoreClick={onCommandIgoreClick}
+        />
+      </div>
+    </div>
+  );
+}

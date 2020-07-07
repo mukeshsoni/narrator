@@ -273,37 +273,17 @@ export default function App() {
             onCancel={handleAssertionCancel}
           />
         ) : (
-          <>
-            <SidePanel
-              isRecording={isRecording}
-              commands={commands}
-              onGenerateClick={handleGenerateClick}
-              onStartRecording={handleStartRecording}
-              onReplay={handleReplayClick}
-              onPauseClick={handlePauseClick}
-              onSelectorChange={handleSelectorChange}
-              onCommandIgoreClick={handleCommandIgnoreClick}
-              onAddAssertionClick={handleAddAssertionClick}
-            />
-            {showGeneratedCode && (
-              <Modal
-                isOpen={showGeneratedCode}
-                onRequestClose={() => setShowGeneratedCode(false)}
-              >
-                <div>
-                  <div className="flex flex-row-reverse">
-                    <button
-                      className="p-2"
-                      onClick={() => setShowGeneratedCode(false)}
-                    >
-                      X
-                    </button>
-                  </div>
-                  <pre className="whitespace-pre">{generatedCode}</pre>
-                </div>
-              </Modal>
-            )}
-          </>
+          <SidePanel
+            isRecording={isRecording}
+            commands={commands}
+            onGenerateClick={handleGenerateClick}
+            onStartRecording={handleStartRecording}
+            onReplay={handleReplayClick}
+            onPauseClick={handlePauseClick}
+            onSelectorChange={handleSelectorChange}
+            onCommandIgoreClick={handleCommandIgnoreClick}
+            onAddAssertionClick={handleAddAssertionClick}
+          />
         )
       ) : (
         <div className="flex items-center justify-center w-full h-screen bg-blue-800">
@@ -316,6 +296,24 @@ export default function App() {
             />
           </form>
         </div>
+      )}
+      {showGeneratedCode && (
+        <Modal
+          isOpen={showGeneratedCode}
+          onRequestClose={() => setShowGeneratedCode(false)}
+        >
+          <div>
+            <div className="flex flex-row-reverse">
+              <button
+                className="p-2"
+                onClick={() => setShowGeneratedCode(false)}
+              >
+                X
+              </button>
+            </div>
+            <pre className="whitespace-pre">{generatedCode}</pre>
+          </div>
+        </Modal>
       )}
     </div>
   );

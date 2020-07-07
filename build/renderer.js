@@ -32273,7 +32273,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-modal */ "./node_modules/react-modal/lib/index.js");
 /* harmony import */ var react_modal__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_modal__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _SidePanel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SidePanel */ "./src/renderer/SidePanel.js");
+/* harmony import */ var _SidePanel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SidePanel */ "./src/renderer/SidePanel.tsx");
 /* harmony import */ var _AssertionForm__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AssertionForm */ "./src/renderer/AssertionForm.tsx");
 var __assign = (undefined && undefined.__assign) || function () {
     __assign = Object.assign || function(t) {
@@ -32454,15 +32454,15 @@ function App() {
         dispatch({ type: "HIDE_ASSERTION_PANEL" });
         ipcRenderer.send("stop-find-and-select");
     }, [dispatch]);
-    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex w-screen antialiased text-copy-primary bg-background-primary" }, urlToTest ? (showAssertionPanel ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_AssertionForm__WEBPACK_IMPORTED_MODULE_3__["default"], { onSave: handleAssertionSave, onCancel: handleAssertionCancel })) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null,
-        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_SidePanel__WEBPACK_IMPORTED_MODULE_2__["default"], { isRecording: isRecording, commands: commands, onGenerateClick: handleGenerateClick, onStartRecording: handleStartRecording, onReplay: handleReplayClick, onPauseClick: handlePauseClick, onSelectorChange: handleSelectorChange, onCommandIgoreClick: handleCommandIgnoreClick, onAddAssertionClick: handleAddAssertionClick }),
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex w-screen antialiased text-copy-primary bg-background-primary" },
+        urlToTest ? (showAssertionPanel ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_AssertionForm__WEBPACK_IMPORTED_MODULE_3__["default"], { onSave: handleAssertionSave, onCancel: handleAssertionCancel })) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_SidePanel__WEBPACK_IMPORTED_MODULE_2__["default"], { isRecording: isRecording, commands: commands, onGenerateClick: handleGenerateClick, onStartRecording: handleStartRecording, onReplay: handleReplayClick, onPauseClick: handlePauseClick, onSelectorChange: handleSelectorChange, onCommandIgoreClick: handleCommandIgnoreClick, onAddAssertionClick: handleAddAssertionClick }))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex items-center justify-center w-full h-screen bg-blue-800" },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("form", { onSubmit: handleUrlInputSubmit },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", { ref: urlInputRef, defaultValue: urlToTest, placeholder: "Enter url to test", className: "w-64 px-4 py-2 text-xl text-gray-900 bg-gray-100 border rounded-lg " })))),
         showGeneratedCode && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react_modal__WEBPACK_IMPORTED_MODULE_1___default.a, { isOpen: showGeneratedCode, onRequestClose: function () { return setShowGeneratedCode(false); } },
             react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
                 react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-row-reverse" },
                     react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "p-2", onClick: function () { return setShowGeneratedCode(false); } }, "X")),
-                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pre", { className: "whitespace-pre" }, generatedCode))))))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex items-center justify-center w-full h-screen bg-blue-800" },
-        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("form", { onSubmit: handleUrlInputSubmit },
-            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", { ref: urlInputRef, defaultValue: urlToTest, placeholder: "Enter url to test", className: "w-64 px-4 py-2 text-xl text-gray-900 bg-gray-100 border rounded-lg " }))))));
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pre", { className: "whitespace-pre" }, generatedCode))))));
 }
 
 
@@ -32620,11 +32620,14 @@ function CommandDetails(_a) {
             react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("label", { className: "flex items-center w-full mb-4" },
                 "Command",
                 react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", { key: command.value, value: command.name, disabled: true, className: "flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md" }),
-                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "p-2 ml-2 cursor-pointer hover:bg-blue-300 hover:text-blue-900 rounded-md", onClick: function (e) {
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "p-2 ml-2 cursor-pointer hover:bg-blue-500 hover:text-blue-100 rounded-md", onClick: function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         onCommandIgoreClick();
-                    }, title: "Ignore/comment this command" }, "//")),
+                    }, title: "Ignore/comment this command" }, command.ignore ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", { width: 20, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", viewBox: "0 0 24 24", stroke: "currentColor" },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { d: "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" }))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", { width: 20, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", viewBox: "0 0 24 24", stroke: "currentColor" },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z" }),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { d: "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" }))))),
             react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("label", { className: "flex items-center w-full mb-4" },
                 "Target",
                 react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("select", { name: "selector", key: command.selectedTarget, className: "flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md", value: command.selectedTarget, onChange: function (e) {
@@ -32729,10 +32732,10 @@ function CommandTable(_a) {
 
 /***/ }),
 
-/***/ "./src/renderer/SidePanel.js":
-/*!***********************************!*\
-  !*** ./src/renderer/SidePanel.js ***!
-  \***********************************/
+/***/ "./src/renderer/SidePanel.tsx":
+/*!************************************!*\
+  !*** ./src/renderer/SidePanel.tsx ***!
+  \************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32743,121 +32746,63 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_onclickoutside__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-onclickoutside */ "./node_modules/react-onclickoutside/dist/react-onclickoutside.es.js");
 /* harmony import */ var _CommandTable__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CommandTable */ "./src/renderer/CommandTable.tsx");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 
 
 
 var SIDE_PANEL_WIDTH = 600;
-
-function Menu(_ref) {
-  var buttonText = _ref.buttonText,
-      children = _ref.children;
-
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(false),
-      _React$useState2 = _slicedToArray(_React$useState, 2),
-      menuOpen = _React$useState2[0],
-      setMenuOpen = _React$useState2[1];
-
-  Menu.handleClickOutside = function () {
-    return setMenuOpen(false);
-  };
-
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "items-center relative bg-gray-500"
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "px-4 py-2",
-    onClick: function onClick() {
-      return menuOpen ? setMenuOpen(false) : setMenuOpen(true);
-    }
-  }, buttonText), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: menuOpen ? "flex flex-col p-4 border absolute bg-gray-500 rounded-lg" : "hidden"
-  }, children)]);
+function Menu(_a) {
+    var buttonText = _a.buttonText, children = _a.children;
+    var _b = react__WEBPACK_IMPORTED_MODULE_0__["useState"](false), menuOpen = _b[0], setMenuOpen = _b[1];
+    Menu.handleClickOutside = function () { return setMenuOpen(false); };
+    return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
+        className: "items-center relative bg-gray-500",
+    }, [
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
+            className: "px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white",
+            onClick: function () { return (menuOpen ? setMenuOpen(false) : setMenuOpen(true)); },
+        }, buttonText),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
+            className: menuOpen
+                ? "flex flex-col border absolute bg-gray-500 rounded-lg"
+                : "hidden",
+        }, children),
+    ]);
 }
-
+(function (Menu) {
+})(Menu || (Menu = {}));
 var clickOutsideConfig = {
-  handleClickOutside: function handleClickOutside() {
-    return Menu.handleClickOutside;
-  }
+    handleClickOutside: function () { return Menu.handleClickOutside; },
 };
 var MenuWithClickOutside = Object(react_onclickoutside__WEBPACK_IMPORTED_MODULE_1__["default"])(Menu, clickOutsideConfig);
-function SidePanel(_ref2) {
-  var commands = _ref2.commands,
-      onGenerateClick = _ref2.onGenerateClick,
-      isRecording = _ref2.isRecording,
-      onStartRecording = _ref2.onStartRecording,
-      onReplay = _ref2.onReplay,
-      onPauseClick = _ref2.onPauseClick,
-      onSelectorChange = _ref2.onSelectorChange,
-      onCommandIgoreClick = _ref2.onCommandIgoreClick,
-      onAddAssertionClick = _ref2.onAddAssertionClick;
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex flex-col border border-gray-300",
-    style: {
-      width: SIDE_PANEL_WIDTH
-    }
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex justify-between items-center px-4 mb-4 w-full bg-gray-500"
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex"
-  }, [!isRecording ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "p-2 mr-2 flex flex-col justify-center items-center text-xs uppercase",
-    onClick: onStartRecording
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "w-6 h-6 bg-red-700 rounded-full mb-1"
-  }, null), "Rec"]) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "p-2 mr-2 flex flex-col justify-center items-center text-xs uppercase",
-    onClick: onPauseClick
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "text-lg tracking-tighter"
-  }, "| |"), "Pause"]), commands && commands.length > 0 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "p-2 mr-2 flex flex-col justify-center items-center text-xs uppercase",
-    onClick: onReplay
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "w-6 h-6 mb-1",
-    style: {
-      width: 24,
-      height: 24,
-      borderStyle: "solid",
-      borderWidth: "12px 0px 12px 24px",
-      borderColor: "transparent transparent transparent #48bb78",
-      boxSizing: "border-box"
-    }
-  }, null), "Play"])]), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex"
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "mr-2",
-    onClick: function onClick(e) {
-      e.stopPropagation();
-      onAddAssertionClick();
-    }
-  }, "Add assertion"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MenuWithClickOutside, {
-    buttonText: "Generate code"
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "mb-2",
-    onClick: onGenerateClick.bind(null, "puppeteer"),
-    key: "puppeteer"
-  }, "Puppeteer"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    onClick: onGenerateClick.bind(null, "cypress"),
-    key: "cypress"
-  }, "Cypress")])])]), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex flex-col h-full justify-between"
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_CommandTable__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    commands: commands,
-    onSelectorChange: onSelectorChange,
-    onCommandIgoreClick: onCommandIgoreClick
-  }, null)])]);
+function SidePanel(_a) {
+    var commands = _a.commands, onGenerateClick = _a.onGenerateClick, isRecording = _a.isRecording, onStartRecording = _a.onStartRecording, onReplay = _a.onReplay, onPauseClick = _a.onPauseClick, onSelectorChange = _a.onSelectorChange, onCommandIgoreClick = _a.onCommandIgoreClick, onAddAssertionClick = _a.onAddAssertionClick;
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-col border border-gray-300", style: { width: SIDE_PANEL_WIDTH } },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex items-center justify-between w-full px-4 mb-4 bg-gray-500" },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex" },
+                !isRecording ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white", onClick: onStartRecording },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "w-5 h-5 mb-1 bg-red-700 rounded-full" }),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null, "Rec"))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white", onClick: onPauseClick },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", { width: 24, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "1", viewBox: "0 0 24 24", stroke: "currentColor" },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { d: "M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" })),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null, "Pause"))),
+                commands && commands.length > 0 && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white", onClick: onReplay },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", { width: 24, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "1", viewBox: "0 0 24 24", stroke: "currentColor" },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { d: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" }),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { d: "M21 12a9 9 0 11-18 0 9 9 0 0118 0z" })),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null, "Play")))),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex" },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "px-4 py-2 mr-2 rounded-md hover:bg-blue-500 hover:text-white", onClick: function (e) {
+                        e.stopPropagation();
+                        onAddAssertionClick();
+                    } }, "Add assertion"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](MenuWithClickOutside, { buttonText: "Generate code" },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null,
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "px-4 py-2 mb-2 hover:bg-blue-500 hover:text-white", onClick: onGenerateClick.bind(null, "puppeteer"), key: "puppeteer" }, "Puppeteer"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "px-4 py-2 hover:bg-blue-500 hover:text-white", onClick: onGenerateClick.bind(null, "cypress"), key: "cypress" }, "Cypress"))))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-col justify-between h-full" },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_CommandTable__WEBPACK_IMPORTED_MODULE_2__["default"], { commands: commands, onSelectorChange: onSelectorChange, onCommandIgoreClick: onCommandIgoreClick }))));
 }
+
 
 /***/ }),
 
