@@ -264,98 +264,59 @@ export default function App() {
     ipcRenderer.send("stop-find-and-select");
   }, [dispatch]);
 
-  return React.createElement(
-    "div",
-    {
-      className:
-        "flex w-screen antialiased text-copy-primary bg-background-primary",
-
-      style: { display: "flex" },
-    },
-    urlToTest
-      ? showAssertionPanel
-        ? React.createElement(
-            AssertionForm,
-            {
-              onSave: handleAssertionSave,
-              onCancel: handleAssertionCancel,
-            },
-            null
-          )
-        : [
-            React.createElement(
-              SidePanel,
-              {
-                isRecording,
-                commands,
-                onGenerateClick: handleGenerateClick,
-                onStartRecording: handleStartRecording,
-                onReplay: handleReplayClick,
-                onPauseClick: handlePauseClick,
-                onSelectorChange: handleSelectorChange,
-                onCommandIgoreClick: handleCommandIgnoreClick,
-                onAddAssertionClick: handleAddAssertionClick,
-              },
-
-              null
-            ),
-            showGeneratedCode &&
-              React.createElement(
-                Modal,
-                {
-                  isOpen: showGeneratedCode,
-                  onRequestClose: () => setShowGeneratedCode(false),
-                },
-                [
-                  React.createElement("div", {}, [
-                    React.createElement(
-                      "div",
-                      { className: "flex flex-row-reverse" },
-                      [
-                        React.createElement(
-                          "button",
-                          {
-                            className: "p-2",
-                            onClick: () => setShowGeneratedCode(false),
-                          },
-                          "X"
-                        ),
-                      ]
-                    ),
-                    React.createElement(
-                      "pre",
-                      { className: "whitespace-pre" },
-                      generatedCode
-                    ),
-                  ]),
-                ]
-              ),
-          ]
-      : React.createElement(
-          "div",
-          {
-            className:
-              "flex w-full h-screen justify-center items-center bg-blue-800",
-          },
-          React.createElement(
-            "form",
-            {
-              onSubmit: handleUrlInputSubmit,
-            },
-            [
-              React.createElement(
-                "input",
-                {
-                  ref: urlInputRef,
-                  defaultValue: urlToTest,
-                  placeholder: "Enter url to test",
-                  className:
-                    "border w-64 px-4 py-2 bg-gray-100 text-gray-900 text-xl rounded-lg ",
-                },
-                null
-              ),
-            ]
-          )
+  return (
+    <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
+      {urlToTest ? (
+        showAssertionPanel ? (
+          <AssertionForm
+            onSave={handleAssertionSave}
+            onCancel={handleAssertionCancel}
+          />
+        ) : (
+          <>
+            <SidePanel
+              isRecording={isRecording}
+              commands={commands}
+              onGenerateClick={handleGenerateClick}
+              onStartRecording={handleStartRecording}
+              onReplay={handleReplayClick}
+              onPauseClick={handlePauseClick}
+              onSelectorChange={handleSelectorChange}
+              onCommandIgoreClick={handleCommandIgnoreClick}
+              onAddAssertionClick={handleAddAssertionClick}
+            />
+            {showGeneratedCode && (
+              <Modal
+                isOpen={showGeneratedCode}
+                onRequestClose={() => setShowGeneratedCode(false)}
+              >
+                <div>
+                  <div className="flex flex-row-reverse">
+                    <button
+                      className="p-2"
+                      onClick={() => setShowGeneratedCode(false)}
+                    >
+                      X
+                    </button>
+                  </div>
+                  <pre className="whitespace-pre">{generatedCode}</pre>
+                </div>
+              </Modal>
+            )}
+          </>
         )
+      ) : (
+        <div className="flex items-center justify-center w-full h-screen bg-blue-800">
+          <form onSubmit={handleUrlInputSubmit}>
+            <input
+              ref={urlInputRef}
+              defaultValue={urlToTest}
+              placeholder="Enter url to test"
+              className="w-64 px-4 py-2 text-xl text-gray-900 bg-gray-100 border rounded-lg "
+            />
+          </form>
+        </div>
+      )}
+    </div>
   );
 }

@@ -32454,55 +32454,15 @@ function App() {
         dispatch({ type: "HIDE_ASSERTION_PANEL" });
         ipcRenderer.send("stop-find-and-select");
     }, [dispatch]);
-    return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
-        className: "flex w-screen antialiased text-copy-primary bg-background-primary",
-        style: { display: "flex" },
-    }, urlToTest
-        ? showAssertionPanel
-            ? react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_AssertionForm__WEBPACK_IMPORTED_MODULE_3__["default"], {
-                onSave: handleAssertionSave,
-                onCancel: handleAssertionCancel,
-            }, null)
-            : [
-                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_SidePanel__WEBPACK_IMPORTED_MODULE_2__["default"], {
-                    isRecording: isRecording,
-                    commands: commands,
-                    onGenerateClick: handleGenerateClick,
-                    onStartRecording: handleStartRecording,
-                    onReplay: handleReplayClick,
-                    onPauseClick: handlePauseClick,
-                    onSelectorChange: handleSelectorChange,
-                    onCommandIgoreClick: handleCommandIgnoreClick,
-                    onAddAssertionClick: handleAddAssertionClick,
-                }, null),
-                showGeneratedCode &&
-                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react_modal__WEBPACK_IMPORTED_MODULE_1___default.a, {
-                        isOpen: showGeneratedCode,
-                        onRequestClose: function () { return setShowGeneratedCode(false); },
-                    }, [
-                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {}, [
-                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-row-reverse" }, [
-                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
-                                    className: "p-2",
-                                    onClick: function () { return setShowGeneratedCode(false); },
-                                }, "X"),
-                            ]),
-                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pre", { className: "whitespace-pre" }, generatedCode),
-                        ]),
-                    ]),
-            ]
-        : react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
-            className: "flex w-full h-screen justify-center items-center bg-blue-800",
-        }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("form", {
-            onSubmit: handleUrlInputSubmit,
-        }, [
-            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", {
-                ref: urlInputRef,
-                defaultValue: urlToTest,
-                placeholder: "Enter url to test",
-                className: "border w-64 px-4 py-2 bg-gray-100 text-gray-900 text-xl rounded-lg ",
-            }, null),
-        ])));
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex w-screen antialiased text-copy-primary bg-background-primary" }, urlToTest ? (showAssertionPanel ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_AssertionForm__WEBPACK_IMPORTED_MODULE_3__["default"], { onSave: handleAssertionSave, onCancel: handleAssertionCancel })) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null,
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_SidePanel__WEBPACK_IMPORTED_MODULE_2__["default"], { isRecording: isRecording, commands: commands, onGenerateClick: handleGenerateClick, onStartRecording: handleStartRecording, onReplay: handleReplayClick, onPauseClick: handlePauseClick, onSelectorChange: handleSelectorChange, onCommandIgoreClick: handleCommandIgnoreClick, onAddAssertionClick: handleAddAssertionClick }),
+        showGeneratedCode && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react_modal__WEBPACK_IMPORTED_MODULE_1___default.a, { isOpen: showGeneratedCode, onRequestClose: function () { return setShowGeneratedCode(false); } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-row-reverse" },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "p-2", onClick: function () { return setShowGeneratedCode(false); } }, "X")),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pre", { className: "whitespace-pre" }, generatedCode))))))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex items-center justify-center w-full h-screen bg-blue-800" },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("form", { onSubmit: handleUrlInputSubmit },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", { ref: urlInputRef, defaultValue: urlToTest, placeholder: "Enter url to test", className: "w-64 px-4 py-2 text-xl text-gray-900 bg-gray-100 border rounded-lg " }))))));
 }
 
 
