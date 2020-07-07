@@ -147,7 +147,7 @@ let puppeteerHandles = {
 const recorderScriptPath = path.resolve(process.cwd(), "build/recorder.js");
 const highlightCssPath = path.resolve(
   process.cwd(),
-  "build/find-and-select/highlight.css"
+  "src/find-and-select/highlight.css"
 );
 const findAndSelectPath = path.resolve(
   process.cwd(),
