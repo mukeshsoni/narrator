@@ -180,12 +180,15 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
           </label>
         )}
         <div className="flex flex-row-reverse mt-4">
-          <button type="submit" className="px-4 py-2 bg-blue-500 rounded-md">
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-300 hover:text-black"
+          >
             Save
           </button>
           <button
             type="submit"
-            className="px-4 py-2 mr-4 bg-blue-500 rounded-md"
+            className="px-4 py-2 mr-4 text-white bg-blue-500 rounded-md hover:bg-blue-300 hover:text-black"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               e.preventDefault();
