@@ -4,7 +4,7 @@ export interface Command {
   target: Array<[string, string]>;
   // target: string;
   selectedTarget: number;
-  value: string;
+  value?: string;
   ignore?: boolean;
   coordinates?: string;
   href?: string;

@@ -32259,10 +32259,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./src/renderer/App.js":
-/*!*****************************!*\
-  !*** ./src/renderer/App.js ***!
-  \*****************************/
+/***/ "./src/renderer/App.tsx":
+/*!******************************!*\
+  !*** ./src/renderer/App.tsx ***!
+  \******************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32275,315 +32275,236 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_modal__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_modal__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _SidePanel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SidePanel */ "./src/renderer/SidePanel.js");
 /* harmony import */ var _AssertionForm__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AssertionForm */ "./src/renderer/AssertionForm.tsx");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-
-var _require = __webpack_require__(/*! electron */ "electron"),
-    ipcRenderer = _require.ipcRenderer;
-
-
-
-
-var _require2 = __webpack_require__(/*! ../code-generators/puppeteer/code-generator */ "./src/code-generators/puppeteer/code-generator.js"),
-    generatePuppeteerCode = _require2.generatePuppeteerCode;
-
-var generateCypressCode = __webpack_require__(/*! ../code-generators/cypress/code-generator */ "./src/code-generators/cypress/code-generator.js"); // const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
-// const dummyUrlToTest = "https://google.com/";
-
-
-var dummyUrlToTest = "http://testing-ground.scraping.pro/login";
-var initialState = {
-  commands: [],
-  urlToTest: dummyUrlToTest,
-  isRecording: false,
-  showAssertionPanel: false
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 
+
+var ipcRenderer = __webpack_require__(/*! electron */ "electron").ipcRenderer;
+
+
+var generatePuppeteerCode = __webpack_require__(/*! ../code-generators/puppeteer/code-generator */ "./src/code-generators/puppeteer/code-generator.js").generatePuppeteerCode;
+var generateCypressCode = __webpack_require__(/*! ../code-generators/cypress/code-generator */ "./src/code-generators/cypress/code-generator.js");
+// const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
+// const dummyUrlToTest = "https://google.com/";
+var dummyUrlToTest = "http://testing-ground.scraping.pro/login";
+var initialState = {
+    commands: [],
+    urlToTest: dummyUrlToTest,
+    isRecording: false,
+    showAssertionPanel: false,
+};
 function addHttpsIfRequired(url) {
-  if (url.length > 0 && !/^(?:f|ht)tps?\:\/\//.test(url)) {
-    return "https://".concat(url);
-  }
-
-  return url;
+    if (url.length > 0 && !/^(?:f|ht)tps?\:\/\//.test(url)) {
+        return "https://" + url;
+    }
+    return url;
 }
-
 function rootReducer(state, action) {
-  console.log("action", action);
-
-  switch (action.type) {
-    case "RESET_COMMANDS":
-      return _objectSpread(_objectSpread({}, state), {}, {
-        commands: []
-      });
-
-    case "ADD_COMMAND":
-      if ((state.isRecording || action.command.command.startsWith("assert")) && state.urlToTest) {
-        var currentCommands = state.commands;
-
-        if (currentCommands.length === 0) {
-          currentCommands.push({
-            name: "GOTO",
-            href: state.urlToTest
-          });
-        }
-
-        return _objectSpread(_objectSpread({}, state), {}, {
-          commands: currentCommands.concat(_objectSpread(_objectSpread({}, action.command), {}, {
-            name: action.command.command,
-            selectedTarget: 0
-          }))
-        });
-      } else {
-        return state;
-      }
-
-    case "SET_URL_TO_TEST":
-      return _objectSpread(_objectSpread({}, state), {}, {
-        urlToTest: addHttpsIfRequired(action.urlToTest)
-      });
-
-    case "START_RECORDING":
-      console.log("starting recording. url: ", action.url);
-      return _objectSpread(_objectSpread({}, state), {}, {
-        isRecording: true
-      });
-
-    case "PAUSE_RECORDING":
-      console.log("pausing recording");
-      return _objectSpread(_objectSpread({}, state), {}, {
-        isRecording: false
-      });
-
-    case "CHANGE_SELECTOR":
-      return _objectSpread(_objectSpread({}, state), {}, {
-        commands: state.commands.slice(0, action.commandIndex).concat(_objectSpread(_objectSpread({}, state.commands[action.commandIndex]), {}, {
-          selectedTarget: action.targetIndex
-        })).concat(state.commands.slice(action.commandIndex + 1))
-      });
-
-    case "TOGGLE_IGNORE":
-      console.log("TOGGLE_IGNORE", action);
-      return _objectSpread(_objectSpread({}, state), {}, {
-        commands: state.commands.slice(0, action.commandIndex).concat(_objectSpread(_objectSpread({}, state.commands[action.commandIndex]), {}, {
-          ignore: !state.commands[action.commandIndex].ignore
-        })).concat(state.commands.slice(action.commandIndex + 1))
-      });
-
-    case "SHOW_ASSERTION_PANEL":
-      return _objectSpread(_objectSpread({}, state), {}, {
-        isRecording: false,
-        showAssertionPanel: true
-      });
-
-    case "HIDE_ASSERTION_PANEL":
-      return _objectSpread(_objectSpread({}, state), {}, {
-        showAssertionPanel: false
-      });
-
-    default:
-      return state;
-  }
+    console.log("action", action);
+    switch (action.type) {
+        case "RESET_COMMANDS":
+            return __assign(__assign({}, state), { commands: [] });
+        case "ADD_COMMAND":
+            if ((state.isRecording || action.command.command.startsWith("assert")) &&
+                state.urlToTest) {
+                var currentCommands = state.commands;
+                if (currentCommands.length === 0) {
+                    currentCommands.push({
+                        command: "GOTO",
+                        name: "GOTO",
+                        href: state.urlToTest,
+                        target: [],
+                        selectedTarget: 0,
+                    });
+                }
+                return __assign(__assign({}, state), { commands: currentCommands.concat(__assign(__assign({}, action.command), { name: action.command.command, selectedTarget: 0 })) });
+            }
+            else {
+                return state;
+            }
+        case "SET_URL_TO_TEST":
+            return __assign(__assign({}, state), { urlToTest: addHttpsIfRequired(action.urlToTest) });
+        case "START_RECORDING":
+            console.log("starting recording. url: ", action.url);
+            return __assign(__assign({}, state), { isRecording: true });
+        case "PAUSE_RECORDING":
+            console.log("pausing recording");
+            return __assign(__assign({}, state), { isRecording: false });
+        case "CHANGE_SELECTOR":
+            return __assign(__assign({}, state), { commands: state.commands
+                    .slice(0, action.commandIndex)
+                    .concat(__assign(__assign({}, state.commands[action.commandIndex]), { selectedTarget: action.targetIndex }))
+                    .concat(state.commands.slice(action.commandIndex + 1)) });
+        case "TOGGLE_IGNORE":
+            console.log("TOGGLE_IGNORE", action);
+            return __assign(__assign({}, state), { commands: state.commands
+                    .slice(0, action.commandIndex)
+                    .concat(__assign(__assign({}, state.commands[action.commandIndex]), { ignore: !state.commands[action.commandIndex].ignore }))
+                    .concat(state.commands.slice(action.commandIndex + 1)) });
+        case "SHOW_ASSERTION_PANEL":
+            return __assign(__assign({}, state), { isRecording: false, showAssertionPanel: true });
+        case "HIDE_ASSERTION_PANEL":
+            return __assign(__assign({}, state), { showAssertionPanel: false });
+        default:
+            return state;
+    }
 }
-
 function App() {
-  console.log("inside App");
-
-  var _React$useReducer = react__WEBPACK_IMPORTED_MODULE_0___default.a.useReducer(rootReducer, initialState),
-      _React$useReducer2 = _slicedToArray(_React$useReducer, 2),
-      state = _React$useReducer2[0],
-      dispatch = _React$useReducer2[1];
-
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(""),
-      _React$useState2 = _slicedToArray(_React$useState, 2),
-      generatedCode = _React$useState2[0],
-      setGeneratedCode = _React$useState2[1];
-
-  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(false),
-      _React$useState4 = _slicedToArray(_React$useState3, 2),
-      showGeneratedCode = _React$useState4[0],
-      setShowGeneratedCode = _React$useState4[1];
-
-  var urlInputRef = react__WEBPACK_IMPORTED_MODULE_0___default.a.useRef(null);
-  var urlToTest = state.urlToTest,
-      commands = state.commands,
-      isRecording = state.isRecording,
-      showAssertionPanel = state.showAssertionPanel;
-  var addCommand = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (command) {
-    dispatch({
-      type: "ADD_COMMAND",
-      command: command
-    });
-  }, [dispatch]);
-  react__WEBPACK_IMPORTED_MODULE_0___default.a.useEffect(function () {
-    if (urlInputRef && urlInputRef.current) {
-      urlInputRef.current.focus();
-    }
-  }, [urlInputRef.current]);
-  react__WEBPACK_IMPORTED_MODULE_0___default.a.useEffect(function () {
-    if (urlToTest) {
-      // addCommand({ command: 'GOTO', href: urlToTest });
-      ipcRenderer.send("url-to-test", urlToTest);
-    }
-  }, [urlToTest]);
-  var handleGenerateClick = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (toolName) {
-    switch (toolName) {
-      case "puppeteer":
-        generator = generatePuppeteerCode;
-        break;
-
-      case "cypress":
-        generator = generateCypressCode;
-    }
-
-    console.log(generator(commands));
-    setGeneratedCode(generator(commands));
-    setShowGeneratedCode(true);
-  }, [commands]);
-  var handleStartRecording = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function () {
-    // When recording starts, give the renderer the current url. The first
-    // command can then be to goto(url)
-    var url = ipcRenderer.sendSync("recording", {
-      type: "START"
-    });
-    dispatch({
-      type: "START_RECORDING",
-      url: url
-    });
-  }, [dispatch]);
-  var handlePauseClick = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function () {
-    console.log("dispatch pause");
-    dispatch({
-      type: "PAUSE_RECORDING"
-    });
-  }, [dispatch]);
-  var handleSelectorChange = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (commandIndex, targetIndex) {
-    dispatch({
-      type: "CHANGE_SELECTOR",
-      commandIndex: commandIndex,
-      targetIndex: targetIndex
-    });
-  }, [dispatch]);
-  var handleReplayClick = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function () {
-    if (commands && commands.length > 0) {
-      // let's pause the recording when we start the replay. Keep it paused
-      // even if the replay has ended. Let the user restart recording if they
-      // want to.
-      dispatch({
-        type: "PAUSE_RECORDING"
-      }); // setTimeout(() => {
-
-      ipcRenderer.send("replay", commands); // }, 500);
-    }
-  }, [commands]);
-  var handleNewCommand = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (_, command) {
-    if (command.command) {
-      console.log("got command to add", command);
-      addCommand(command);
-    }
-  }, [addCommand]);
-  react__WEBPACK_IMPORTED_MODULE_0___default.a.useEffect(function () {
-    ipcRenderer.removeListener("new-command", handleNewCommand); // the first argument allows the renderer process to reply back on the
-    // same channel. It has helpers methods for the same.
-
-    ipcRenderer.on("new-command", handleNewCommand);
-  }, [handleNewCommand]);
-  var handleCommandIgnoreClick = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (commandIndex) {
-    dispatch({
-      type: "TOGGLE_IGNORE",
-      commandIndex: commandIndex
-    });
-  }, [dispatch]);
-  var handleUrlInputSubmit = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (urlInputRef.current) {
-      dispatch({
-        type: "SET_URL_TO_TEST",
-        urlToTest: urlInputRef.current.value
-      });
-    }
-  }, [urlInputRef, dispatch]);
-  var handleAddAssertionClick = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function () {
-    dispatch({
-      type: "SHOW_ASSERTION_PANEL"
-    });
-    ipcRenderer.send("start-find-and-select");
-  }, [dispatch]);
-  var handleAssertionSave = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function (command) {
-    console.log("let us save the assertion", command);
-    dispatch({
-      type: "HIDE_ASSERTION_PANEL"
-    });
-    addCommand(command);
-  }, [dispatch, addCommand]);
-  var handleAssertionCancel = react__WEBPACK_IMPORTED_MODULE_0___default.a.useCallback(function () {
-    dispatch({
-      type: "HIDE_ASSERTION_PANEL"
-    });
-    ipcRenderer.send("stop-find-and-select");
-  }, [dispatch]);
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex w-screen antialiased text-copy-primary bg-background-primary",
-    style: {
-      display: "flex"
-    }
-  }, urlToTest ? showAssertionPanel ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_AssertionForm__WEBPACK_IMPORTED_MODULE_3__["default"], {
-    onSave: handleAssertionSave,
-    onCancel: handleAssertionCancel
-  }, null) : [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SidePanel__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    isRecording: isRecording,
-    commands: commands,
-    onGenerateClick: handleGenerateClick,
-    onStartRecording: handleStartRecording,
-    onReplay: handleReplayClick,
-    onPauseClick: handlePauseClick,
-    onSelectorChange: handleSelectorChange,
-    onCommandIgoreClick: handleCommandIgnoreClick,
-    onAddAssertionClick: handleAddAssertionClick
-  }, null), showGeneratedCode && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_modal__WEBPACK_IMPORTED_MODULE_1___default.a, {
-    isOpen: showGeneratedCode,
-    onRequestClose: function onRequestClose() {
-      return setShowGeneratedCode(false);
-    }
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {}, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex flex-row-reverse"
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "p-2",
-    onClick: function onClick() {
-      return setShowGeneratedCode(false);
-    }
-  }, "X")]), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("pre", {
-    className: "whitespace-pre"
-  }, generatedCode)])])] : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-    className: "flex w-full h-screen justify-center items-center bg-blue-800"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
-    onSubmit: handleUrlInputSubmit
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-    ref: urlInputRef,
-    defaultValue: urlToTest,
-    placeholder: "Enter url to test",
-    className: "border w-64 px-4 py-2 bg-gray-100 text-gray-900 text-xl rounded-lg "
-  }, null)])));
+    console.log("inside App");
+    var _a = react__WEBPACK_IMPORTED_MODULE_0__["useReducer"](rootReducer, initialState), state = _a[0], dispatch = _a[1];
+    var _b = react__WEBPACK_IMPORTED_MODULE_0__["useState"](""), generatedCode = _b[0], setGeneratedCode = _b[1];
+    var _c = react__WEBPACK_IMPORTED_MODULE_0__["useState"](false), showGeneratedCode = _c[0], setShowGeneratedCode = _c[1];
+    var urlInputRef = react__WEBPACK_IMPORTED_MODULE_0__["useRef"](null);
+    var urlToTest = state.urlToTest, commands = state.commands, isRecording = state.isRecording, showAssertionPanel = state.showAssertionPanel;
+    var addCommand = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (command) {
+        dispatch({ type: "ADD_COMMAND", command: command });
+    }, [dispatch]);
+    react__WEBPACK_IMPORTED_MODULE_0__["useEffect"](function () {
+        if (urlInputRef && urlInputRef.current) {
+            urlInputRef.current.focus();
+        }
+    }, [urlInputRef.current]);
+    react__WEBPACK_IMPORTED_MODULE_0__["useEffect"](function () {
+        if (urlToTest) {
+            // addCommand({ command: 'GOTO', href: urlToTest });
+            ipcRenderer.send("url-to-test", urlToTest);
+        }
+    }, [urlToTest]);
+    var handleGenerateClick = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (toolName) {
+        var generator;
+        switch (toolName) {
+            case "puppeteer":
+                generator = generatePuppeteerCode;
+                break;
+            case "cypress":
+                generator = generateCypressCode;
+        }
+        console.log(generator(commands));
+        setGeneratedCode(generator(commands));
+        setShowGeneratedCode(true);
+    }, [commands]);
+    var handleStartRecording = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function () {
+        // When recording starts, give the renderer the current url. The first
+        // command can then be to goto(url)
+        var url = ipcRenderer.sendSync("recording", { type: "START" });
+        dispatch({ type: "START_RECORDING", url: url });
+    }, [dispatch]);
+    var handlePauseClick = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function () {
+        console.log("dispatch pause");
+        dispatch({ type: "PAUSE_RECORDING" });
+    }, [dispatch]);
+    var handleSelectorChange = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (commandIndex, targetIndex) {
+        dispatch({ type: "CHANGE_SELECTOR", commandIndex: commandIndex, targetIndex: targetIndex });
+    }, [dispatch]);
+    var handleReplayClick = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function () {
+        if (commands && commands.length > 0) {
+            // let's pause the recording when we start the replay. Keep it paused
+            // even if the replay has ended. Let the user restart recording if they
+            // want to.
+            dispatch({ type: "PAUSE_RECORDING" });
+            // setTimeout(() => {
+            ipcRenderer.send("replay", commands);
+            // }, 500);
+        }
+    }, [commands]);
+    var handleNewCommand = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (_, command) {
+        if (command.command) {
+            console.log("got command to add", command);
+            addCommand(command);
+        }
+    }, [addCommand]);
+    react__WEBPACK_IMPORTED_MODULE_0__["useEffect"](function () {
+        ipcRenderer.removeListener("new-command", handleNewCommand);
+        // the first argument allows the renderer process to reply back on the
+        // same channel. It has helpers methods for the same.
+        ipcRenderer.on("new-command", handleNewCommand);
+    }, [handleNewCommand]);
+    var handleCommandIgnoreClick = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (commandIndex) {
+        dispatch({ type: "TOGGLE_IGNORE", commandIndex: commandIndex });
+    }, [dispatch]);
+    var handleUrlInputSubmit = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (urlInputRef.current) {
+            dispatch({
+                type: "SET_URL_TO_TEST",
+                urlToTest: urlInputRef.current.value,
+            });
+        }
+    }, [urlInputRef, dispatch]);
+    var handleAddAssertionClick = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function () {
+        dispatch({ type: "SHOW_ASSERTION_PANEL" });
+        ipcRenderer.send("start-find-and-select");
+    }, [dispatch]);
+    var handleAssertionSave = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function (command) {
+        console.log("let us save the assertion", command);
+        dispatch({ type: "HIDE_ASSERTION_PANEL" });
+        addCommand(command);
+    }, [dispatch, addCommand]);
+    var handleAssertionCancel = react__WEBPACK_IMPORTED_MODULE_0__["useCallback"](function () {
+        dispatch({ type: "HIDE_ASSERTION_PANEL" });
+        ipcRenderer.send("stop-find-and-select");
+    }, [dispatch]);
+    return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
+        className: "flex w-screen antialiased text-copy-primary bg-background-primary",
+        style: { display: "flex" },
+    }, urlToTest
+        ? showAssertionPanel
+            ? react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_AssertionForm__WEBPACK_IMPORTED_MODULE_3__["default"], {
+                onSave: handleAssertionSave,
+                onCancel: handleAssertionCancel,
+            }, null)
+            : [
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_SidePanel__WEBPACK_IMPORTED_MODULE_2__["default"], {
+                    isRecording: isRecording,
+                    commands: commands,
+                    onGenerateClick: handleGenerateClick,
+                    onStartRecording: handleStartRecording,
+                    onReplay: handleReplayClick,
+                    onPauseClick: handlePauseClick,
+                    onSelectorChange: handleSelectorChange,
+                    onCommandIgoreClick: handleCommandIgnoreClick,
+                    onAddAssertionClick: handleAddAssertionClick,
+                }, null),
+                showGeneratedCode &&
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react_modal__WEBPACK_IMPORTED_MODULE_1___default.a, {
+                        isOpen: showGeneratedCode,
+                        onRequestClose: function () { return setShowGeneratedCode(false); },
+                    }, [
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {}, [
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-row-reverse" }, [
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
+                                    className: "p-2",
+                                    onClick: function () { return setShowGeneratedCode(false); },
+                                }, "X"),
+                            ]),
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pre", { className: "whitespace-pre" }, generatedCode),
+                        ]),
+                    ]),
+            ]
+        : react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
+            className: "flex w-full h-screen justify-center items-center bg-blue-800",
+        }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("form", {
+            onSubmit: handleUrlInputSubmit,
+        }, [
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", {
+                ref: urlInputRef,
+                defaultValue: urlToTest,
+                placeholder: "Enter url to test",
+                className: "border w-64 px-4 py-2 bg-gray-100 text-gray-900 text-xl rounded-lg ",
+            }, null),
+        ])));
 }
+
 
 /***/ }),
 
@@ -32625,13 +32546,13 @@ var assertionTypes = [
 ];
 function AssertionForm(_a) {
     var onSave = _a.onSave, onCancel = _a.onCancel;
-    var _b = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(false), showTextarea = _b[0], setShowTextarea = _b[1];
-    var _c = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(""), expectedValue = _c[0], setExpectedValue = _c[1];
-    var _d = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(assertionTypes[0].value), assertionType = _d[0], setAssertionType = _d[1];
-    var _e = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState([]), assertionTargets = _e[0], setAssertionTargets = _e[1];
-    var _f = react__WEBPACK_IMPORTED_MODULE_0___default.a.useState(0), selectedTarget = _f[0], setSelectedTarget = _f[1];
-    var assertionTypeRef = react__WEBPACK_IMPORTED_MODULE_0___default.a.useRef(null);
-    react__WEBPACK_IMPORTED_MODULE_0___default.a.useEffect(function () {
+    var _b = react__WEBPACK_IMPORTED_MODULE_0__["useState"](false), showTextarea = _b[0], setShowTextarea = _b[1];
+    var _c = react__WEBPACK_IMPORTED_MODULE_0__["useState"](""), expectedValue = _c[0], setExpectedValue = _c[1];
+    var _d = react__WEBPACK_IMPORTED_MODULE_0__["useState"](assertionTypes[0].value), assertionType = _d[0], setAssertionType = _d[1];
+    var _e = react__WEBPACK_IMPORTED_MODULE_0__["useState"]([]), assertionTargets = _e[0], setAssertionTargets = _e[1];
+    var _f = react__WEBPACK_IMPORTED_MODULE_0__["useState"](0), selectedTarget = _f[0], setSelectedTarget = _f[1];
+    var assertionTypeRef = react__WEBPACK_IMPORTED_MODULE_0__["useRef"](null);
+    react__WEBPACK_IMPORTED_MODULE_0__["useEffect"](function () {
         ipcRenderer.on("assertion-target", function (_, targets) {
             console.log("Got assertion target", targets);
             setAssertionTargets(targets);
@@ -32641,7 +32562,7 @@ function AssertionForm(_a) {
         e.preventDefault();
         setAssertionType(e.target.value);
     }
-    react__WEBPACK_IMPORTED_MODULE_0___default.a.useEffect(function () {
+    react__WEBPACK_IMPORTED_MODULE_0__["useEffect"](function () {
         if (assertionType.startsWith("assertText")) {
             setShowTextarea(true);
         }
@@ -32674,38 +32595,38 @@ function AssertionForm(_a) {
         e.preventDefault();
         setExpectedValue(e.target.value);
     }
-    return (react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", { className: "w-full p-4" },
-        react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h2", { className: "mb-2" }, "Assertion"),
-        react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", { className: "mt-4", onSubmit: handleSubmit },
-            react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", { className: "flex items-center w-full" },
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "w-full p-4" },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h2", { className: "mb-2" }, "Assertion"),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("form", { className: "mt-4", onSubmit: handleSubmit },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("label", { className: "flex items-center w-full" },
                 "Assertion against:&nbps;&nbps;",
-                assertionTargets.length > 0 ? (react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", { name: "selector", className: "flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md", value: selectedTarget, onChange: function (e) {
+                assertionTargets.length > 0 ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("select", { name: "selector", className: "flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md", value: selectedTarget, onChange: function (e) {
                         e.preventDefault();
                         console.log("new target selected", e.target.value);
                         setSelectedTarget(Number(e.target.value));
                     } }, assertionTargets.map(function (t, i) {
-                    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("option", { value: i }, t[0]);
-                }))) : (react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", { className: "flex-1 px-4 py-2 ml-4 text-gray-500 bg-gray-100 border border-gray-400 rounded-md", disabled: true, placeholder: "locator comes here" })),
-                react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", { className: "flex items-center p-2 ml-2 text-gray-100 bg-blue-700 rounded-lg h-9 hover:bg-blue-900", onClick: function (e) {
+                    return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("option", { value: i }, t[0]);
+                }))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", { className: "flex-1 px-4 py-2 ml-4 text-gray-500 bg-gray-100 border border-gray-400 rounded-md", disabled: true, placeholder: "locator comes here" })),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { className: "flex items-center p-2 ml-2 text-gray-100 bg-blue-700 rounded-lg h-9 hover:bg-blue-900", onClick: function (e) {
                         e.preventDefault();
                         ipcRenderer.send("start-find-and-select");
                     } },
-                    react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", { width: 20, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", viewBox: "0 0 24 24", stroke: "currentColor" },
-                        react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", { style: {
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", { width: 20, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", viewBox: "0 0 24 24", stroke: "currentColor" },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", { style: {
                                 transform: "rotate(90deg)",
                                 transformOrigin: "50% 50%",
                             }, d: "M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" })))),
-            react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", { className: "flex items-center w-full mt-2" },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("label", { className: "flex items-center w-full mt-2" },
                 "Assertion type\u00A0\u00A0",
-                react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", { className: "flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md", value: assertionType, onChange: handleAssertionTypeChange }, assertionTypes.map(function (assertionType) {
-                    return (react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("option", { className: "ml-4", value: assertionType.value, key: assertionType.value }, assertionType.label));
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("select", { className: "flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md", value: assertionType, onChange: handleAssertionTypeChange }, assertionTypes.map(function (assertionType) {
+                    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("option", { className: "ml-4", value: assertionType.value, key: assertionType.value }, assertionType.label));
                 }))),
-            showTextarea && (react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", { className: "flex items-center w-full mt-2" },
+            showTextarea && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("label", { className: "flex items-center w-full mt-2" },
                 "Expected value",
-                react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("textarea", { value: expectedValue, onChange: handleExpectedValueChange, className: "flex-1 px-4 py-2 ml-4 border border-gray-400 rounded-md" }))),
-            react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", { className: "flex flex-row-reverse mt-4" },
-                react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", { type: "submit", className: "px-4 py-2 bg-blue-500 rounded-md" }, "Save"),
-                react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", { type: "submit", className: "px-4 py-2 mr-4 bg-blue-500 rounded-md", onClick: function (e) {
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("textarea", { value: expectedValue, onChange: handleExpectedValueChange, className: "flex-1 px-4 py-2 ml-4 border border-gray-400 rounded-md" }))),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "flex flex-row-reverse mt-4" },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { type: "submit", className: "px-4 py-2 bg-blue-500 rounded-md" }, "Save"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { type: "submit", className: "px-4 py-2 mr-4 bg-blue-500 rounded-md", onClick: function (e) {
                         e.stopPropagation();
                         e.preventDefault();
                         onCancel();
@@ -32993,13 +32914,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _App_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.js */ "./src/renderer/App.js");
+/* harmony import */ var _App__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App */ "./src/renderer/App.tsx");
 
 
 
 document.addEventListener("DOMContentLoaded", function () {
   var root = document.getElementById("root");
-  react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_App_js__WEBPACK_IMPORTED_MODULE_2__["default"], null, null), root);
+  react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_App__WEBPACK_IMPORTED_MODULE_2__["default"], null, null), root);
 });
 
 /***/ }),

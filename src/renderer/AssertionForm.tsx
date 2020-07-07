@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 import { Command } from "./command";
 const { ipcRenderer } = require("electron");
@@ -37,15 +37,20 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
   const [assertionType, setAssertionType] = React.useState(
     assertionTypes[0].value
   );
-  const [assertionTargets, setAssertionTargets] = React.useState([]);
+  const [assertionTargets, setAssertionTargets] = React.useState<
+    Array<[string, string]>
+  >([]);
   const [selectedTarget, setSelectedTarget] = React.useState(0);
   const assertionTypeRef = React.useRef(null);
 
   React.useEffect(() => {
-    ipcRenderer.on("assertion-target", (_, targets) => {
-      console.log("Got assertion target", targets);
-      setAssertionTargets(targets);
-    });
+    ipcRenderer.on(
+      "assertion-target",
+      (_: any, targets: Array<[string, string]>) => {
+        console.log("Got assertion target", targets);
+        setAssertionTargets(targets);
+      }
+    );
   }, []);
 
   function handleAssertionTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {

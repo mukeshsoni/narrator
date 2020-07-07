@@ -1,10 +1,11 @@
-import React from "react";
+import * as React from "react";
 import Modal from "react-modal";
 
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
 import AssertionForm from "./AssertionForm";
+import { Command } from "./command";
 
 const {
   generatePuppeteerCode,
@@ -15,14 +16,21 @@ const generateCypressCode = require("../code-generators/cypress/code-generator")
 // const dummyUrlToTest = "https://google.com/";
 const dummyUrlToTest = "http://testing-ground.scraping.pro/login";
 
-const initialState = {
+interface State {
+  commands: Array<Command>;
+  urlToTest: string;
+  isRecording: boolean;
+  showAssertionPanel: boolean;
+}
+
+const initialState: State = {
   commands: [],
   urlToTest: dummyUrlToTest,
   isRecording: false,
   showAssertionPanel: false,
 };
 
-function addHttpsIfRequired(url) {
+function addHttpsIfRequired(url: string) {
   if (url.length > 0 && !/^(?:f|ht)tps?\:\/\//.test(url)) {
     return `https://${url}`;
   }
@@ -30,7 +38,7 @@ function addHttpsIfRequired(url) {
   return url;
 }
 
-function rootReducer(state, action) {
+function rootReducer(state: State, action: any) {
   console.log("action", action);
   switch (action.type) {
     case "RESET_COMMANDS":
@@ -45,7 +53,13 @@ function rootReducer(state, action) {
       ) {
         let currentCommands = state.commands;
         if (currentCommands.length === 0) {
-          currentCommands.push({ name: "GOTO", href: state.urlToTest });
+          currentCommands.push({
+            command: "GOTO",
+            name: "GOTO",
+            href: state.urlToTest,
+            target: [],
+            selectedTarget: 0,
+          });
         }
 
         return {
@@ -120,7 +134,7 @@ export default function App() {
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
-  const urlInputRef = React.useRef(null);
+  const urlInputRef = React.useRef<HTMLInputElement>(null);
   const { urlToTest, commands, isRecording, showAssertionPanel } = state;
 
   const addCommand = React.useCallback(
@@ -145,6 +159,7 @@ export default function App() {
 
   const handleGenerateClick = React.useCallback(
     (toolName) => {
+      let generator;
       switch (toolName) {
         case "puppeteer":
           generator = generatePuppeteerCode;
