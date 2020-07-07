@@ -1,5 +1,5 @@
-const React = require("react");
-const classNames = require("classnames");
+import React from "react";
+import classNames from "classnames";
 
 function getCommandValue(command) {
   switch (command.name) {
@@ -160,7 +160,11 @@ function CommandDetails({
   );
 }
 
-function CommandTable({ commands, onSelectorChange, onCommandIgoreClick }) {
+export default function CommandTable({
+  commands,
+  onSelectorChange,
+  onCommandIgoreClick,
+}) {
   const [selectedCommandIndex, setSelectedCommandIndex] = React.useState(null);
 
   function handleCommandRowClick(commandIndex) {
@@ -205,8 +209,3 @@ function CommandTable({ commands, onSelectorChange, onCommandIgoreClick }) {
       ),
   ]);
 }
-
-module.exports = {
-  CommandTable,
-  getCommandValue,
-};

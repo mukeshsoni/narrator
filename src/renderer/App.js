@@ -1,9 +1,10 @@
-const { ipcRenderer } = require("electron");
-const React = require("react");
-const Modal = require("react-modal");
+import React from "react";
+import Modal from "react-modal";
 
-const { SidePanel } = require("./SidePanel");
-const AssertionForm = require("./AssertionForm");
+const { ipcRenderer } = require("electron");
+
+import SidePanel from "./SidePanel";
+import AssertionForm from "./AssertionForm";
 
 const {
   generatePuppeteerCode,
@@ -114,7 +115,8 @@ function rootReducer(state, action) {
   }
 }
 
-function App() {
+export default function App() {
+  console.log("inside App");
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
@@ -342,5 +344,3 @@ function App() {
         )
   );
 }
-
-module.exports = App;

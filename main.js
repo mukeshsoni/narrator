@@ -84,6 +84,7 @@ ipcMain.on("recording", (event, action) => {
     // When recording starts, give the renderer the current url. The first
     // command can then be to goto(url)
     event.returnValue = puppeteerHandles.page.url.bind(puppeteerHandles.page)();
+    testingWindow.focus();
   }
 });
 
@@ -121,14 +122,14 @@ async function runBlocks(blocks) {
         if (block.accessors[0] === "xpathEl") {
           // have to bind the action (like click, type etc.) calls the xpathEl
           // In our case it's puppeteerHandles['xpathEl'][0]
-          await functionToCall.bind(accessorToBindTo)(...block.arguments);
+          await functionToCall.bind(accessorToBindTo)(...block.args);
         } else {
-          await functionToCall.bind(accessorToBindTo)(...block.arguments);
+          await functionToCall.bind(accessorToBindTo)(...block.args);
         }
       } else {
         puppeteerHandles[block.lhs] = await functionToCall.bind(
           accessorToBindTo
-        )(...block.arguments);
+        )(...block.args);
       }
     } catch (e) {
       console.log("Error trying to execute step", block);

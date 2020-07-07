@@ -1,5 +1,7 @@
-const { CommandTable } = require("./CommandTable");
-const onClickOutside = require("react-onclickoutside");
+import React from "react";
+import onClickOutside from "react-onclickoutside";
+
+import CommandTable from "./CommandTable";
 
 const SIDE_PANEL_WIDTH = 600;
 
@@ -39,9 +41,9 @@ const clickOutsideConfig = {
   handleClickOutside: () => Menu.handleClickOutside,
 };
 
-const MenuWithClickOutside = onClickOutside.default(Menu, clickOutsideConfig);
+const MenuWithClickOutside = onClickOutside(Menu, clickOutsideConfig);
 
-function SidePanel({
+export default function SidePanel({
   commands,
   onGenerateClick,
   isRecording,
@@ -184,5 +186,3 @@ function SidePanel({
     ]
   );
 }
-
-module.exports = { SidePanel, SIDE_PANEL_WIDTH };

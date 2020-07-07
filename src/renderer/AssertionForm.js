@@ -1,3 +1,5 @@
+import React from "react";
+
 const { ipcRenderer } = require("electron");
 
 const assertionTypes = [
@@ -23,7 +25,7 @@ const assertionTypes = [
   },
 ];
 
-function AssertionForm({ onSave, onCancel }) {
+export default function AssertionForm({ onSave, onCancel }) {
   const [showTextarea, setShowTextarea] = React.useState(false);
   const [expectedValue, setExpectedValue] = React.useState("");
   const [assertionType, setAssertionType] = React.useState(
@@ -235,5 +237,3 @@ function AssertionForm({ onSave, onCancel }) {
     ),
   ]);
 }
-
-module.exports = AssertionForm;

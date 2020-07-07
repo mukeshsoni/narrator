@@ -5871,14 +5871,18 @@
       attachRecorderHandler(message, _sender, sendResponse) {
         if (message.attachRecorder) {
           this.attach();
-          sendResponse(true);
+          if (typeof sendResponse === "function") {
+            sendResponse(true);
+          }
         }
       }
 
       detachRecorderHandler(message, _sender, sendResponse) {
         if (message.detachRecorder) {
           this.detach();
-          sendResponse(true);
+          if (typeof sendResponse === "function") {
+            sendResponse(true);
+          }
         }
       }
 

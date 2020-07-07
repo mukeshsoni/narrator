@@ -101,7 +101,7 @@ function keyPressCode(command) {
 
   return {
     accessors: ["page", "keyboard", "press"],
-    arguments: [capitalize(match[1].split("_")[1])],
+    args: [capitalize(match[1].split("_")[1])],
   };
 }
 
@@ -116,18 +116,18 @@ function getXpathSelectorIndex(selector) {
 // instead of the line itself
 // E.g. Block {
 //    accessors: ['page', 'keyboard', 'press'],
-//    arguments: [selector, value?],
+//    args: [selector, value?],
 //    lhs: 'string' | null // e.g. xpathEl
 // }
 // The above structure can be used to
 // 1. Generate code
 // 2. Or execute code
-//    E.g. lhs = await accessors[0][accessors[1]][accessors[2]](...arguments)
+//    E.g. lhs = await accessors[0][accessors[1]][accessors[2]](...args)
 //    The only thing to figure out is how to map accessors[0] to a real variable
 //    e.g. to page?
 //    we can store the page variable in some other object
 //    pup = { page };
-//    then await pup[accessors[0]][accessors[1]](...arguments) should work
+//    then await pup[accessors[0]][accessors[1]](...args) should work
 function typeCode(command) {
   let { target, value, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
@@ -138,17 +138,17 @@ function typeCode(command) {
   if (selectorType !== "xpath") {
     blocks.push({
       accessors: [frame, "type"],
-      arguments: [selector, value],
+      args: [selector, value],
     });
   } else {
     blocks.push({
       accessors: [frame, "$x"],
-      arguments: [selector],
+      args: [selector],
       lhs: "xpathEl",
     });
     blocks.push({
       accessors: ["xpathEl", getXpathSelectorIndex(selector), "type"],
-      arguments: [value],
+      args: [value],
     });
   }
 
@@ -165,12 +165,12 @@ function clickCode(command) {
     if (selectorType !== "xpath") {
       blocks.push({
         accessors: [frame, "waitForSelector"],
-        arguments: [selector],
+        args: [selector],
       });
     } else {
       blocks.push({
         accessors: [frame, "waitForXPath"],
-        arguments: [selector],
+        args: [selector],
       });
     }
   }
@@ -178,17 +178,17 @@ function clickCode(command) {
   if (selectorType !== "xpath") {
     blocks.push({
       accessors: [frame, "click"],
-      arguments: [selector],
+      args: [selector],
     });
   } else {
     blocks.push({
       accessors: [frame, "$x"],
-      arguments: [selector],
+      args: [selector],
       lhs: "xpathEl",
     });
     blocks.push({
       accessors: ["xpathEl", getXpathSelectorIndex(selector), "click"],
-      arguments: [],
+      args: [],
     });
   }
 
@@ -203,17 +203,17 @@ function changeCode(command) {
   if (selectorType !== "xpath") {
     blocks.push({
       accessors: [frame, "select"],
-      arguments: [selector, value],
+      args: [selector, value],
     });
   } else {
     blocks.push({
       accessors: [frame, "$x"],
-      arguments: [selector],
+      args: [selector],
       lhs: "xpathEl",
     });
     blocks.push({
       accessors: ["xpathEl", getXpathSelectorIndex(selector), "select"],
-      arguments: [],
+      args: [],
     });
   }
 
@@ -223,14 +223,14 @@ function changeCode(command) {
 function gotoCode(href) {
   return {
     accessors: [frame, "goto"],
-    arguments: [href],
+    args: [href],
   };
 }
 
 function viewportCode(width, height) {
   return {
     accessors: [frame, "setViewport"],
-    arguments: [{ width, height }],
+    args: [{ width, height }],
   };
 }
 
@@ -241,12 +241,12 @@ function assertVisibilityCode(command) {
   if (selectorType !== "xpath") {
     return {
       accessors: [frame, "waitForSelector"],
-      arguments: [selector],
+      args: [selector],
     };
   } else {
     return {
       accessors: [frame, "waitForXPath"],
-      arguments: [selector],
+      args: [selector],
     };
   }
 }
@@ -418,14 +418,14 @@ function parseCommands(commands) {
 }
 
 function getCodeString(block) {
-  const { accessors, arguments, lhs } = block;
+  const { accessors, args, lhs } = block;
 
   const accessor = accessors.reduce(
     (acc, item) => (acc ? `${acc}.${item}` : item),
     ""
   );
 
-  const argumentsString = arguments
+  const argumentsString = args
     .map((arg) => (typeof arg === "string" ? `"${arg}"` : arg.toString()))
     .join(", ");
 
