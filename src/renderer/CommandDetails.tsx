@@ -19,7 +19,22 @@ export default function CommandDetails({
   return (
     <div className="px-4 py-2 mt-6 bg-indigo-100">
       <div className="flex flex-row-reverse mt-2 mb-4">
-        <button onClick={onRemoveClick}>X</button>
+        <button
+          className="p-1 rounded-full hover:bg-blue-500 hover:text-white"
+          onClick={onRemoveClick}
+        >
+          <svg
+            width={20}
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
       <form className="flex flex-col">
         <label className="flex items-center w-full mb-4">
