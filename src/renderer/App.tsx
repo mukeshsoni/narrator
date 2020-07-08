@@ -1,5 +1,8 @@
 import * as React from "react";
 import Modal from "react-modal";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 const { ipcRenderer } = require("electron");
 
@@ -130,7 +133,7 @@ function rootReducer(state: State, action: any) {
 }
 
 export default function App() {
-  console.log("inside App");
+  const [copied, setCopied] = React.useState(false);
   const [state, dispatch] = React.useReducer(rootReducer, initialState);
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
@@ -300,18 +303,71 @@ export default function App() {
       {showGeneratedCode && (
         <Modal
           isOpen={showGeneratedCode}
-          onRequestClose={() => setShowGeneratedCode(false)}
+          onRequestClose={() => {
+            setCopied(false);
+            setShowGeneratedCode(false);
+          }}
         >
           <div>
             <div className="flex flex-row-reverse">
               <button
-                className="p-2"
-                onClick={() => setShowGeneratedCode(false)}
+                className="p-1 rounded-full hover:bg-blue-500 hover:text-white"
+                onClick={() => {
+                  setCopied(false);
+                  setShowGeneratedCode(false);
+                }}
               >
-                X
+                <svg
+                  width={20}
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
               </button>
             </div>
-            <pre className="whitespace-pre">{generatedCode}</pre>
+            <CopyToClipboard
+              text={generatedCode}
+              onCopy={() => setCopied(true)}
+            >
+              <button className="px-4 py-2 mt-4 text-gray-100 bg-blue-500 border hover:bg-blue-300 hover:text-black rounded-md">
+                Copy to clipboard
+              </button>
+            </CopyToClipboard>
+            {copied && (
+              <p className="mt-1 text-red-700">
+                The code is copied to your clipboard!
+              </p>
+            )}
+            <hr className="mt-4" />
+            <div className="relative mt-4">
+              <CopyToClipboard
+                text={generatedCode}
+                onCopy={() => setCopied(true)}
+                className="absolute top-0 right-0 p-2 mt-1 mr-1 text-black border border-gray-300 opacity-0 hover:opacity-100 hover:bg-blue-100 hover:text-blue-800 hover:border-gray-600 rounded-md transition ease-in duration-100"
+              >
+                <button>
+                  <svg
+                    width={20}
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                  </svg>
+                </button>
+              </CopyToClipboard>
+              <SyntaxHighlighter language="javascript" style={docco}>
+                {generatedCode}
+              </SyntaxHighlighter>
+            </div>
           </div>
         </Modal>
       )}

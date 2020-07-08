@@ -234,9 +234,9 @@ function shiftControlPanelWindowToSide() {
   controlPanelWindow.setSize(CONTROL_PANEL_WIDTH, screenHeight);
 }
 
-function closeTestWindow() {
+async function closeTestWindow() {
   if (testingWindow && puppeteerHandles.page) {
-    puppeteerHandles.page.close();
+    await puppeteerHandles.page.close();
     testingWindow.destroy();
     testingWindow = null;
   }
@@ -244,7 +244,7 @@ function closeTestWindow() {
 
 async function createTestBrowserWindow(url) {
   shiftControlPanelWindowToSide();
-  closeTestWindow();
+  await closeTestWindow();
   const {
     height: screenHeight,
     width: screenWidth,
