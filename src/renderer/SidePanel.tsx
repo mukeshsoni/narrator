@@ -17,9 +17,9 @@ function Menu({ buttonText, children }: MenuProps) {
   Menu.handleClickOutside = () => setMenuOpen(false);
 
   return (
-    <div className="relative items-center">
+    <div className="relative h-full">
       <button
-        className="flex items-center px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white"
+        className="flex items-center h-full px-4 py-2 hover:bg-blue-500 hover:text-white"
         onClick={() => (menuOpen ? setMenuOpen(false) : setMenuOpen(true))}
       >
         {buttonText}
@@ -104,7 +104,7 @@ export default function SidePanel({
         <div className="flex">
           {!isRecording ? (
             <button
-              className="flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white"
+              className="flex flex-col items-center justify-center px-4 py-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white"
               onClick={onStartRecording}
             >
               <div className="w-5 h-5 mb-1 bg-red-700 rounded-full" />
@@ -150,7 +150,7 @@ export default function SidePanel({
             </button>
           )}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center h-full">
           <button
             className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
             onClick={(e: React.MouseEvent) => {
