@@ -150,15 +150,27 @@ export default function SidePanel({
             </button>
           )}
         </div>
-        <div className="flex">
+        <div className="flex items-center">
           <button
-            className="px-4 py-2 mr-2 rounded-md hover:bg-blue-500 hover:text-white"
+            className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               onAddAssertionClick();
             }}
+            title="Add assertion"
           >
-            Add assertion
+            <svg
+              width={24}
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span className="text-xs uppercase">Assert</span>
           </button>
           <MenuWithClickOutside buttonText="Generate code">
             <>
