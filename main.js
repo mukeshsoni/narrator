@@ -236,7 +236,11 @@ function shiftControlPanelWindowToSide() {
 
 async function closeTestWindow() {
   if (testingWindow && puppeteerHandles.page) {
-    await puppeteerHandles.page.close();
+    try {
+      await puppeteerHandles.page.close();
+    } catch (e) {
+      console.log("the page might be already close");
+    }
     testingWindow.destroy();
     testingWindow = null;
   }

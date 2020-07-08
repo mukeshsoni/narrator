@@ -17,7 +17,7 @@ function Menu({ buttonText, children }: MenuProps) {
   Menu.handleClickOutside = () => setMenuOpen(false);
 
   return (
-    <div className="relative items-center bg-gray-500">
+    <div className="relative items-center">
       <button
         className="flex items-center px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white"
         onClick={() => (menuOpen ? setMenuOpen(false) : setMenuOpen(true))}
@@ -52,7 +52,7 @@ function Menu({ buttonText, children }: MenuProps) {
       <div
         className={
           menuOpen
-            ? "flex flex-col border absolute bg-gray-500 rounded-lg"
+            ? "flex flex-col border absolute bg-gray-100 rounded-lg"
             : "hidden"
         }
       >
@@ -100,7 +100,7 @@ export default function SidePanel({
       className="flex flex-col border border-gray-300"
       style={{ width: SIDE_PANEL_WIDTH }}
     >
-      <div className="flex items-center justify-between w-full px-4 mb-4 bg-gray-500">
+      <div className="flex items-center justify-between w-full px-4 mb-4 bg-gray-100">
         <div className="flex">
           {!isRecording ? (
             <button
@@ -131,7 +131,7 @@ export default function SidePanel({
           )}
           {commands && commands.length > 0 && (
             <button
-              className="flex flex-col items-center justify-center p-2 mr-2 text-xs text-green-600 uppercase hover:bg-blue-500 hover:text-white"
+              className="flex flex-col items-center justify-center p-2 mr-2 text-xs text-green-800 uppercase hover:bg-blue-500 hover:text-white"
               onClick={onReplay}
             >
               <svg
