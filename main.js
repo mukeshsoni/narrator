@@ -136,6 +136,9 @@ async function runBlocks(blocks) {
       puppeteerHandles.page.evaluate((errorMessage) => {
         alert(`could not execute step: ${errorMessage}`);
       }, e.toString());
+      // we don't want to continue other steps if one of them failed
+      // Maybe in the future we allow this as an option
+      return;
     }
   }
 }
@@ -239,7 +242,7 @@ async function closeTestWindow() {
     try {
       await puppeteerHandles.page.close();
     } catch (e) {
-      console.log("the page might be already close");
+      console.log("the page might be closed already");
     }
     testingWindow.destroy();
     testingWindow = null;
@@ -268,6 +271,8 @@ async function createTestBrowserWindow(url) {
 
   await testingWindow.loadURL(url);
   const page = await pie.getPage(browserForPuppeteer, testingWindow);
+  // let's now wait more than 5 seconds for anything to appear
+  page.setDefaultTimeout(5000);
   puppeteerHandles.page = page;
   testingWindow.openDevTools();
 

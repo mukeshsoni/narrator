@@ -5,10 +5,10 @@ const domEvents = require("./dom_events_to_record");
 const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
   let xpathEl;
-  const browser = await puppeteer.launch({headless: false})
+  const browser = await puppeteer.launch()
   const page = await browser.newPage()\n`;
 
-const header = `const browser = await puppeteer.launch({headless: false})
+const header = `const browser = await puppeteer.launch()
 const page = await browser.newPage()`;
 
 const wrappedFooter = `  await browser.close()
@@ -56,13 +56,19 @@ function getSelector(target) {
       return [`#${selector}`, selectorType];
     }
     case "name": {
-      return [`[${selectorType}=${selector}]`, selectorType];
+      return [`[${selectorType}='${selector}']`, selectorType];
     }
     case "xpath": {
       return [`${selector}`, selectorType];
     }
+    case "linkText":
+      // puppeteer doesn't have any selector equivalent to seleniums
+      // linkText='text inside anchor tag'
+      // Can be simulated using xpath selector
+      // https://stackoverflow.com/a/55500914/821720
+      return [`//a[contains(., '${selector}')]`, "xpath"];
     default:
-      return [`[${selectorType}=${selector}]`, selectorType];
+      return [`[${selectorType}='${selector}']`, selectorType];
   }
 }
 
@@ -112,53 +118,11 @@ function getXpathSelectorIndex(selector) {
   return 0;
 }
 
-// The block should have all data required to construct a line
-// instead of the line itself
-// E.g. Block {
-//    accessors: ['page', 'keyboard', 'press'],
-//    args: [selector, value?],
-//    lhs: 'string' | null // e.g. xpathEl
-// }
-// The above structure can be used to
-// 1. Generate code
-// 2. Or execute code
-//    E.g. lhs = await accessors[0][accessors[1]][accessors[2]](...args)
-//    The only thing to figure out is how to map accessors[0] to a real variable
-//    e.g. to page?
-//    we can store the page variable in some other object
-//    pup = { page };
-//    then await pup[accessors[0]][accessors[1]](...args) should work
-function typeCode(command) {
-  let { target, value, selectedTarget } = command;
-  const [selector, selectorType] = getSelector(target[selectedTarget]);
-
-  console.log({ selector, selectorType });
-  const blocks = [];
-
-  if (selectorType !== "xpath") {
-    blocks.push({
-      accessors: [frame, "type"],
-      args: [selector, value],
-    });
-  } else {
-    blocks.push({
-      accessors: [frame, "$x"],
-      args: [selector],
-      lhs: "xpathEl",
-    });
-    blocks.push({
-      accessors: ["xpathEl", getXpathSelectorIndex(selector), "type"],
-      args: [value],
-    });
-  }
-
-  return blocks;
-}
-
-function clickCode(command) {
+function getActionBlock(action, command, extraArgs, options = {}) {
   let { target, selectedTarget } = command;
   const [selector, selectorType] = getSelector(target[selectedTarget]);
 
+  console.log({ selector, selectorType });
   const blocks = [];
 
   if (options.waitForSelectorOnClick) {
@@ -177,8 +141,8 @@ function clickCode(command) {
 
   if (selectorType !== "xpath") {
     blocks.push({
-      accessors: [frame, "click"],
-      args: [selector],
+      accessors: [frame, action],
+      args: [selector, ...extraArgs],
     });
   } else {
     blocks.push({
@@ -187,37 +151,40 @@ function clickCode(command) {
       lhs: "xpathEl",
     });
     blocks.push({
-      accessors: ["xpathEl", getXpathSelectorIndex(selector), "click"],
-      args: [],
+      accessors: ["xpathEl", getXpathSelectorIndex(selector), action],
+      args: [...extraArgs],
     });
   }
 
   return blocks;
 }
 
+// The block should have all data required to construct a line
+// instead of the line itself
+// E.g. Block {
+//    accessors: ['page', 'keyboard', 'press'],
+//    args: [selector, value?],
+//    lhs: 'string' | null // e.g. xpathEl
+// }
+// The above structure can be used to
+// 1. Generate code
+// 2. Or execute code
+//    E.g. lhs = await accessors[0][accessors[1]][accessors[2]](...args)
+//    The only thing to figure out is how to map accessors[0] to a real variable
+//    e.g. to page?
+//    we can store the page variable in some other object
+//    pup = { page };
+//    then await pup[accessors[0]][accessors[1]](...args) should work
+function typeCode(command) {
+  return getActionBlock("type", command, [command.value]);
+}
+
+function clickCode(command) {
+  return getActionBlock("click", command, [], options);
+}
+
 function changeCode(command) {
-  let { target, value, selectedTarget } = command;
-  const [selector, selectorType] = getSelector(target[selectedTarget]);
-  const blocks = [];
-
-  if (selectorType !== "xpath") {
-    blocks.push({
-      accessors: [frame, "select"],
-      args: [selector, value],
-    });
-  } else {
-    blocks.push({
-      accessors: [frame, "$x"],
-      args: [selector],
-      lhs: "xpathEl",
-    });
-    blocks.push({
-      accessors: ["xpathEl", getXpathSelectorIndex(selector), "select"],
-      args: [],
-    });
-  }
-
-  return blocks;
+  return getActionBlock("select", command, [command.value]);
 }
 
 function gotoCode(href) {

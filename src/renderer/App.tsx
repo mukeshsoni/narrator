@@ -17,7 +17,7 @@ const generateCypressCode = require("../code-generators/cypress/code-generator")
 
 // const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
 // const dummyUrlToTest = "https://google.com/";
-const dummyUrlToTest = "http://testing-ground.scraping.pro/login";
+const dummyUrlToTest = "http://the-internet.herokuapp.com/";
 
 interface State {
   commands: Array<Command>;
