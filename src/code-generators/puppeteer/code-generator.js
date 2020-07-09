@@ -119,8 +119,8 @@ function getXpathSelectorIndex(selector) {
 }
 
 function getActionBlock(action, command, extraArgs, options = {}) {
-  let { target, selectedTarget } = command;
-  const [selector, selectorType] = getSelector(target[selectedTarget]);
+  let { target } = command;
+  const [selector, selectorType] = getSelector(target);
 
   console.log({ selector, selectorType });
   const blocks = [];
@@ -202,8 +202,8 @@ function viewportCode(width, height) {
 }
 
 function assertVisibilityCode(command) {
-  let { target, selectedTarget } = command;
-  const [selector, selectorType] = getSelector(target[selectedTarget]);
+  let { target } = command;
+  const [selector, selectorType] = getSelector(target);
 
   if (selectorType !== "xpath") {
     return {

@@ -60,8 +60,8 @@ function rootReducer(state: State, action: any) {
             command: "GOTO",
             name: "GOTO",
             value: state.urlToTest,
-            target: [],
-            selectedTarget: 0,
+            target: "",
+            targets: [],
           });
         }
 
@@ -70,7 +70,8 @@ function rootReducer(state: State, action: any) {
           commands: currentCommands.concat({
             ...action.command,
             name: action.command.command,
-            selectedTarget: 0,
+            targets: action.command.target,
+            target: action.command.target[0],
           }),
         };
       } else {
@@ -100,7 +101,7 @@ function rootReducer(state: State, action: any) {
           .slice(0, action.commandIndex)
           .concat({
             ...state.commands[action.commandIndex],
-            selectedTarget: action.targetIndex,
+            target: action.target,
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
       };
@@ -202,8 +203,8 @@ export default function App() {
   }, [dispatch]);
 
   const handleSelectorChange = React.useCallback(
-    (commandIndex, targetIndex) => {
-      dispatch({ type: "CHANGE_SELECTOR", commandIndex, targetIndex });
+    (commandIndex, target) => {
+      dispatch({ type: "CHANGE_SELECTOR", commandIndex, target });
     },
     [dispatch]
   );

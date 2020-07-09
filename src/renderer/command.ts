@@ -1,9 +1,8 @@
 export interface Command {
   name: string;
   command: string;
-  target: Array<[string, string]>;
-  // target: string;
-  selectedTarget: number;
+  target: string;
+  targets: Array<[string, string]>;
   value?: string;
   ignore?: boolean;
   coordinates?: string;

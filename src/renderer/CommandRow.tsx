@@ -2,12 +2,6 @@ import * as React from "react";
 
 import { Command } from "./command";
 
-function getSelector(command: Command) {
-  return command.target && command.target.length
-    ? command.target[command.selectedTarget][0]
-    : "";
-}
-
 export function getCommandValueProperty(command: Command) {
   switch (command.name) {
     case "clickAt":
@@ -36,7 +30,7 @@ export default function CommandRow({ command, onCommandRowClick }: Props) {
       <div className="flex-1 px-4 py-2 truncate">
         {command.ignore ? `// ${command.name}` : command.name}
       </div>
-      <div className="flex-1 px-4 py-2 truncate">{getSelector(command)}</div>
+      <div className="flex-1 px-4 py-2 truncate">{command.target}</div>
       <div className="flex-1 px-4 py-2 truncate">
         {command[getCommandValueProperty(command)]}
       </div>

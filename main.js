@@ -308,7 +308,7 @@ async function createTestBrowserWindow(url) {
   await testingWindow.loadURL(url);
   const page = await pie.getPage(browserForPuppeteer, testingWindow);
   // let's now wait more than 5 seconds for anything to appear
-  page.setDefaultTimeout(5000);
+  page.setDefaultTimeout(3000);
   puppeteerHandles.page = page;
   testingWindow.openDevTools();
 

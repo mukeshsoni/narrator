@@ -1,15 +1,17 @@
 function selectorPart(command) {
-  const selector = command.target[command.selectedTarget];
+  const [selectorType, ...selectorParts] = command.target.split("=");
+  const selector = selectorParts.join("=");
 
-  if (selector[1] === "name") {
-    return `cy.get("[${selector[0]}]")`;
-  } else if (selector[1] === "id") {
-    return `cy.get("#${selector[0].split("=")[1]}")`;
-  } else if (selector[1].startsWith("xpath")) {
-    return `cy.xpath("${selector[0].slice(6)}")`;
+  switch (selectorType) {
+    case "name":
+      return `cy.get("[${selectorType}='${selector}']")`;
+    case "id":
+      return `cy.get("#${selector}")`;
+    case "xpath":
+      return `cy.xpath("${selector}")`;
   }
 
-  return `cy.get("${selector[0]}")`;
+  return `cy.get("${selector}")`;
 }
 
 function generateCode(commands) {

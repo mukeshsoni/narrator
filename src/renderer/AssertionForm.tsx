@@ -40,7 +40,7 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
   const [assertionTargets, setAssertionTargets] = React.useState<
     Array<[string, string]>
   >([]);
-  const [selectedTarget, setSelectedTarget] = React.useState(0);
+  const [target, setTarget] = React.useState("");
   const assertionTypeRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -78,8 +78,8 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
       alert("Please enter text to compare with");
     } else {
       onSave({
-        target: assertionTargets,
-        selectedTarget,
+        target: assertionTargets[0][0],
+        targets: assertionTargets,
         // TODO: send the selected assertionType
         command: assertionType,
         name: assertionType,
@@ -105,15 +105,19 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
             <select
               name="selector"
               className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
-              value={selectedTarget}
+              value={target}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 e.preventDefault();
                 console.log("new target selected", e.target.value);
-                setSelectedTarget(Number(e.target.value));
+                setTarget(e.target.value);
               }}
             >
               {assertionTargets.map((t, i) => {
-                return <option value={i}>{t[0]}</option>;
+                return (
+                  <option value={t[0]} key={t[0]}>
+                    {t[0]}
+                  </option>
+                );
               })}
             </select>
           ) : (

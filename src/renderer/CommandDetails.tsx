@@ -6,7 +6,7 @@ import { getCommandValueProperty } from "./CommandRow";
 interface Props {
   command: Command;
   onRemoveClick: () => void;
-  onSelectorChange: (newSelectedIndex: number) => void;
+  onSelectorChange: (target: string) => void;
   onCommandIgoreClick: () => void;
   onCommandValueChange: (propName: string, newValue: string) => void;
 }
@@ -88,17 +88,17 @@ export default function CommandDetails({
           Target
           <select
             name="selector"
-            key={command.selectedTarget}
+            key={command.target}
             className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
-            value={command.selectedTarget}
+            value={command.target}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              onSelectorChange(Number(e.target.value))
+              onSelectorChange(e.target.value)
             }
           >
-            {command.target &&
-              command.target.length > 0 &&
-              command.target.map((t, i) => (
-                <option value={i} key={t[0]}>
+            {command.targets &&
+              command.targets.length > 0 &&
+              command.targets.map((t, i) => (
+                <option value={t[0]} key={t[0]}>
                   {t[0]}
                 </option>
               ))}
