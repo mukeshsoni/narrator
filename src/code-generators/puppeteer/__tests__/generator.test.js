@@ -96,6 +96,18 @@ const commandsToTest = [
       },
     ],
   },
+  {
+    command: {
+      name: "GOTO",
+      value: "https://google.com",
+    },
+    expectedBlocks: [
+      {
+        accessors: ["page", "goto"],
+        args: ["https://google.com"],
+      },
+    ],
+  },
 ];
 
 describe("generator for click commands", () => {

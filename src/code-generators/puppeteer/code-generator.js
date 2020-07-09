@@ -188,10 +188,12 @@ function changeCode(command) {
 }
 
 function gotoCode(href) {
-  return {
-    accessors: [frame, "goto"],
-    args: [href],
-  };
+  return [
+    {
+      accessors: [frame, "goto"],
+      args: [href],
+    },
+  ];
 }
 
 function viewportCode(width, height) {
