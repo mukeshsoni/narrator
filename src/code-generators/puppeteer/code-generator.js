@@ -105,10 +105,12 @@ function keyPressCode(command) {
   const regex = /{([^}]+)}/g;
   const match = regex.exec(value);
 
-  return {
-    accessors: ["page", "keyboard", "press"],
-    args: [capitalize(match[1].split("_")[1])],
-  };
+  return [
+    {
+      accessors: ["page", "keyboard", "press"],
+      args: [capitalize(match[1].split("_")[1])],
+    },
+  ];
 }
 
 function getXpathSelectorIndex(selector) {
