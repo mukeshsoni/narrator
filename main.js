@@ -66,7 +66,22 @@ ipcMain.on("url-to-test", (event, url) => {
   createTestBrowserWindow(url);
 });
 
-ipcMain.on("replay", (event, commands) => {
+function setSlowMo(page) {
+  const origin = page._client._onMessage;
+  page._client._onMessage = async (...args) => {
+    await new Promise((x) => setTimeout(x, 250));
+    return origin.call(page._client, ...args);
+  };
+}
+
+function removeSlowMo(page) {
+  const origin = page._client._onMessage;
+  page._client._onMessage = async (...args) => {
+    return origin.call(page._client, ...args);
+  };
+}
+
+ipcMain.on("replay", async (event, commands) => {
   console.log("got some puppeteer commands to run", commands);
   // might be better to get the commands and then run puppeteer commands
   // by generating them here
@@ -76,7 +91,27 @@ ipcMain.on("replay", (event, commands) => {
     .filter((command) => !command.ignore)
     .reduce((acc, command) => acc.concat(getCommandBlocks(command)), [])
     .filter((block) => block);
-  runBlocks(blocks);
+
+  const page = puppeteerHandles.page;
+
+  // slow down the operations so that they are visible in replay
+  // We can take input from user on how much to slow down the execution speed
+  // of each operation
+  const orignalOnMessage = page._client._onMessage;
+  page._client._onMessage = async (...args) => {
+    await new Promise((x) => setTimeout(x, 10));
+    return orignalOnMessage.call(page._client, ...args);
+  };
+
+  try {
+    await runBlocks(blocks);
+  } catch (e) {
+    console.log("Error running blocks", e);
+  } finally {
+    // reset onMessage to original, so that future recording actions are not
+    // slowed down
+    page._client._onMessage = orignalOnMessage;
+  }
 });
 
 ipcMain.on("recording", (event, action) => {
