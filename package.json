@@ -12,7 +12,7 @@
     "build:css:prod": "postcss ./src/tailwind.css -o ./src/tailwind_generated.css --env production",
     "start": "npm-run-all start:css start:app",
     "start:app": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,7 @@
     "autoprefixer": "^9.8.2",
     "babel-loader": "^8.1.0",
     "electron": "^9.0.4",
+    "jest": "^26.1.0",
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^7.1.1",
     "rollup": "^2.18.1",
