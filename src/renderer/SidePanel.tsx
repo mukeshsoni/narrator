@@ -79,7 +79,7 @@ interface Props {
   onStartRecording: () => void;
   onReplay: () => void;
   onPauseClick: () => void;
-  onSelectorChange: (commandIndex: number, selectorIndex: number) => void;
+  onSelectorChange: (commandIndex: number, target: string) => void;
   onCommandIgoreClick: (commandIndex: number) => void;
   onAddAssertionClick: () => void;
   onCommandValueChange: (

@@ -46,7 +46,7 @@ function cleanUp() {
 }
 
 function getSelector(target) {
-  const [selectorType, ...selectorParts] = target[0].split("=");
+  const [selectorType, ...selectorParts] = target.split("=");
   const selector = selectorParts.join("=");
 
   switch (selectorType) {
@@ -121,8 +121,6 @@ function getXpathSelectorIndex(selector) {
 function getActionBlock(action, command, extraArgs, options = {}) {
   let { target } = command;
   const [selector, selectorType] = getSelector(target);
-
-  console.log({ selector, selectorType });
   const blocks = [];
 
   if (options.waitForSelectorOnClick) {

@@ -23,7 +23,7 @@ function CommandRowHeader() {
 
 interface Props {
   commands: Array<Command>;
-  onSelectorChange: (commandIndex: number, selectorIndex: number) => void;
+  onSelectorChange: (commandIndex: number, target: string) => void;
   onCommandIgoreClick: (commandIndex: number) => void;
   onCommandValueChange: (
     selectedCommandIndex: number,
