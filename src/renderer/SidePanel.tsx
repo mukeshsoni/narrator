@@ -27,9 +27,9 @@ function Menu({ buttonText, children }: MenuProps) {
           <svg
             className="w-4 ml-2"
             fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
@@ -39,9 +39,9 @@ function Menu({ buttonText, children }: MenuProps) {
           <svg
             className="w-4 ml-2"
             fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
@@ -82,6 +82,11 @@ interface Props {
   onSelectorChange: (commandIndex: number, selectorIndex: number) => void;
   onCommandIgoreClick: (commandIndex: number) => void;
   onAddAssertionClick: () => void;
+  onCommandValueChange: (
+    selectedCommandIndex: number,
+    propName: string,
+    newValue: string
+  ) => void;
 }
 
 export default function SidePanel({
@@ -94,6 +99,7 @@ export default function SidePanel({
   onSelectorChange,
   onCommandIgoreClick,
   onAddAssertionClick,
+  onCommandValueChange,
 }: Props) {
   return (
     <div
@@ -118,9 +124,9 @@ export default function SidePanel({
               <svg
                 width={24}
                 fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
@@ -137,9 +143,9 @@ export default function SidePanel({
               <svg
                 width={24}
                 fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
@@ -162,9 +168,9 @@ export default function SidePanel({
             <svg
               width={24}
               fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -197,6 +203,7 @@ export default function SidePanel({
           commands={commands}
           onSelectorChange={onSelectorChange}
           onCommandIgoreClick={onCommandIgoreClick}
+          onCommandValueChange={onCommandValueChange}
         />
       </div>
     </div>

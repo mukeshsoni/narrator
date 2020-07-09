@@ -127,6 +127,17 @@ function rootReducer(state: State, action: any) {
         ...state,
         showAssertionPanel: false,
       };
+    case "CHANGE_COMMAND_VALUE":
+      return {
+        ...state,
+        commands: state.commands
+          .slice(0, action.commandIndex)
+          .concat({
+            ...state.commands[action.commandIndex],
+            [action.propName]: action.newValue,
+          })
+          .concat(state.commands.slice(action.commandIndex + 1)),
+      };
     default:
       return state;
   }
@@ -267,6 +278,18 @@ export default function App() {
     ipcRenderer.send("stop-find-and-select");
   }, [dispatch]);
 
+  const handleCommandValueChange = React.useCallback(
+    (commandIndex, propName, newValue) => {
+      dispatch({
+        type: "CHANGE_COMMAND_VALUE",
+        commandIndex,
+        newValue,
+        propName,
+      });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {urlToTest ? (
@@ -286,6 +309,7 @@ export default function App() {
             onSelectorChange={handleSelectorChange}
             onCommandIgoreClick={handleCommandIgnoreClick}
             onAddAssertionClick={handleAddAssertionClick}
+            onCommandValueChange={handleCommandValueChange}
           />
         )
       ) : (
@@ -320,9 +344,9 @@ export default function App() {
                 <svg
                   width={20}
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
@@ -353,9 +377,9 @@ export default function App() {
                   <svg
                     width={20}
                     fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >

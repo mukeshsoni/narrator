@@ -25,12 +25,18 @@ interface Props {
   commands: Array<Command>;
   onSelectorChange: (commandIndex: number, selectorIndex: number) => void;
   onCommandIgoreClick: (commandIndex: number) => void;
+  onCommandValueChange: (
+    selectedCommandIndex: number,
+    propName: string,
+    newValue: string
+  ) => void;
 }
 
 export default function CommandTable({
   commands,
   onSelectorChange,
   onCommandIgoreClick,
+  onCommandValueChange,
 }: Props) {
   const [selectedCommandIndex, setSelectedCommandIndex] = React.useState<
     number | null
@@ -66,6 +72,10 @@ export default function CommandTable({
           onRemoveClick={() => setSelectedCommandIndex(null)}
           onSelectorChange={onSelectorChange.bind(null, selectedCommandIndex)}
           onCommandIgoreClick={() => onCommandIgoreClick(selectedCommandIndex)}
+          onCommandValueChange={onCommandValueChange.bind(
+            null,
+            selectedCommandIndex
+          )}
         />
       )}
     </div>

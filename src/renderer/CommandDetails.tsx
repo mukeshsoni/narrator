@@ -1,13 +1,14 @@
 import * as React from "react";
 
 import { Command } from "./command";
-import { getCommandValue } from "./CommandRow";
+import { getCommandValueProperty } from "./CommandRow";
 
 interface Props {
   command: Command;
   onRemoveClick: () => void;
   onSelectorChange: (newSelectedIndex: number) => void;
   onCommandIgoreClick: () => void;
+  onCommandValueChange: (propName: string, newValue: string) => void;
 }
 
 export default function CommandDetails({
@@ -15,6 +16,7 @@ export default function CommandDetails({
   onRemoveClick,
   onSelectorChange,
   onCommandIgoreClick,
+  onCommandValueChange,
 }: Props) {
   return (
     <div className="px-4 py-2 mt-6 bg-indigo-100">
@@ -26,9 +28,9 @@ export default function CommandDetails({
           <svg
             width={20}
             fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
@@ -95,15 +97,24 @@ export default function CommandDetails({
           >
             {command.target &&
               command.target.length > 0 &&
-              command.target.map((t, i) => <option value={i}>{t[0]}</option>)}
+              command.target.map((t, i) => (
+                <option value={i} key={t[0]}>
+                  {t[0]}
+                </option>
+              ))}
           </select>
         </label>
         <label className="flex items-center w-full mb-4">
           Value
           <input
-            key={getCommandValue(command)}
             className="flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md"
-            defaultValue={getCommandValue(command)}
+            value={command[getCommandValueProperty(command)]}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              onCommandValueChange(
+                getCommandValueProperty(command),
+                e.target.value
+              );
+            }}
           />
         </label>
       </form>

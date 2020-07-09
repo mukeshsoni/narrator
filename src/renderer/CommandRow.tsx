@@ -8,16 +8,17 @@ function getSelector(command: Command) {
     : "";
 }
 
-export function getCommandValue(command: Command) {
+export function getCommandValueProperty(command: Command) {
   switch (command.name) {
-    case "click":
-      return command.coordinates;
+    case "clickAt":
+    case "doubleClickAt":
+      return "coordinates";
     case "type":
     case "sendKeys":
     case "GOTO":
-      return command.value;
+      return "value";
     default:
-      return command.keyCode;
+      return "value";
   }
 }
 
@@ -37,7 +38,7 @@ export default function CommandRow({ command, onCommandRowClick }: Props) {
       </div>
       <div className="flex-1 px-4 py-2 truncate">{getSelector(command)}</div>
       <div className="flex-1 px-4 py-2 truncate">
-        {getCommandValue(command)}
+        {command[getCommandValueProperty(command)]}
       </div>
     </button>
   );
