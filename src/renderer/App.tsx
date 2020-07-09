@@ -2,7 +2,7 @@ import * as React from "react";
 import Modal from "react-modal";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { CopyToClipboard } from "react-copy-to-clipboard";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 const { ipcRenderer } = require("electron");
 
@@ -59,7 +59,7 @@ function rootReducer(state: State, action: any) {
           currentCommands.push({
             command: "GOTO",
             name: "GOTO",
-            href: state.urlToTest,
+            value: state.urlToTest,
             target: [],
             selectedTarget: 0,
           });
@@ -348,9 +348,8 @@ export default function App() {
               <CopyToClipboard
                 text={generatedCode}
                 onCopy={() => setCopied(true)}
-                className="absolute top-0 right-0 p-2 mt-1 mr-1 text-black border border-gray-300 opacity-0 hover:opacity-100 hover:bg-blue-100 hover:text-blue-800 hover:border-gray-600 rounded-md transition ease-in duration-100"
               >
-                <button>
+                <button className="absolute top-0 right-0 p-2 mt-1 mr-1 text-black border border-gray-300 opacity-0 hover:opacity-100 hover:bg-blue-100 hover:text-blue-800 hover:border-gray-600 rounded-md transition ease-in duration-100">
                   <svg
                     width={20}
                     fill="none"

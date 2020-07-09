@@ -7,6 +7,5 @@ export interface Command {
   value?: string;
   ignore?: boolean;
   coordinates?: string;
-  href?: string;
   keyCode?: number;
 }

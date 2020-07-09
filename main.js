@@ -99,7 +99,7 @@ ipcMain.on("replay", async (event, commands) => {
   // of each operation
   const orignalOnMessage = page._client._onMessage;
   page._client._onMessage = async (...args) => {
-    await new Promise((x) => setTimeout(x, 10));
+    await new Promise((x) => setTimeout(x, 100));
     return orignalOnMessage.call(page._client, ...args);
   };
 
@@ -110,6 +110,7 @@ ipcMain.on("replay", async (event, commands) => {
   } finally {
     // reset onMessage to original, so that future recording actions are not
     // slowed down
+    console.log("resetting slowMo to 0");
     page._client._onMessage = orignalOnMessage;
   }
 });

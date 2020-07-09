@@ -301,7 +301,7 @@ function postProcess() {
 }
 
 function getCommandBlocks(command) {
-  const { name, value, href, tagName, frameId, frameUrl } = command;
+  const { name, value, tagName, frameId, frameUrl } = command;
 
   // we need to keep a handle on what frames commands originate from
   setFrames(frameId, frameUrl);
@@ -335,7 +335,7 @@ function getCommandBlocks(command) {
         return [];
       }
     case "GOTO":
-      return gotoCode(href);
+      return gotoCode(value);
     case pptrActions.VIEWPORT:
       return viewportCode(value.width, value.height);
     case pptrActions.NAVIGATION:

@@ -14,9 +14,8 @@ export function getCommandValue(command: Command) {
       return command.coordinates;
     case "type":
     case "sendKeys":
-      return command.value;
     case "GOTO":
-      return command.href;
+      return command.value;
     default:
       return command.keyCode;
   }
