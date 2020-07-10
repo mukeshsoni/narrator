@@ -5,6 +5,7 @@ const pie = require("puppeteer-in-electron");
 const puppeteer = require("puppeteer-core");
 const {
   getCommandBlocks,
+  parseCommands,
 } = require("./src/code-generators/puppeteer/code-generator.js");
 
 require("electron-reload")(__dirname, {
@@ -78,7 +79,6 @@ ipcMain.on("replay", async (event, commands) => {
     .filter((block) => block);
 
   const page = puppeteerHandles.page;
-
   // slow down the operations so that they are visible in replay
   // We can take input from user on how much to slow down the execution speed
   // of each operation
@@ -87,14 +87,24 @@ ipcMain.on("replay", async (event, commands) => {
     await new Promise((x) => setTimeout(x, 20));
     return orignalOnMessage.call(page._client, ...args);
   };
+  let xlpathEl;
 
+  const code = parseCommands(commands);
+  console.log("code to run", code);
   try {
-    await runBlocks(blocks);
+    await eval(`(async function() {
+    console.log('starting puppeteer replay run');
+      ${code}
+    console.log('puppeteer replay over')
+  })()`);
   } catch (e) {
-    console.log("Error running blocks", e);
+    console.log("Error trying to replay", e);
+    page.evaluate((errorMessage) => {
+      alert(`Error replaying: ${errorMessage}`);
+    }, e.message);
   } finally {
-    // reset onMessage to original, so that future recording actions are not
-    // slowed down
+    // // reset onMessage to original, so that future recording actions are not
+    // // slowed down
     console.log("resetting slowMo to 0");
     page._client._onMessage = orignalOnMessage;
   }

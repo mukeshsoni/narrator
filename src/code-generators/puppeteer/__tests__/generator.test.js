@@ -7,8 +7,8 @@ const commandsToTest = [
       target: "css=#myid",
     },
     expectedBlocks: [
-      { accessors: ["page", "waitForSelector"], args: ["#myid"] },
-      { accessors: ["page", "click"], args: ["#myid"] },
+      { line: 'await page.waitForSelector("#myid")' },
+      { line: 'await page.click("#myid")' },
     ],
   },
   {
@@ -17,13 +17,9 @@ const commandsToTest = [
       target: "xpath=(//div[@id='myid'])[1]",
     },
     expectedBlocks: [
-      { accessors: ["page", "waitForXPath"], args: ["(//div[@id='myid'])[1]"] },
-      {
-        accessors: ["page", "$x"],
-        args: ["(//div[@id='myid'])[1]"],
-        lhs: "xpathEl",
-      },
-      { accessors: ["xpathEl", 0, "click"], args: [] },
+      { line: `await page.waitForXPath("(//div[@id='myid'])[1]")` },
+      { line: `xpathEl = await page.$x("(//div[@id='myid'])[1]")` },
+      { line: `await xpathEl[0].click()` },
     ],
   },
   {
@@ -33,15 +29,12 @@ const commandsToTest = [
     },
     expectedBlocks: [
       {
-        accessors: ["page", "waitForXPath"],
-        args: ["//a[contains(., 'Form Authentication')]"],
+        line: `await page.waitForXPath("//a[contains(., 'Form Authentication')]")`,
       },
       {
-        accessors: ["page", "$x"],
-        args: ["//a[contains(., 'Form Authentication')]"],
-        lhs: "xpathEl",
+        line: `xpathEl = await page.$x("//a[contains(., 'Form Authentication')]")`,
       },
-      { accessors: ["xpathEl", 0, "click"], args: [] },
+      { line: `await xpathEl[0].click()` },
     ],
   },
   {
@@ -50,7 +43,11 @@ const commandsToTest = [
       target: "css=#myid",
       value: "abcd",
     },
-    expectedBlocks: [{ accessors: ["page", "type"], args: ["#myid", "abcd"] }],
+    expectedBlocks: [
+      {
+        line: `await page.type("#myid", "abcd")`,
+      },
+    ],
   },
   {
     command: {
@@ -59,15 +56,8 @@ const commandsToTest = [
       value: "abcd",
     },
     expectedBlocks: [
-      {
-        accessors: ["page", "$x"],
-        args: ["(//div[@id='myid'])[1]"],
-        lhs: "xpathEl",
-      },
-      {
-        accessors: ["xpathEl", 0, "type"],
-        args: ["abcd"],
-      },
+      { line: `xpathEl = await page.$x("(//div[@id='myid'])[1]")` },
+      { line: `await xpathEl[0].type("abcd")` },
     ],
   },
   {
@@ -76,12 +66,7 @@ const commandsToTest = [
       target: "css=#myid",
       value: "${KEY_ENTER}",
     },
-    expectedBlocks: [
-      {
-        accessors: ["page", "keyboard", "press"],
-        args: ["Enter"],
-      },
-    ],
+    expectedBlocks: [{ line: `await page.keyboard.press("Enter")` }],
   },
   {
     command: {
@@ -89,24 +74,14 @@ const commandsToTest = [
       target: "css=#myid",
       value: "${KEY_TAB}",
     },
-    expectedBlocks: [
-      {
-        accessors: ["page", "keyboard", "press"],
-        args: ["Tab"],
-      },
-    ],
+    expectedBlocks: [{ line: `await page.keyboard.press("Tab")` }],
   },
   {
     command: {
       name: "GOTO",
       value: "https://google.com",
     },
-    expectedBlocks: [
-      {
-        accessors: ["page", "goto"],
-        args: ["https://google.com"],
-      },
-    ],
+    expectedBlocks: [{ line: `await page.goto("https://google.com")` }],
   },
   {
     command: {
@@ -114,17 +89,37 @@ const commandsToTest = [
       target: "id=dropdown",
       value: "label=Option 1",
     },
+    expectedBlocks: [{ line: `await page.type("#dropdown", "Option 1")` }],
+  },
+  {
+    command: {
+      name: "VIEWPORT",
+      value: { width: 500, height: 1000 },
+    },
     expectedBlocks: [
       {
-        accessors: ["page", "type"],
-        args: ["#dropdown", "Option 1"],
+        line: `await page.setViewport({ width: 500, height: 1000 })`,
+      },
+    ],
+  },
+  {
+    debug: true,
+    command: {
+      name: "dragAndDropToObject",
+      target: "id=column-a",
+      value: "id=column-b",
+    },
+    expectedBlocks: [
+      {
+        accessors: ["dragAndDrop"],
+        args: [["page"], "#column-a", "#column-b"],
       },
     ],
   },
 ];
 
 describe("generator for click commands", () => {
-  commandsToTest.forEach((command) => {
+  commandsToTest.slice(0, 10).forEach((command) => {
     test(`should test ${command.command.name} with target ${command.command.target}`, () => {
       const commandBlocks = getCommandBlocks(command.command);
       // running tests with the forEach makes it really difficult to debug

@@ -43,6 +43,60 @@ function cleanUp() {
   allFrames = {};
 }
 
+function getCommandBlocks(command) {
+  const { name, value, tagName, frameId, frameUrl } = command;
+
+  // we need to keep a handle on what frames commands originate from
+  setFrames(frameId, frameUrl);
+
+  switch (name) {
+    case "type":
+      return typeCode(command);
+    case "sendKeys":
+      return keyPressCode(command);
+    case "click":
+      return clickCode(command);
+    // TODO
+    // case "clickAt":
+    // // return clickCode(command);
+    // TODO
+    // case "doubleClick":
+    // TODO
+    // case "doubleClickAt":
+    // TODO
+    // case "check":
+    // TODO
+    // case "uncheck":
+    // TODO
+    // case "dragAndDropToObject"
+    // TODO
+    // case "editContent"
+    case "change":
+      if (tagName === "SELECT") {
+        return changeCode(command);
+      } else {
+        return [];
+      }
+    case "select":
+      return selectCode(command);
+    case "dragAndDropToObject":
+      return dragAndDropCode(command);
+    case "GOTO":
+      return gotoCode(value);
+    case pptrActions.VIEWPORT:
+      return viewportCode(value.width, value.height);
+    case pptrActions.NAVIGATION:
+      hasNavigation = true;
+      return waitForNavigationCode();
+    case pptrActions.SCREENSHOT:
+      return handleScreenshot(value);
+    case "assertVisibility":
+      return assertVisibilityCode(command);
+    // default:
+    // return [];
+  }
+}
+
 function getSelector(target) {
   const [selectorType, ...selectorParts] = target.split("=");
   const selector = selectorParts.join("=");
@@ -102,11 +156,11 @@ function keyPressCode(command) {
   const { value } = command;
   const regex = /{([^}]+)}/g;
   const match = regex.exec(value);
+  const keyToPress = capitalize(match[1].split("_")[1]);
 
   return [
     {
-      accessors: ["page", "keyboard", "press"],
-      args: [capitalize(match[1].split("_")[1])],
+      line: `await page.keyboard.press("${keyToPress}")`,
     },
   ];
 }
@@ -118,63 +172,50 @@ function getXpathSelectorIndex(selector) {
   return 0;
 }
 
+function getWaitForBlock(target) {
+  const [selector, selectorType] = getSelector(target);
+  if (selectorType !== "xpath") {
+    return { line: `await ${frame}.waitForSelector("${selector}")` };
+  } else {
+    return { line: `await ${frame}.waitForXPath("${selector}")` };
+  }
+}
+
+function selectElementBlock(target, elName) {
+  const [selector, selectorType] = getSelector(target);
+
+  if (selectorType === "xpath") {
+    return { line: `let ${elName} = ${frame}.$x("${selector}")` };
+  } else {
+    return { line: `let ${elName} = ${frame}.$("${selector}")` };
+  }
+}
+
 function getActionBlock(action, command, extraArgs, options = {}) {
   let { target } = command;
   const [selector, selectorType] = getSelector(target);
   const blocks = [];
 
   if (options.waitForSelectorOnClick) {
-    if (selectorType !== "xpath") {
-      blocks.push({
-        accessors: [frame, "waitForSelector"],
-        args: [selector],
-      });
-    } else {
-      blocks.push({
-        accessors: [frame, "waitForXPath"],
-        args: [selector],
-      });
-    }
+    blocks.push(getWaitForBlock(target));
   }
 
   if (selectorType !== "xpath") {
     blocks.push({
-      accessors: [frame, action],
-      args: [selector, ...extraArgs],
+      line: `await ${frame}.${action}("${selector}"${
+        extraArgs.length > 0 ? ", " : ""
+      }${extraArgs.join(",")})`,
     });
   } else {
-    blocks.push({
-      accessors: [frame, "$x"],
-      args: [selector],
-      lhs: "xpathEl",
-    });
-    blocks.push({
-      accessors: ["xpathEl", getXpathSelectorIndex(selector), action],
-      args: [...extraArgs],
-    });
+    blocks.push({ line: `xpathEl = await ${frame}.$x("${selector}")` });
+    blocks.push({ line: `await xpathEl[0].${action}(${extraArgs.join(",")})` });
   }
 
   return blocks;
 }
 
-// The block should have all data required to construct a line
-// instead of the line itself
-// E.g. Block {
-//    accessors: ['page', 'keyboard', 'press'],
-//    args: [selector, value?],
-//    lhs: 'string' | null // e.g. xpathEl
-// }
-// The above structure can be used to
-// 1. Generate code
-// 2. Or execute code
-//    E.g. lhs = await accessors[0][accessors[1]][accessors[2]](...args)
-//    The only thing to figure out is how to map accessors[0] to a real variable
-//    e.g. to page?
-//    we can store the page variable in some other object
-//    pup = { page };
-//    then await pup[accessors[0]][accessors[1]](...args) should work
 function typeCode(command) {
-  return getActionBlock("type", command, [command.value]);
+  return getActionBlock("type", command, [`"${command.value}"`]);
 }
 
 function clickCode(command) {
@@ -194,8 +235,19 @@ function selectCode(command) {
       ...command,
       target,
     },
-    [value.split("=")[1]]
+    [`"${value.split("=")[1]}"`]
   );
+}
+
+function dragAndDropCode(command) {
+  const { target, value } = command;
+  let blocks = [];
+
+  return [
+    {
+      line: `await page.waitForSelector("#blahblah")`,
+    },
+  ];
 }
 
 function changeCode(command) {
@@ -203,36 +255,22 @@ function changeCode(command) {
 }
 
 function gotoCode(href) {
-  return [
-    {
-      accessors: [frame, "goto"],
-      args: [href],
-    },
-  ];
+  return [{ line: `await page.goto("${href}")` }];
 }
 
 function viewportCode(width, height) {
-  return {
-    accessors: [frame, "setViewport"],
-    args: [{ width, height }],
-  };
+  return [
+    {
+      line: `await ${frame}.setViewport({ width: ${width}, height: ${height} })`,
+    },
+  ];
 }
 
 function assertVisibilityCode(command) {
   let { target } = command;
   const [selector, selectorType] = getSelector(target);
 
-  if (selectorType !== "xpath") {
-    return {
-      accessors: [frame, "waitForSelector"],
-      args: [selector],
-    };
-  } else {
-    return {
-      accessors: [frame, "waitForXPath"],
-      args: [selector],
-    };
-  }
+  return getWaitForBlock(target);
 }
 
 function handleScreenshot(options) {
@@ -317,58 +355,6 @@ function postProcess() {
   }
 }
 
-function getCommandBlocks(command) {
-  const { name, value, tagName, frameId, frameUrl } = command;
-
-  // we need to keep a handle on what frames commands originate from
-  setFrames(frameId, frameUrl);
-
-  switch (name) {
-    case "type":
-      return typeCode(command);
-    case "sendKeys":
-      return keyPressCode(command);
-    case "click":
-      return clickCode(command);
-    // TODO
-    // case "clickAt":
-    // // return clickCode(command);
-    // TODO
-    // case "doubleClick":
-    // TODO
-    // case "doubleClickAt":
-    // TODO
-    // case "check":
-    // TODO
-    // case "uncheck":
-    // TODO
-    // case "dragAndDropToObject"
-    // TODO
-    // case "editContent"
-    case "change":
-      if (tagName === "SELECT") {
-        return changeCode(command);
-      } else {
-        return [];
-      }
-    case "select":
-      return selectCode(command);
-    case "GOTO":
-      return gotoCode(value);
-    case pptrActions.VIEWPORT:
-      return viewportCode(value.width, value.height);
-    case pptrActions.NAVIGATION:
-      hasNavigation = true;
-      return waitForNavigationCode();
-    case pptrActions.SCREENSHOT:
-      return handleScreenshot(value);
-    case "assertVisibility":
-      return assertVisibilityCode(command);
-    // default:
-    // return [];
-  }
-}
-
 function parseCommands(commands) {
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
@@ -384,8 +370,7 @@ function parseCommands(commands) {
   if (hasNavigation && options.waitForNavigation) {
     console.debug("Adding navigationPromise declaration");
     const navigationBlock = {
-      accessors: ["page", "waitForNavigation"],
-      lhs: "navigationPromise",
+      line: `let navigationPromise = await page.waitForNavigation()`,
     };
     blocks.unshift(navigationBlock);
   }
@@ -394,39 +379,22 @@ function parseCommands(commands) {
   postProcess();
 
   const indent = options.wrapAsync ? "  " : "";
-  const newLine = `\n`;
+  const semicolon = ";";
+  const newLine = "\n";
 
   for (let block of blocks) {
-    result += indent + getCodeString(block) + newLine;
+    const codeString = getCodeString(block);
+
+    result += indent + codeString + semicolon + newLine;
+    // `console.log('running code', \`${codeString}\`);` +
+    // newLine;
   }
 
   return result;
 }
 
 function getCodeString(block) {
-  const { accessors, args, lhs } = block;
-
-  const accessor = accessors.reduce(
-    (acc, item, index) =>
-      acc
-        ? // special handling for array indices. xpathEl.0.click is not valid in
-          // javascript
-          index === accessors.length - 1
-          ? `${acc}.${item}`
-          : `${acc}[${item}]`
-        : item,
-    ""
-  );
-
-  const argumentsString = args
-    .map((arg) => (typeof arg === "string" ? `"${arg}"` : arg.toString()))
-    .join(", ");
-
-  if (lhs) {
-    return `${lhs} = await ${accessor}(${argumentsString})`;
-  } else {
-    return `await ${accessor}(${argumentsString})`;
-  }
+  return block.line;
 }
 
 function generate(commands, opts) {
