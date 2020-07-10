@@ -70,8 +70,6 @@ function rootReducer(state: State, action: any) {
           commands: currentCommands.concat({
             ...action.command,
             name: action.command.command,
-            targets: action.command.target,
-            target: action.command.target[0][0],
           }),
         };
       } else {

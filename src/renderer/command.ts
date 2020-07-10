@@ -4,6 +4,7 @@ export interface Command {
   target: string;
   targets: Array<[string, string]>;
   value?: string;
+  values?: Array<[string, string]>;
   ignore?: boolean;
   coordinates?: string;
   keyCode?: number;

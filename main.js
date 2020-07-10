@@ -322,7 +322,13 @@ async function createTestBrowserWindow(url) {
     commands.push(command);
     // This is how we send message from the main process to our
     // renderer script which renders the control panel
-    controlPanelWindow.webContents.send("new-command", command);
+    controlPanelWindow.webContents.send("new-command", {
+      ...command,
+      targets: command.target,
+      target: command.target[0][0],
+      value: Array.isArray(command.value) ? command.value[0][0] : command.value,
+      values: Array.isArray(command.value) ? command.value : undefined,
+    });
   });
 
   await injectScripts(page);

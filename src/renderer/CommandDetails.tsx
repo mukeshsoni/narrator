@@ -18,6 +18,8 @@ export default function CommandDetails({
   onCommandIgoreClick,
   onCommandValueChange,
 }: Props) {
+  const { name, value, values, target } = command;
+
   return (
     <div className="px-4 py-2 mt-6 bg-indigo-100">
       <div className="flex flex-row-reverse mt-2 mb-4">
@@ -106,16 +108,36 @@ export default function CommandDetails({
         </label>
         <label className="flex items-center w-full mb-4">
           Value
-          <input
-            className="flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md"
-            value={command[getCommandValueProperty(command)]}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              onCommandValueChange(
-                getCommandValueProperty(command),
-                e.target.value
-              );
-            }}
-          />
+          {Array.isArray(values) ? (
+            <select
+              name="selector"
+              key={value}
+              className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
+              value={value}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                onCommandValueChange("value", e.target.value)
+              }
+            >
+              {command.values &&
+                command.values.length > 0 &&
+                command.values.map((t, i) => (
+                  <option value={t[0]} key={t[0]}>
+                    {t[0]}
+                  </option>
+                ))}
+            </select>
+          ) : (
+            <input
+              className="flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md"
+              value={command[getCommandValueProperty(command)]}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onCommandValueChange(
+                  getCommandValueProperty(command),
+                  e.target.value
+                );
+              }}
+            />
+          )}
         </label>
       </form>
     </div>
