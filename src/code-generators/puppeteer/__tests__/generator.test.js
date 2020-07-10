@@ -108,6 +108,19 @@ const commandsToTest = [
       },
     ],
   },
+  {
+    command: {
+      name: "select",
+      target: "id=dropdown",
+      value: "label=Option 1",
+    },
+    expectedBlocks: [
+      {
+        accessors: ["page", "type"],
+        args: ["#dropdown", "Option 1"],
+      },
+    ],
+  },
 ];
 
 describe("generator for click commands", () => {

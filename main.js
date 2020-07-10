@@ -66,21 +66,6 @@ ipcMain.on("url-to-test", (event, url) => {
   createTestBrowserWindow(url);
 });
 
-function setSlowMo(page) {
-  const origin = page._client._onMessage;
-  page._client._onMessage = async (...args) => {
-    await new Promise((x) => setTimeout(x, 250));
-    return origin.call(page._client, ...args);
-  };
-}
-
-function removeSlowMo(page) {
-  const origin = page._client._onMessage;
-  page._client._onMessage = async (...args) => {
-    return origin.call(page._client, ...args);
-  };
-}
-
 ipcMain.on("replay", async (event, commands) => {
   console.log("got some puppeteer commands to run", commands);
   // might be better to get the commands and then run puppeteer commands
@@ -99,7 +84,7 @@ ipcMain.on("replay", async (event, commands) => {
   // of each operation
   const orignalOnMessage = page._client._onMessage;
   page._client._onMessage = async (...args) => {
-    await new Promise((x) => setTimeout(x, 100));
+    await new Promise((x) => setTimeout(x, 20));
     return orignalOnMessage.call(page._client, ...args);
   };
 
@@ -168,7 +153,7 @@ async function runBlocks(blocks) {
         )(...block.args);
       }
     } catch (e) {
-      console.log("Error trying to execute step", block);
+      console.log("Error trying to execute step", block, e);
       puppeteerHandles.page.evaluate((errorMessage) => {
         alert(`could not execute step: ${errorMessage}`);
       }, e.toString());

@@ -71,7 +71,7 @@ function rootReducer(state: State, action: any) {
             ...action.command,
             name: action.command.command,
             targets: action.command.target,
-            target: action.command.target[0],
+            target: action.command.target[0][0],
           }),
         };
       } else {

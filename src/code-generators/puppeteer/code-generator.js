@@ -1,6 +1,4 @@
-const Block = require("./block");
 const pptrActions = require("./pptr_actions");
-const domEvents = require("./dom_events_to_record");
 
 const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
@@ -183,6 +181,19 @@ function clickCode(command) {
   return getActionBlock("click", command, [], options);
 }
 
+function selectCode(command) {
+  const { target, value } = command;
+
+  return getActionBlock(
+    "type",
+    {
+      ...command,
+      target,
+    },
+    [value.split("=")[1]]
+  );
+}
+
 function changeCode(command) {
   return getActionBlock("select", command, [command.value]);
 }
@@ -336,6 +347,8 @@ function getCommandBlocks(command) {
       } else {
         return [];
       }
+    case "select":
+      return selectCode(command);
     case "GOTO":
       return gotoCode(value);
     case pptrActions.VIEWPORT:
