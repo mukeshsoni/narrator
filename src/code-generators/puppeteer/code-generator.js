@@ -236,16 +236,130 @@ function selectCode(command) {
       target,
     },
     [`"${value.split("=")[1]}"`]
-  );
+  ).concat({
+    line: `await page.keyboard.press("Enter")`,
+  });
 }
 
 function dragAndDropCode(command) {
   const { target, value } = command;
   let blocks = [];
 
+  // drag and drop support is not good in puppeteer. Their page.mouse.* apis are
+  // unreliable. Somewhat reliable way is to use page.evaluate and simulate
+  // drag and drop using browser apis
+  // https://github.com/puppeteer/puppeteer/issues/1376
+  const dragAndDropFunc = `async function dragAndDrop(page, sourceSelector, destinationSelector) {
+    const sourceElement = await page.waitForSelector(sourceSelector);
+    const destinationElement = await page.waitForSelector(destinationSelector);
+
+    const sourceBox = await sourceElement.boundingBox();
+    const destinationBox = await destinationElement.boundingBox();
+
+    await page.evaluate(
+      async (ss, ds, sb, db) => {
+        const waitTime = 200;
+        const sleep = (milliseconds) => {
+          return new Promise((resolve) => setTimeout(resolve, milliseconds));
+        };
+        const source = document.querySelector(ss);
+        const destination = document.querySelector(ds);
+
+        const sourceX = sb.x + sb.width / 2;
+        const sourceY = sb.y + sb.height / 2;
+        const destinationX = db.x + db.width / 2;
+        const destinationY = db.y + db.height / 2;
+
+        source.dispatchEvent(
+          new MouseEvent("mousemove", {
+            bubbles: true,
+            cancelable: true,
+            screenX: sourceX,
+            screenY: sourceY,
+            clientX: sourceX,
+            clientY: sourceY,
+          })
+        );
+        await sleep(waitTime);
+        source.dispatchEvent(
+          new MouseEvent("mousedown", {
+            bubbles: true,
+            cancelable: true,
+            screenX: sourceX,
+            screenY: sourceY,
+            clientX: sourceX,
+            clientY: sourceY,
+          })
+        );
+        await sleep(waitTime);
+        const dataTransfer = new DataTransfer();
+        dataTransfer.effectAllowed = "all";
+        dataTransfer.dropEffect = "none";
+        dataTransfer.files = [];
+        let dragstart = source.dispatchEvent(
+          new DragEvent("dragstart", {
+            dataTransfer,
+            bubbles: true,
+            cancelable: true,
+            screenX: sourceX,
+            screenY: sourceY,
+            clientX: sourceX,
+            clientY: sourceY,
+          })
+        );
+
+        await sleep(waitTime);
+
+        await sleep(waitTime);
+        destination.dispatchEvent(
+          new DragEvent("dragover", {
+            bubbles: true,
+            cancelable: true,
+            screenX: destinationX,
+            screenY: destinationY,
+            clientX: destinationX,
+            clientY: destinationY,
+            dataTransfer,
+          })
+        );
+        await sleep(waitTime);
+        destination.dispatchEvent(
+          new DragEvent("drop", {
+            bubbles: true,
+            cancelable: true,
+            screenX: destinationX,
+            screenY: destinationY,
+            clientX: destinationX,
+            clientY: destinationY,
+            dataTransfer,
+          })
+        );
+        await sleep(waitTime);
+        source.dispatchEvent(
+          new DragEvent("dragend", {
+            bubbles: true,
+            cancelable: true,
+            screenX: destinationX,
+            screenY: destinationY,
+            clientX: destinationX,
+            clientY: destinationY,
+          })
+        );
+      },
+      sourceSelector,
+      destinationSelector,
+      sourceBox,
+      destinationBox
+    );
+  }`;
+
   return [
     {
-      line: `await page.waitForSelector("#blahblah")`,
+      line: `${dragAndDropFunc}
+
+await dragAndDrop(page, "${getSelector(target)[0]}", "${
+        getSelector(value)[0]
+      }")`,
     },
   ];
 }
@@ -359,6 +473,7 @@ function parseCommands(commands) {
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
   );
+  let blocks = [];
   let result = "";
 
   if (!commands) return result;
@@ -379,13 +494,12 @@ function parseCommands(commands) {
   postProcess();
 
   const indent = options.wrapAsync ? "  " : "";
-  const semicolon = ";";
   const newLine = "\n";
 
   for (let block of blocks) {
     const codeString = getCodeString(block);
 
-    result += indent + codeString + semicolon + newLine;
+    result += indent + codeString + newLine;
     // `console.log('running code', \`${codeString}\`);` +
     // newLine;
   }

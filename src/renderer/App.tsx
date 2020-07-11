@@ -222,7 +222,6 @@ export default function App() {
   const handleNewCommand = React.useCallback(
     (_, command) => {
       if (command.command) {
-        console.log("got command to add", command);
         addCommand(command);
       }
     },

@@ -16,6 +16,7 @@ const CONTROL_PANEL_WIDTH = 600;
 let commands = [];
 let browserForPuppeteer;
 let testingWindow;
+let currentFrameLocation = "";
 
 async function initializePie() {
   await pie.initialize(app);
@@ -90,7 +91,7 @@ ipcMain.on("replay", async (event, commands) => {
   let xlpathEl;
 
   const code = parseCommands(commands);
-  console.log("code to run", code);
+  console.log("code to run\n", code);
   try {
     await eval(`(async function() {
     console.log('starting puppeteer replay run');
@@ -241,12 +242,12 @@ async function stopFindAndSelect(page) {
   });
 }
 
-async function injectScripts(page) {
-  await page.addScriptTag({ path: recorderScriptPath });
-  await page.addStyleTag({ path: highlightCssPath });
-  await page.addScriptTag({ path: findAndSelectPath });
+async function injectScriptsIntoFrame(frame) {
+  await frame.addScriptTag({ path: recorderScriptPath });
+  await frame.addStyleTag({ path: highlightCssPath });
+  await frame.addScriptTag({ path: findAndSelectPath });
 
-  await page.evaluate(() => {
+  await frame.evaluate(() => {
     window.puppeteerPuppeteerStuff = window.puppeteerPuppeteerStuff || {};
 
     window.puppeteerPuppeteerStuff.recorder = new window.PuppeteerRecorder(
@@ -258,8 +259,36 @@ async function injectScripts(page) {
     // user starts recording.
     // window.puppeteerPuppeteerStuff.recorder.detach();
 
-    window.puppeteerPuppeteerStuff.recorder.onNewCommand(sendCommandToParent);
+    window.puppeteerPuppeteerStuff.recorder.onNewCommand(
+      // the sendCommandToParent function is only exposed on the root window
+      // not on the individual iframe window objects
+      window.top.sendCommandToParent
+    );
   });
+}
+
+async function injectScripts(page) {
+  await injectScriptsIntoFrame(page);
+
+  for (const frame of page.mainFrame().childFrames()) {
+    console.log("got frame");
+
+    // await frame.exposeFunction("sendCommandToParent", (command) => {
+    // commands.push(command);
+    // // This is how we send message from the main process to our
+    // // renderer script which renders the control panel
+    // controlPanelWindow.webContents.send("new-command", {
+    // ...command,
+    // targets: command.target,
+    // target: command.target[0][0],
+    // value: Array.isArray(command.value)
+    // ? command.value[0][0]
+    // : command.value,
+    // values: Array.isArray(command.value) ? command.value : undefined,
+    // });
+    // });
+    await injectScriptsIntoFrame(frame);
+  }
 }
 
 function shiftControlPanelWindowToSide() {
@@ -280,7 +309,93 @@ async function closeTestWindow() {
   }
 }
 
+/*
+ * This function finds the path from the current frame in focus to the new
+ * frame we want to go to. Assume that the frames are arranged in a tree.
+ * We are given locations of 2 nodes. The locations are encoded as colon
+ * separated indices. E.g. root:2:4:0. We have to find directions from one
+ * node to another. The operations we can use are
+ * relative=parent -> which takes us from the selected frame to it's parent
+ * relative=top -> to directly jump to root of the tree, i.e. the top window
+ * index=n -> to select the nth child frame of the selected frame
+ * E.g. To go from root:2:3 to root:2:3:0, we generate
+ * directions = [index=0]
+ * To go from root:2:3:5 to root:2:1, we generate
+ * directions = ['relative=parent', 'relative=parent', 'index=1']
+ * To go from root:2:0 to root:3:5:0, we generate
+ * directions = ['relative=parent', 'relative=parent', 'index=3', 'index=5',
+ *    'index=0'
+ * ]
+ */
+function getDirectionsToReachFrameLocation(
+  currentFrameLocation,
+  frameLocation
+) {
+  let directions = [];
+
+  let newFrameLevels = frameLocation.split(":");
+  let oldFrameLevels = currentFrameLocation.split(":");
+  while (oldFrameLevels.length > newFrameLevels.length) {
+    directions.push("relative=parent");
+    oldFrameLevels.pop();
+  }
+
+  while (
+    oldFrameLevels.length != 0 &&
+    oldFrameLevels[oldFrameLevels.length - 1] !=
+      newFrameLevels[oldFrameLevels.length - 1]
+  ) {
+    directions.push("relative=parent");
+    oldFrameLevels.pop();
+  }
+
+  while (oldFrameLevels.length < newFrameLevels.length) {
+    directions.push("index=" + newFrameLevels[oldFrameLevels.length]);
+    oldFrameLevels.push(newFrameLevels[oldFrameLevels.length]);
+  }
+
+  console.log("directions", JSON.stringify(directions, null, "\t"));
+  return directions;
+}
+
+function handleCommandFromTestWindow(command) {
+  // if the command has come from an iframe which is not the currently
+  // tracked frame, we have to generate commands to be able to first select
+  // the new frame from the current frame. We do that by generating a list
+  // of selectFrame commands. In most scenarios it should just be a single
+  // selectFrame command.
+  if (command.frameLocation !== currentFrameLocation) {
+    let directions = getDirectionsToReachFrameLocation(
+      currentFrameLocation,
+      command.frameLocation
+    );
+    currentFrameLocation = command.frameLocation;
+    directions.forEach((direction) => {
+      const frameSelectCommand = {
+        command: "selectFrame",
+        target: direction,
+        targets: [[direction]],
+        value: "",
+      };
+      commands.push(command);
+
+      controlPanelWindow.webContents.send("new-command", frameSelectCommand);
+    });
+  }
+  commands.push(command);
+  // This is how we send message from the main process to our
+  // renderer script which renders the control panel
+  controlPanelWindow.webContents.send("new-command", {
+    ...command,
+    targets: command.target,
+    target: command.target[0][0],
+    value: Array.isArray(command.value) ? command.value[0][0] : command.value,
+    values: Array.isArray(command.value) ? command.value : undefined,
+  });
+}
+
 async function createTestBrowserWindow(url) {
+  currentFrameLocation = "root";
   shiftControlPanelWindowToSide();
   await closeTestWindow();
   const {
@@ -328,18 +443,7 @@ async function createTestBrowserWindow(url) {
   // const page = (await browser.pages())[0];
   // puppeteerHandles.page = page;
   // await page.goto(url);
-  await page.exposeFunction("sendCommandToParent", (command) => {
-    commands.push(command);
-    // This is how we send message from the main process to our
-    // renderer script which renders the control panel
-    controlPanelWindow.webContents.send("new-command", {
-      ...command,
-      targets: command.target,
-      target: command.target[0][0],
-      value: Array.isArray(command.value) ? command.value[0][0] : command.value,
-      values: Array.isArray(command.value) ? command.value : undefined,
-    });
-  });
+  await page.exposeFunction("sendCommandToParent", handleCommandFromTestWindow);
 
   await injectScripts(page);
 
