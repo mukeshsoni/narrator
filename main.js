@@ -13,7 +13,6 @@ require("electron-reload")(__dirname, {
 });
 
 const CONTROL_PANEL_WIDTH = 600;
-let commands = [];
 let browserForPuppeteer;
 let testingWindow;
 let currentFrameLocation = "";
@@ -274,7 +273,6 @@ async function injectScripts(page) {
     console.log("got frame");
 
     // await frame.exposeFunction("sendCommandToParent", (command) => {
-    // commands.push(command);
     // // This is how we send message from the main process to our
     // // renderer script which renders the control panel
     // controlPanelWindow.webContents.send("new-command", {
@@ -377,12 +375,10 @@ function handleCommandFromTestWindow(command) {
         targets: [[direction]],
         value: "",
       };
-      commands.push(command);
 
       controlPanelWindow.webContents.send("new-command", frameSelectCommand);
     });
   }
-  commands.push(command);
   // This is how we send message from the main process to our
   // renderer script which renders the control panel
   controlPanelWindow.webContents.send("new-command", {
