@@ -11,7 +11,7 @@ interface Props {
 
 export default function AddCommandForm({ onSave, onCancel }: Props) {
   const [value, setValue] = React.useState("");
-  const [selectedCommand, setCommand] = React.useState("");
+  const [selectedCommand, setCommand] = React.useState(commands[0][0]);
   const [targets, setAssertionTargets] = React.useState<
     Array<[string, string]>
   >([]);

@@ -34,7 +34,7 @@ const initialState: State = {
   urlToTest: dummyUrlToTest,
   isRecording: false,
   showAssertionPanel: false,
-  showAddCommandPanel: true,
+  showAddCommandPanel: false,
 };
 
 function addHttpsIfRequired(url: string) {
@@ -133,7 +133,6 @@ function rootReducer(state: State, action: any) {
     case "HIDE_ADD_COMMAND_PANEL":
       return {
         ...state,
-        isRecording: false,
         showAddCommandPanel: false,
       };
     case "HIDE_ASSERTION_PANEL":

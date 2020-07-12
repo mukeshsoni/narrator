@@ -91,6 +91,8 @@ function getCommandBlocks(command) {
       return waitForElementVisibleCode(command);
     case "waitForText":
       return waitForTextCode(command);
+    case "executePuppetterCode":
+      return executePuppetterCodeCode(command);
     case "waitFor":
       return waitForCode(command);
     case "waitForNavigation":
@@ -491,7 +493,7 @@ function waitForElementVisibleCode(command) {
   }
 }
 
-function waitForText(command) {
+function waitForTextCode(command) {
   const { target, value } = command;
   const [selector, selectorType] = getSelector(target);
 
@@ -520,6 +522,10 @@ document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, nul
       },
     ];
   }
+}
+
+function executePuppetterCodeCode(command) {
+  return [{ line: command.value }];
 }
 
 function waitForCode(command) {
