@@ -69,14 +69,6 @@ ipcMain.on("url-to-test", (event, url) => {
 
 ipcMain.on("replay", async (event, commands) => {
   console.log("got some puppeteer commands to run", commands);
-  // might be better to get the commands and then run puppeteer commands
-  // by generating them here
-  // or
-  // instead write the generated code to a file and run the file
-  const blocks = commands
-    .filter((command) => !command.ignore)
-    .reduce((acc, command) => acc.concat(getCommandBlocks(command)), [])
-    .filter((block) => block);
 
   const page = puppeteerHandles.page;
   // slow down the operations so that they are visible in replay
@@ -89,7 +81,7 @@ ipcMain.on("replay", async (event, commands) => {
   };
   let xlpathEl;
 
-  const code = parseCommands(commands);
+  const code = parseCommands(commands.filter((command) => !command.ignore));
   console.log("code to run\n", code);
   try {
     await eval(`(async function() {
@@ -126,53 +118,6 @@ ipcMain.on("start-find-and-select", () => {
 ipcMain.on("stop-find-and-select", () => {
   stopFindAndSelect(puppeteerHandles.page);
 });
-
-// we construct the function to call using the accessors array
-// and the puppeteerHandles properties
-// E.g. if accessors = ['page', 'waitForNavigation']
-// we construct functionToCall as puppeteerHandles['page']['waitForNavigation']
-// We bind the call to page object since many of the functions use `this`
-// internally
-async function runBlocks(blocks) {
-  // didn't know for loops work with async await. I mean the whole loop blocks
-  // when there's an await statement
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i];
-
-    console.log("running block", block);
-    // we want to bind to the element the function is called with
-    // e.g. page.keyboard.press should have page.keyboard as thi
-    const accessorToBindTo = block.accessors
-      .slice(0, block.accessors.length - 1)
-      .reduce((acc, accessor) => acc[accessor], puppeteerHandles);
-    const functionToCall =
-      accessorToBindTo[block.accessors[block.accessors.length - 1]];
-
-    try {
-      if (!block.lhs) {
-        if (block.accessors[0] === "xpathEl") {
-          // have to bind the action (like click, type etc.) calls the xpathEl
-          // In our case it's puppeteerHandles['xpathEl'][0]
-          await functionToCall.bind(accessorToBindTo)(...block.args);
-        } else {
-          await functionToCall.bind(accessorToBindTo)(...block.args);
-        }
-      } else {
-        puppeteerHandles[block.lhs] = await functionToCall.bind(
-          accessorToBindTo
-        )(...block.args);
-      }
-    } catch (e) {
-      console.log("Error trying to execute step", block, e);
-      puppeteerHandles.page.evaluate((errorMessage) => {
-        alert(`could not execute step: ${errorMessage}`);
-      }, e.toString());
-      // we don't want to continue other steps if one of them failed
-      // Maybe in the future we allow this as an option
-      return;
-    }
-  }
-}
 
 let puppeteerHandles = {
   page: null,
