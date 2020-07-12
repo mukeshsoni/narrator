@@ -187,13 +187,6 @@ export default function SidePanel({
               >
                 Puppeteer
               </button>
-              <button
-                className="px-4 py-2 hover:bg-blue-500 hover:text-white"
-                onClick={onGenerateClick.bind(null, "cypress")}
-                key="cypress"
-              >
-                Cypress
-              </button>
             </>
           </MenuWithClickOutside>
         </div>
