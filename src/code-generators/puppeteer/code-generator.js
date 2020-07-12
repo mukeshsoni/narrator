@@ -85,13 +85,14 @@ function getCommandBlocks(command) {
       return selectFrameCode(command);
     case "editContent":
       return editContentCode(command);
+    case "waitFor":
+      return waitForCode(command);
+    case "waitForNavigation":
+      return waitForNavigationCode(command);
     case "GOTO":
       return gotoCode(value);
     case pptrActions.VIEWPORT:
       return viewportCode(value.width, value.height);
-    case pptrActions.NAVIGATION:
-      hasNavigation = true;
-      return waitForNavigationCode();
     case pptrActions.SCREENSHOT:
       return handleScreenshot(value);
     case "assertVisibility":
@@ -455,13 +456,12 @@ function handleScreenshot(options) {
   return blocks;
 }
 
+function waitForCode(command) {
+  return `await frame.waitFor(${command.value})`;
+}
+
 function waitForNavigationCode() {
-  if (options.waitForNavigation) {
-    return {
-      accessors: ["navigationPromise"],
-    };
-  }
-  return [];
+  return [{ line: `await frame.waitForNavigation()` }];
 }
 
 function postProcessSetFrames() {
