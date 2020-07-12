@@ -9,6 +9,7 @@ const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
 import AssertionForm from "./AssertionForm";
+import AddCommandForm from "./AddCommandForm";
 import { Command } from "./command";
 
 const {
@@ -25,6 +26,7 @@ interface State {
   urlToTest: string;
   isRecording: boolean;
   showAssertionPanel: boolean;
+  showAddCommandPanel: boolean;
 }
 
 const initialState: State = {
@@ -32,6 +34,7 @@ const initialState: State = {
   urlToTest: dummyUrlToTest,
   isRecording: false,
   showAssertionPanel: false,
+  showAddCommandPanel: true,
 };
 
 function addHttpsIfRequired(url: string) {
@@ -122,6 +125,17 @@ function rootReducer(state: State, action: any) {
         isRecording: false,
         showAssertionPanel: true,
       };
+    case "SHOW_ADD_COMMAND_PANEL":
+      return {
+        ...state,
+        showAddCommandPanel: true,
+      };
+    case "HIDE_ADD_COMMAND_PANEL":
+      return {
+        ...state,
+        isRecording: false,
+        showAddCommandPanel: false,
+      };
     case "HIDE_ASSERTION_PANEL":
       return {
         ...state,
@@ -158,7 +172,13 @@ export default function App() {
   const [generatedCode, setGeneratedCode] = React.useState("");
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const urlInputRef = React.useRef<HTMLInputElement>(null);
-  const { urlToTest, commands, isRecording, showAssertionPanel } = state;
+  const {
+    urlToTest,
+    commands,
+    isRecording,
+    showAssertionPanel,
+    showAddCommandPanel,
+  } = state;
 
   const addCommand = React.useCallback(
     (command) => {
@@ -272,6 +292,14 @@ export default function App() {
     ipcRenderer.send("start-find-and-select");
   }, [dispatch]);
 
+  const handleAddCommandClick = React.useCallback(() => {
+    dispatch({ type: "SHOW_ADD_COMMAND_PANEL" });
+  }, [dispatch]);
+
+  const hideAddCommandPanel = React.useCallback(() => {
+    dispatch({ type: "HIDE_ADD_COMMAND_PANEL" });
+  }, [dispatch]);
+
   const handleAssertionSave = React.useCallback(
     (command) => {
       console.log("let us save the assertion", command);
@@ -305,8 +333,25 @@ export default function App() {
     [dispatch]
   );
 
+  // abc
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
+      {showAddCommandPanel && (
+        <Modal
+          isOpen={showAddCommandPanel}
+          onRequestClose={() => {
+            hideAddCommandPanel();
+          }}
+        >
+          <AddCommandForm
+            onSave={(command) => {
+              hideAddCommandPanel();
+              addCommand(command);
+            }}
+            onCancel={hideAddCommandPanel}
+          />
+        </Modal>
+      )}
       {urlToTest ? (
         showAssertionPanel ? (
           <AssertionForm
@@ -324,6 +369,7 @@ export default function App() {
             onSelectorChange={handleSelectorChange}
             onCommandIgoreClick={handleCommandIgnoreClick}
             onAddAssertionClick={handleAddAssertionClick}
+            onAddCommandClick={handleAddCommandClick}
             onCommandValueChange={handleCommandValueChange}
             onCommandPosChange={handleCommandPosChange}
           />

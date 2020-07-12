@@ -85,6 +85,12 @@ function getCommandBlocks(command) {
       return selectFrameCode(command);
     case "editContent":
       return editContentCode(command);
+    case "waitForElementPresent":
+      return waitForElementPresentCode(command);
+    case "waitForElementVisible":
+      return waitForElementVisibleCode(command);
+    case "waitForText":
+      return waitForTextCode(command);
     case "waitFor":
       return waitForCode(command);
     case "waitForNavigation":
@@ -454,6 +460,66 @@ function handleScreenshot(options) {
 
   screenshotCounter++;
   return blocks;
+}
+
+function waitForElementPresentCode(command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    return [{ line: `await frame.waitForXPath("${selector}")` }];
+  } else {
+    return [{ line: `await frame.waitForSelector("${selector}")` }];
+  }
+}
+
+/*
+ * We can send second param to waitForSelector and waitForXPath to verify if the
+ * element is visible, not just present in DOM. Thanks to this stackoverflow
+ * answer - https://stackoverflow.com/a/55212494/821720
+ */
+function waitForElementVisibleCode(command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    return [
+      { line: `await frame.waitForXPath("${selector}", { visible: true })` },
+    ];
+  } else {
+    return [
+      { line: `await frame.waitForSelector("${selector}", { visible :true })` },
+    ];
+  }
+}
+
+function waitForText(command) {
+  const { target, value } = command;
+  const [selector, selectorType] = getSelector(target);
+
+  if (selectorType === "xpath") {
+    // It says try to find an element with the given xpath and ensure that it's
+    // not null. Keep trying until it's not null. And then match it's text value
+    // to given value
+    // Finding element with some xpath is not that straight forward. This code
+    // snippet was also picked from a stack overflow answer
+    // https://stackoverflow.com/a/14284815/821720
+    return [
+      {
+        line: `await frame.waitForFunction(
+   'document.evaluate("${selector}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue && 
+document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerText.includes("${value}") 
+   ' 
+)`,
+      },
+    ];
+  } else {
+    return [
+      {
+        line: `await frame.waitForFunction(
+  'document.querySelector("${selector}").innerText.includes("${value}")'
+);`,
+      },
+    ];
+  }
 }
 
 function waitForCode(command) {

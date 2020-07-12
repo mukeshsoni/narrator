@@ -1,47 +1,21 @@
 import * as React from "react";
 
 import { Command } from "./command";
+import { commands } from "../command/commands";
 const { ipcRenderer } = require("electron");
-
-const assertionTypes = [
-  {
-    value: "assertVisibility",
-    label: "is present",
-  },
-  {
-    value: "assertText",
-    label: "equals",
-  },
-  {
-    value: "assertTextContains",
-    label: "contains",
-  },
-  {
-    value: "assertTextStartsWith",
-    label: "starts with",
-  },
-  {
-    value: "assertTextEndsWith",
-    label: "ends with",
-  },
-];
 
 interface Props {
   onSave: (command: Command) => void;
   onCancel: () => void;
 }
 
-export default function AssertionForm({ onSave, onCancel }: Props) {
-  const [showTextarea, setShowTextarea] = React.useState(false);
-  const [expectedValue, setExpectedValue] = React.useState("");
-  const [assertionType, setAssertionType] = React.useState(
-    assertionTypes[0].value
-  );
-  const [assertionTargets, setAssertionTargets] = React.useState<
+export default function AddCommandForm({ onSave, onCancel }: Props) {
+  const [value, setValue] = React.useState("");
+  const [selectedCommand, setCommand] = React.useState("");
+  const [targets, setAssertionTargets] = React.useState<
     Array<[string, string]>
   >([]);
   const [target, setTarget] = React.useState("");
-  const assertionTypeRef = React.useRef(null);
 
   React.useEffect(() => {
     ipcRenderer.on(
@@ -53,55 +27,57 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
     );
   }, []);
 
-  function handleAssertionTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    e.preventDefault();
-    setAssertionType(e.target.value);
-  }
-
-  React.useEffect(() => {
-    if (assertionType.startsWith("assertText")) {
-      setShowTextarea(true);
-    } else {
-      setShowTextarea(false);
-    }
-  }, [assertionType]);
-
   function handleSubmit(e: React.FormEvent) {
     e.stopPropagation();
     e.preventDefault();
-    if (assertionTargets.length === 0) {
-      alert("Select a target to assert on");
-    } else if (
-      assertionType.startsWith("assertText") &&
-      expectedValue.trim() === ""
-    ) {
-      alert("Please enter text to compare with");
+
+    if (!selectedCommand) {
+      alert("Please select a command");
     } else {
       onSave({
-        target: assertionTargets[0][0],
-        targets: assertionTargets,
+        target: targets.length > 0 ? targets[0][0] : "",
+        targets: targets,
         // TODO: send the selected assertionType
-        command: assertionType,
-        name: assertionType,
-        value: expectedValue,
+        command: selectedCommand,
+        name: selectedCommand,
+        value,
       });
     }
   }
 
-  function handleExpectedValueChange(
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) {
+  function handleValueChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     e.preventDefault();
-    setExpectedValue(e.target.value);
+    setValue(e.target.value);
   }
 
   return (
     <div className="w-full p-4">
-      <h2 className="mb-2">Assertion</h2>
+      <h2 className="mb-2">Add command</h2>
       <form className="mt-4" onSubmit={handleSubmit}>
         <label className="flex items-center w-full">
-          Assertion against:&nbsp;&nbsp;
-          {assertionTargets.length > 0 ? (
+          Select command:&nbsp;&nbsp;
+          <select
+            name="selector"
+            className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
+            value={selectedCommand}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              e.preventDefault();
+              console.log("new target selected", e.target.value);
+              setCommand(e.target.value);
+            }}
+          >
+            {commands.map((command, i) => {
+              return (
+                <option value={command[0]} key={command[0]}>
+                  {command[1].name}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        <label className="flex items-center w-full mt-4">
+          Target:&nbsp;&nbsp;
+          {targets.length > 0 ? (
             <select
               name="selector"
               className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
@@ -112,7 +88,7 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
                 setTarget(e.target.value);
               }}
             >
-              {assertionTargets.map((t, i) => {
+              {targets.map((t, i) => {
                 return (
                   <option value={t[0]} key={t[0]}>
                     {t[0]}
@@ -154,35 +130,13 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
           </button>
         </label>
         <label className="flex items-center w-full mt-2">
-          Assertion type&nbsp;&nbsp;
-          <select
-            className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
-            value={assertionType}
-            onChange={handleAssertionTypeChange}
-          >
-            {assertionTypes.map((assertionType) => {
-              return (
-                <option
-                  className="ml-4"
-                  value={assertionType.value}
-                  key={assertionType.value}
-                >
-                  {assertionType.label}
-                </option>
-              );
-            })}
-          </select>
+          Value
+          <textarea
+            value={value}
+            onChange={handleValueChange}
+            className="flex-1 px-4 py-2 ml-4 border border-gray-400 rounded-md"
+          />
         </label>
-        {showTextarea && (
-          <label className="flex items-center w-full mt-2">
-            Expected value
-            <textarea
-              value={expectedValue}
-              onChange={handleExpectedValueChange}
-              className="flex-1 px-4 py-2 ml-4 border border-gray-400 rounded-md"
-            />
-          </label>
-        )}
         <div className="flex flex-row-reverse mt-4">
           <button
             type="submit"

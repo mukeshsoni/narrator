@@ -82,6 +82,7 @@ interface Props {
   onSelectorChange: (commandIndex: number, target: string) => void;
   onCommandIgoreClick: (commandIndex: number) => void;
   onAddAssertionClick: () => void;
+  onAddCommandClick: () => void;
   onCommandValueChange: (
     selectedCommandIndex: number,
     propName: string,
@@ -100,6 +101,7 @@ export default function SidePanel({
   onSelectorChange,
   onCommandIgoreClick,
   onAddAssertionClick,
+  onAddCommandClick,
   onCommandValueChange,
   onCommandPosChange,
 }: Props) {
@@ -163,6 +165,27 @@ export default function SidePanel({
             className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
+              onAddCommandClick();
+            }}
+            title="Add command"
+          >
+            <svg
+              width={24}
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span className="text-xs uppercase">Add command</span>
+          </button>
+          <button
+            className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
               onAddAssertionClick();
             }}
             title="Add assertion"
@@ -190,13 +213,6 @@ export default function SidePanel({
                 Puppeteer
               </button>
             </>
-            <button
-              className="px-4 py-2 hover:bg-blue-500 hover:text-white"
-              onClick={onGenerateClick.bind(null, "cypress")}
-              key="cypress"
-            >
-              Cypress
-            </button>
           </MenuWithClickOutside>
         </div>
       </div>

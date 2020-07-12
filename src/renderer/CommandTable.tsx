@@ -39,7 +39,7 @@ interface Props {
 }
 
 const DragHandle = SortableHandle(() => (
-  <button className="flex items-center p-2 text-gray-600 cursor-move">
+  <button className="flex items-center p-2 pl-4 text-gray-600 cursor-move">
     <svg
       width={18}
       fill="none"
