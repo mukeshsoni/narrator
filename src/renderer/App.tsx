@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import CopyToClipboard from "react-copy-to-clipboard";
+import arrayMove from "array-move";
 
 const { ipcRenderer } = require("electron");
 
@@ -136,6 +137,15 @@ function rootReducer(state: State, action: any) {
             [action.propName]: action.newValue,
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
+      };
+    case "COMMAND_POS_CHANGE":
+      return {
+        ...state,
+        commands: arrayMove(
+          state.commands,
+          action.change.oldIndex,
+          action.change.newIndex
+        ),
       };
     default:
       return state;
@@ -288,6 +298,13 @@ export default function App() {
     [dispatch]
   );
 
+  const handleCommandPosChange = React.useCallback(
+    (change) => {
+      dispatch({ type: "COMMAND_POS_CHANGE", change });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {urlToTest ? (
@@ -308,6 +325,7 @@ export default function App() {
             onCommandIgoreClick={handleCommandIgnoreClick}
             onAddAssertionClick={handleAddAssertionClick}
             onCommandValueChange={handleCommandValueChange}
+            onCommandPosChange={handleCommandPosChange}
           />
         )
       ) : (

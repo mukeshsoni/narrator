@@ -87,6 +87,7 @@ interface Props {
     propName: string,
     newValue: string
   ) => void;
+  onCommandPosChange: (change: { oldIndex: number; newIndex: number }) => void;
 }
 
 export default function SidePanel({
@@ -100,6 +101,7 @@ export default function SidePanel({
   onCommandIgoreClick,
   onAddAssertionClick,
   onCommandValueChange,
+  onCommandPosChange,
 }: Props) {
   return (
     <div
@@ -188,6 +190,13 @@ export default function SidePanel({
                 Puppeteer
               </button>
             </>
+            <button
+              className="px-4 py-2 hover:bg-blue-500 hover:text-white"
+              onClick={onGenerateClick.bind(null, "cypress")}
+              key="cypress"
+            >
+              Cypress
+            </button>
           </MenuWithClickOutside>
         </div>
       </div>
@@ -197,6 +206,7 @@ export default function SidePanel({
           onSelectorChange={onSelectorChange}
           onCommandIgoreClick={onCommandIgoreClick}
           onCommandValueChange={onCommandValueChange}
+          onCommandPosChange={onCommandPosChange}
         />
       </div>
     </div>

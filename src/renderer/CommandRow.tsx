@@ -25,7 +25,11 @@ export default function CommandRow({ command, onCommandRowClick }: Props) {
   return (
     <button
       className="flex w-full hover:bg-gray-400"
-      onClick={onCommandRowClick}
+      onClick={(e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onCommandRowClick();
+      }}
     >
       <div className="flex-1 px-4 py-2 truncate">
         {command.ignore ? `// ${command.name}` : command.name}
@@ -37,4 +41,3 @@ export default function CommandRow({ command, onCommandRowClick }: Props) {
     </button>
   );
 }
-
