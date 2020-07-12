@@ -4,10 +4,10 @@ const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
   let xpathEl;
   const browser = await puppeteer.launch()
-  const page = await browser.newPage()\n`;
+  let page = await browser.newPage()\n`;
 
 const header = `const browser = await puppeteer.launch()
-const page = await browser.newPage()`;
+let page = await browser.newPage()`;
 
 const wrappedFooter = `  await browser.close()
 })()`;
@@ -81,6 +81,10 @@ function getCommandBlocks(command) {
       return selectCode(command);
     case "dragAndDropToObject":
       return dragAndDropCode(command);
+    case "selectFrame":
+      return selectFrameCode(command);
+    case "editContent":
+      return editContentCode(command);
     case "GOTO":
       return gotoCode(value);
     case pptrActions.VIEWPORT:
@@ -143,7 +147,7 @@ function setFrames(frameId, frameUrl) {
     allFrames[frameId] = frameUrl;
   } else {
     frameId = 0;
-    frame = "page";
+    frame = "frame";
   }
 }
 
@@ -219,6 +223,8 @@ function typeCode(command) {
 }
 
 function clickCode(command) {
+  // TODO: We should specially handle clicking of urls
+  // We should add a frame.waitForNavigation after clicking a url
   return getActionBlock("click", command, [], options);
 }
 
@@ -239,6 +245,42 @@ function selectCode(command) {
   ).concat({
     line: `await page.keyboard.press("Enter")`,
   });
+}
+
+function selectFrameCode(command) {
+  if (command.target === "relative=parent") {
+    return [{ line: `frame = frame.parentFrame()` }];
+  } else if (command.target === "relative=top") {
+    return [
+      { line: `await frame.waitForNavigation();\nframe = page.frames()[1];` },
+    ];
+  } else {
+    const frameIndex = parseInt(command.target.split("=")[1], 10);
+    return [
+      {
+        line: `await frame.waitForNavigation();\nframe = (await frame.childFrames())[${frameIndex}]`,
+      },
+    ];
+  }
+}
+
+// to put content inside editablecontent elements
+function editContentCode(command) {
+  const { target, value } = command;
+  const [selector, selectorType] = getSelector(target);
+
+  return [
+    {
+      line: `
+  let editableEl = frame.$("${selector}")
+  await frame.evaluate((editableContentSelector) => {
+    const el = document.querySelector(editableContentSelector);
+    if(el) {
+      el.innerHTML = "${value}"
+    }
+  }, "${selector}")`,
+    },
+  ];
 }
 
 function dragAndDropCode(command) {
@@ -474,13 +516,20 @@ function parseCommands(commands) {
     `generating code for ${commands ? commands.length : 0} commands`
   );
   let blocks = [];
-  let result = "";
+  const indent = options.wrapAsync ? "  " : "";
+  const newLine = "\n";
+  let result = `let frame = page.mainFrame()${newLine}`;
+  frame = "page";
 
   if (!commands) return result;
 
-  commands.forEach((command) => {
-    blocks = blocks.concat(getCommandBlocks(command)).filter((block) => block);
-  });
+  commands
+    .filter((c) => c.target !== "css=html")
+    .forEach((command) => {
+      blocks = blocks
+        .concat(getCommandBlocks(command))
+        .filter((block) => block);
+    });
 
   if (hasNavigation && options.waitForNavigation) {
     console.debug("Adding navigationPromise declaration");
@@ -492,9 +541,6 @@ function parseCommands(commands) {
 
   console.debug("post processing blocks:", blocks);
   postProcess();
-
-  const indent = options.wrapAsync ? "  " : "";
-  const newLine = "\n";
 
   for (let block of blocks) {
     const codeString = getCodeString(block);
