@@ -3,7 +3,7 @@ export interface Command {
   command: string;
   target: string;
   targets: Array<[string, string]>;
-  value?: string;
+  value?: any;
   values?: Array<[string, string]>;
   ignore?: boolean;
   coordinates?: string;

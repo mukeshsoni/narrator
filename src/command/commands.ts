@@ -639,6 +639,13 @@ export const commands: Array<[
     },
   ],
   [
+    "setViewport",
+    {
+      name: "Set viewport dimensions",
+      description: "Set viewport dimensions",
+    },
+  ],
+  [
     "setWindowSize",
     {
       name: "set window size",
@@ -733,6 +740,13 @@ export const commands: Array<[
       description: `Submit the specified form. This is particularly useful for 
         forms without submit buttons, e.g. single-input "Search" forms.`,
       target: ArgTypes.formLocator,
+    },
+  ],
+  [
+    "takeScreenshot",
+    {
+      name: "Take screenshot",
+      description: "Take screenshot",
     },
   ],
   [

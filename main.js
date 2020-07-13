@@ -3,10 +3,6 @@ const path = require("path");
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const pie = require("puppeteer-in-electron");
 const puppeteer = require("puppeteer-core");
-const {
-  getCommandBlocks,
-  parseCommands,
-} = require("./src/code-generators/puppeteer/code-generator.js");
 
 require("electron-reload")(__dirname, {
   electron: path.join(__dirname, "node_modules", ".bin", "electron"),
@@ -67,8 +63,8 @@ ipcMain.on("url-to-test", (event, url) => {
   createTestBrowserWindow(url);
 });
 
-ipcMain.on("replay", async (event, commands) => {
-  console.log("got some puppeteer commands to run", commands);
+ipcMain.on("replay", async (event, code) => {
+  console.log("got some puppeteer code to run", code);
 
   const page = puppeteerHandles.page;
   // slow down the operations so that they are visible in replay
@@ -81,7 +77,6 @@ ipcMain.on("replay", async (event, commands) => {
   };
   let xlpathEl;
 
-  const code = parseCommands(commands.filter((command) => !command.ignore));
   console.log("code to run\n", code);
   try {
     await eval(`(async function() {

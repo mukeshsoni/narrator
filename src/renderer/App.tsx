@@ -14,6 +14,7 @@ import { Command } from "./command";
 
 const {
   generatePuppeteerCode,
+  parseCommands,
 } = require("../code-generators/puppeteer/code-generator");
 const generateCypressCode = require("../code-generators/cypress/code-generator");
 
@@ -243,7 +244,10 @@ export default function App() {
       // want to.
       dispatch({ type: "PAUSE_RECORDING" });
       // setTimeout(() => {
-      ipcRenderer.send("replay", commands);
+      ipcRenderer.send(
+        "replay",
+        parseCommands(commands.filter((command) => !command.ignore))
+      );
       // }, 500);
     }
   }, [commands]);
