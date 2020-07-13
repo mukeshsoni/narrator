@@ -45,7 +45,7 @@ function cleanUp() {
   hasNavigation = false;
 }
 
-function getCommandBlocks(command: Command): Array<{ line: string }> {
+function getCommandBlocks(command: Command): string | Array<string> {
   const { name, value } = command;
 
   switch (name) {
@@ -169,22 +169,18 @@ function keyPressCode(command: Command) {
   if (match && match[1]) {
     const keyToPress = capitalize(match[1].split("_")[1]);
 
-    return [
-      {
-        line: `await page.keyboard.press("${keyToPress}")`,
-      },
-    ];
+    return `await page.keyboard.press("${keyToPress}")`;
   } else {
-    return [];
+    return "";
   }
 }
 
 function getWaitForBlock(target: string) {
   const [selector, selectorType] = getSelector(target);
   if (selectorType !== "xpath") {
-    return { line: `await frame.waitForSelector("${selector}")` };
+    return `await frame.waitForSelector("${selector}")`;
   } else {
-    return { line: `await frame.waitForXPath("${selector}")` };
+    return `await frame.waitForXPath("${selector}")`;
   }
 }
 
@@ -203,14 +199,14 @@ function getActionBlock(
   }
 
   if (selectorType !== "xpath") {
-    blocks.push({
-      line: `await frame.${action}("${selector}"${
+    blocks.push(
+      `await frame.${action}("${selector}"${
         extraArgs.length > 0 ? ", " : ""
-      }${extraArgs.join(",")})`,
-    });
+      }${extraArgs.join(",")})`
+    );
   } else {
-    blocks.push({ line: `xpathEl = await frame.$x("${selector}")` });
-    blocks.push({ line: `await xpathEl[0].${action}(${extraArgs.join(",")})` });
+    blocks.push(`xpathEl = await frame.$x("${selector}")`);
+    blocks.push(`await xpathEl[0].${action}(${extraArgs.join(",")})`);
   }
 
   return blocks;
@@ -240,25 +236,17 @@ function selectCode(command: Command) {
       target,
     },
     [`"${value.split("=")[1]}"`]
-  ).concat({
-    line: `await page.keyboard.press("Enter")`,
-  });
+  ).concat(`await page.keyboard.press("Enter")`);
 }
 
 function selectFrameCode(command: Command) {
   if (command.target === "relative=parent") {
-    return [{ line: `frame = frame.parentFrame()` }];
+    return `frame = frame.parentFrame()`;
   } else if (command.target === "relative=top") {
-    return [
-      { line: `await frame.waitForNavigation();\nframe = page.frames()[1];` },
-    ];
+    return `await frame.waitForNavigation();\nframe = page.frames()[1];`;
   } else {
     const frameIndex = parseInt(command.target.split("=")[1], 10);
-    return [
-      {
-        line: `await frame.waitForNavigation();\nframe = (await frame.childFrames())[${frameIndex}]`,
-      },
-    ];
+    return `await frame.waitForNavigation();\nframe = (await frame.childFrames())[${frameIndex}]`;
   }
 }
 
@@ -267,18 +255,14 @@ function editContentCode(command: Command) {
   const { target, value } = command;
   const [selector] = getSelector(target);
 
-  return [
-    {
-      line: `
+  return `
   let editableEl = frame.$("${selector}")
   await frame.evaluate((editableContentSelector) => {
     const el = document.querySelector(editableContentSelector);
     if(el) {
       el.innerHTML = "${value}"
     }
-  }, "${selector}")`,
-    },
-  ];
+  }, "${selector}")`;
 }
 
 function dragAndDropCode(command: Command) {
@@ -392,15 +376,11 @@ function dragAndDropCode(command: Command) {
     );
   }`;
 
-  return [
-    {
-      line: `${dragAndDropFunc}
+  return `${dragAndDropFunc}
 
 await dragAndDrop(page, "${getSelector(target)[0]}", "${
-        getSelector(value)[0]
-      }")`,
-    },
-  ];
+    getSelector(value)[0]
+  }")`;
 }
 
 function changeCode(command: Command) {
@@ -408,21 +388,17 @@ function changeCode(command: Command) {
 }
 
 function gotoCode(href: string) {
-  return [{ line: `await page.goto("${href}")` }];
+  return `await page.goto("${href}")`;
 }
 
 function viewportCode({ width, height }: { width: number; height: number }) {
-  return [
-    {
-      line: `await page.setViewport({ width: ${width}, height: ${height} })`,
-    },
-  ];
+  return `await page.setViewport({ width: ${width}, height: ${height} })`;
 }
 
 function assertVisibilityCode(command: Command) {
   let { target } = command;
 
-  return [getWaitForBlock(target)];
+  return getWaitForBlock(target);
 }
 
 function screenshotCode(
@@ -441,26 +417,21 @@ function screenshotCode(
     options.width = parseInt(options.width + "", 10);
     options.height = parseInt(options.height + "", 10);
 
-    blocks.push({
-      line: `await page.screenshot({ path: 'screenshot${screenshotCounter}.png', clip: { x: ${options.x}, y: ${options.y}, width: ${options.width}, height: ${options.height} } })`,
-    });
+    screenshotCounter++;
+    return `await page.screenshot({ path: 'screenshot${screenshotCounter}.png', clip: { x: ${options.x}, y: ${options.y}, width: ${options.width}, height: ${options.height} } })`;
   } else {
-    blocks.push({
-      line: `await page.screenshot({ path: 'screenshot${screenshotCounter}.png' })`,
-    });
+    screenshotCounter++;
+    return `await page.screenshot({ path: 'screenshot${screenshotCounter}.png' })`;
   }
-
-  screenshotCounter++;
-  return blocks;
 }
 
 function waitForElementPresentCode(command: Command) {
   const [selector, selectorType] = getSelector(command.target);
 
   if (selectorType === "xpath") {
-    return [{ line: `await frame.waitForXPath("${selector}")` }];
+    return `await frame.waitForXPath("${selector}")`;
   } else {
-    return [{ line: `await frame.waitForSelector("${selector}")` }];
+    return `await frame.waitForSelector("${selector}")`;
   }
 }
 
@@ -468,19 +439,11 @@ function waitForElementNotPresentCode(command: Command) {
   const [selector, selectorType] = getSelector(command.target);
 
   if (selectorType === "xpath") {
-    return [
-      {
-        line: `await frame.waitForFunction(
+    return `await frame.waitForFunction(
    'document.evaluate("${selector}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue'
-`,
-      },
-    ];
+`;
   } else {
-    return [
-      {
-        line: `await frame.waitForFunction('!document.querySelector("${selector}"');`,
-      },
-    ];
+    return `await frame.waitForFunction('!document.querySelector("${selector}"');`;
   }
 }
 
@@ -493,13 +456,9 @@ function waitForElementVisibleCode(command: Command) {
   const [selector, selectorType] = getSelector(command.target);
 
   if (selectorType === "xpath") {
-    return [
-      { line: `await frame.waitForXPath("${selector}", { visible: true })` },
-    ];
+    return `await frame.waitForXPath("${selector}", { visible: true })`;
   } else {
-    return [
-      { line: `await frame.waitForSelector("${selector}", { visible :true })` },
-    ];
+    return `await frame.waitForSelector("${selector}", { visible :true })`;
   }
 }
 
@@ -507,15 +466,9 @@ function waitForElementNotVisibleCode(command: Command) {
   const [selector, selectorType] = getSelector(command.target);
 
   if (selectorType === "xpath") {
-    return [
-      { line: `await frame.waitForXPath("${selector}", { visible: false })` },
-    ];
+    return `await frame.waitForXPath("${selector}", { visible: false })`;
   } else {
-    return [
-      {
-        line: `await frame.waitForSelector("${selector}", { visible: false })`,
-      },
-    ];
+    return `await frame.waitForSelector("${selector}", { visible: false })`;
   }
 }
 
@@ -530,80 +483,61 @@ function waitForTextCode(command: Command) {
     // Finding element with some xpath is not that straight forward. This code
     // snippet was also picked from a stack overflow answer
     // https://stackoverflow.com/a/14284815/821720
-    return [
-      {
-        line: `await frame.waitForFunction(
+    return `await frame.waitForFunction(
    'document.evaluate("${selector}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue && 
 document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerText.includes("${value}") 
    ' 
-)`,
-      },
-    ];
+)`;
   } else {
-    return [
-      {
-        line: `await frame.waitForFunction(
+    return `await frame.waitForFunction(
   'document.querySelector("${selector}").innerText.includes("${value}")'
-);`,
-      },
-    ];
+);`;
   }
 }
 
 function executePuppetterCodeCode(command: Command) {
-  return [{ line: command.value }];
+  return command.value;
 }
 
 function waitForCode(command: Command) {
-  return [{ line: `await frame.waitFor(${command.value})` }];
+  return `await frame.waitFor(${command.value})`;
 }
 
 function waitForNavigationCode() {
-  return [{ line: `await frame.waitForNavigation()` }];
+  return `await frame.waitForNavigation()`;
 }
 
 function parseCommands(commands: Array<Command>) {
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
   );
-  let blocks: Array<{ line: string }> = [];
   const indent = options.wrapAsync ? "  " : "";
   const newLine = "\n";
   let result = `let frame = page.mainFrame()${newLine}`;
 
   if (!commands) return result;
 
-  commands
+  const codeStrings: Array<string> = commands
     .filter((c) => c.target !== "css=html")
-    .forEach((command: Command) => {
-      blocks = blocks
+    .reduce((acc: Array<string>, command: Command) => {
+      return acc
         .concat(getCommandBlocks(command))
-        .filter((block) => block);
-    });
+        .filter((codeString) => codeString);
+    }, []);
 
   if (hasNavigation && options.waitForNavigation) {
     console.debug("Adding navigationPromise declaration");
-    const navigationBlock = {
-      line: `let navigationPromise = await page.waitForNavigation()`,
-    };
-    blocks.unshift(navigationBlock);
+    const navigationBlock = `let navigationPromise = await page.waitForNavigation()`;
+    codeStrings.unshift(navigationBlock);
   }
 
-  console.debug("post processing blocks:", blocks);
+  console.debug("post processing codeStrings:", codeStrings);
 
-  for (let block of blocks) {
-    const codeString = getCodeString(block);
-
+  for (let codeString of codeStrings) {
     result += indent + codeString + newLine;
-    // `console.log('running code', \`${codeString}\`);` +
-    // newLine;
   }
 
   return result;
-}
-
-function getCodeString(block: { line: string }) {
-  return block.line;
 }
 
 function generate(commands: Array<Command>, opts: Options) {
