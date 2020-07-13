@@ -11,7 +11,7 @@ interface Props {
 
 export default function AddCommandForm({ onSave, onCancel }: Props) {
   const [value, setValue] = React.useState("");
-  const [selectedCommand, setCommand] = React.useState(commands[0][0]);
+  const [selectedCommand, setCommand] = React.useState("");
   const [targets, setAssertionTargets] = React.useState<
     Array<[string, string]>
   >([]);
@@ -66,6 +66,9 @@ export default function AddCommandForm({ onSave, onCancel }: Props) {
               setCommand(e.target.value);
             }}
           >
+            <option value="" key="None">
+              -- Select a command --
+            </option>
             {commands.map((command, i) => {
               return (
                 <option value={command[0]} key={command[0]}>
