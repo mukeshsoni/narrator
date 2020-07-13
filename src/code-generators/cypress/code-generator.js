@@ -14,7 +14,7 @@ function selectorPart(command) {
   return `cy.get("${selector}")`;
 }
 
-function generateCode(commands) {
+export default function generateCode(commands) {
   return commands
     .map((command) => {
       switch (command.name) {
@@ -31,5 +31,3 @@ function generateCode(commands) {
     .filter((codeString) => codeString)
     .join("\n");
 }
-
-module.exports = generateCode;

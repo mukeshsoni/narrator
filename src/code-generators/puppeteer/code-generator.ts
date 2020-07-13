@@ -45,7 +45,7 @@ function cleanUp() {
   hasNavigation = false;
 }
 
-function getCommandBlocks(command: Command): string | Array<string> {
+export function getCommandBlocks(command: Command): string | Array<string> {
   const { name, value } = command;
 
   switch (name) {
@@ -507,13 +507,13 @@ function waitForNavigationCode() {
   return `await frame.waitForNavigation()`;
 }
 
-function parseCommands(commands: Array<Command>) {
+export function parseCommands(commands: Array<Command>) {
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
   );
   const indent = options.wrapAsync ? "  " : "";
   const newLine = "\n";
-  let result = `let frame = page.mainFrame()${newLine}`;
+  let result = indent + `let frame = page.mainFrame()${newLine}`;
 
   if (!commands) return result;
 
@@ -540,7 +540,10 @@ function parseCommands(commands: Array<Command>) {
   return result;
 }
 
-function generate(commands: Array<Command>, opts: Options) {
+export function generatePuppeteerCode(
+  commands: Array<Command>,
+  opts?: Options
+) {
   options = {
     ...options,
     ...opts,
@@ -549,9 +552,3 @@ function generate(commands: Array<Command>, opts: Options) {
   cleanUp();
   return importPuppeteer + getHeader() + parseCommands(commands) + getFooter();
 }
-
-module.exports = {
-  generatePuppeteerCode: generate,
-  getCommandBlocks,
-  parseCommands,
-};

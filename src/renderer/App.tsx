@@ -12,11 +12,11 @@ import AssertionForm from "./AssertionForm";
 import AddCommandForm from "./AddCommandForm";
 import { Command } from "./command";
 
-const {
+import {
   generatePuppeteerCode,
   parseCommands,
-} = require("../code-generators/puppeteer/code-generator");
-const generateCypressCode = require("../code-generators/cypress/code-generator");
+} from "../code-generators/puppeteer/code-generator";
+import generateCypressCode from "../code-generators/cypress/code-generator";
 
 // const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
 // const dummyUrlToTest = "https://google.com/";
@@ -202,7 +202,7 @@ export default function App() {
 
   const handleGenerateClick = React.useCallback(
     (toolName) => {
-      let generator;
+      let generator = generatePuppeteerCode;
       switch (toolName) {
         case "puppeteer":
           generator = generatePuppeteerCode;
@@ -211,7 +211,7 @@ export default function App() {
           generator = generateCypressCode;
       }
 
-      console.log(generator(commands));
+      console.log("generated code:", generator(commands));
       setGeneratedCode(generator(commands));
       setShowGeneratedCode(true);
     },
@@ -459,6 +459,7 @@ export default function App() {
           </div>
         </Modal>
       )}
+      <span />
     </div>
   );
 }
