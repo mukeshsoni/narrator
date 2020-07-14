@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "build": "webpack",
+    "build": "npm run build:recorder && npm run build:findandselect && npm run build:renderer",
+    "build:renderer": "webpack",
     "build:recorder": "rollup -c rollup.config.js src/recorder/recorder.js --file ./build/recorder.js --format umd --name PuppeteerRecorder",
     "build:findandselect": "rollup -c rollup.config.js src/find-and-select/find-and-select.js --file ./build/find-and-select.js --format umd --name PuppeteerFindAndSelect",
     "start:css": "postcss src/tailwind.css -o src/tailwind_generated.css",
