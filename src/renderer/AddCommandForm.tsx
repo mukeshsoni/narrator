@@ -124,7 +124,7 @@ export default function AddCommandForm({
                 {isOpen && (
                   <ul
                     {...getMenuProps()}
-                    className="py-2 border border-gray-200 rounded-md"
+                    className="py-2 overflow-auto border border-gray-200 rounded-md"
                     style={{ maxHeight: 400 }}
                   >
                     {commands

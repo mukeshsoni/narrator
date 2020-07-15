@@ -65,10 +65,10 @@ export function getCommandBlocks(command: Command): string | Array<string> {
     // case "clickAt":
     // // return clickCode(command);
     // TODO
-    // case "doubleClick":
+    case "doubleClick":
+      return doubleClickCode(command);
     // TODO
     // case "doubleClickAt":
-    // TODO
     case "check":
     case "uncheck":
       return checkCode(command);
@@ -222,11 +222,15 @@ function getActionBlock(
     blocks.push(
       `await frame.${action}("${selector}"${
         extraArgs.length > 0 ? ", " : ""
-      }${extraArgs.join(",")})`
+      }${extraArgs.map((ea) => ea.toString()).join(",")})`
     );
   } else {
     blocks.push(`xpathEl = await frame.$x("${selector}")`);
-    blocks.push(`await xpathEl[0].${action}(${extraArgs.join(",")})`);
+    blocks.push(
+      `await xpathEl[0].${action}(${extraArgs
+        .map((ea) => JSON.stringify(ea))
+        .join(",")})`
+    );
   }
 
   return blocks;
@@ -240,6 +244,14 @@ function clickCode(command: Command) {
   // TODO: We should specially handle clicking of urls
   // We should add a frame.waitForNavigation after clicking a url
   return getActionBlock("click", command, [], options);
+}
+
+function doubleClickCode(command: Command) {
+  // TODO: We should specially handle clicking of urls
+  // We should add a frame.waitForNavigation after clicking a url
+  return getActionBlock("click", command, [], options).concat(
+    getActionBlock("click", command, [{ clickCount: 2 }])
+  );
 }
 
 function selectCode(command: Command) {
