@@ -29,6 +29,18 @@ export const TargetTypes = {
 // Commands.push([id, command]);
 // }
 
+export type CommandMeta = [
+  string,
+  {
+    name: string;
+    description: string;
+    type?: any;
+    target?: { name: string; description: string };
+    value?: any;
+    enabled?: boolean;
+  }
+];
+
 export const commands: Array<[
   string,
   {
@@ -1021,6 +1033,16 @@ export const commands: Array<[
       target: ArgTypes.locator,
       value: ArgTypes.waitTime,
       enabled: true,
+    },
+  ],
+  [
+    "waitForNavigation",
+    {
+      name: "wait for navigation",
+      type: TargetTypes.LOCATOR,
+      description: "Wait for page to navigate to another url",
+      target: ArgTypes.locator,
+      value: ArgTypes.waitTime,
     },
   ],
   [

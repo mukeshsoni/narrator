@@ -3,6 +3,12 @@ import { Command } from "../../renderer/command";
 const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
   let xpathEl;
+  // to store text when making text assertions
+  let text; 
+  // to store intermediate elements whenever that element needs to be passed
+  // to frame.evaluate to get something from inside the page
+  let el; 
+
   const browser = await puppeteer.launch()
   let page = await browser.newPage()\n`;
 
@@ -105,6 +111,14 @@ export function getCommandBlocks(command: Command): string | Array<string> {
       return viewportCode(value);
     case "takeScreenshot":
       return screenshotCode(value);
+    case "assertElementPresent":
+      return assertElementPresentCode(command);
+    case "assertElementNotPresent":
+      return assertElementNotPresentCode(command);
+    case "assertText":
+      return assertTextCode(command);
+    case "assertNotText":
+      return assertNotTextCode(command);
     case "assertVisibility":
       return assertVisibilityCode(command);
     // default:
@@ -406,6 +420,60 @@ function assertVisibilityCode(command: Command) {
   let { target } = command;
 
   return getWaitForBlock(target);
+}
+
+function assertElementPresentCode(command: Command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    return `el = await frame.$x("${selector}")
+expect(el).to.not.equal(null)`;
+  } else {
+    return `el = await frame.$("${selector}")
+expect(el).to.not.equal(null)`;
+  }
+}
+
+function assertElementNotPresentCode(command: Command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    return `el = await frame.$x("${selector}")
+expect(el).to.equal(null)`;
+  } else {
+    return `el = await frame.$("${selector}")
+expect(el).to.equal(null)`;
+  }
+}
+
+function assertTextCode(command: Command) {
+  const { target, value } = command;
+  const [selector, selectorType] = getSelector(target);
+
+  if (selectorType === "xpath") {
+    return `await frame.waitForXPath("${selector}")
+el = await frame.$x("${selector}")
+text = await frame.evaluate(el => el.innerText, el[0])
+expect(text).to.equal("${value}")`;
+  } else {
+    return `text = await frame.$eval("${selector}", el => el.innerText)
+expect(text).to.equal("${value}")`;
+  }
+}
+
+function assertNotTextCode(command: Command) {
+  const { target, value } = command;
+  const [selector, selectorType] = getSelector(target);
+
+  if (selectorType === "xpath") {
+    return `await frame.waitForXPath("${selector}")
+el = await frame.$x("${selector}")
+text = await frame.evaluate(el => el.innerText, el[0])
+expect(text).to.not.equal("${value}")`;
+  } else {
+    return `text = await frame.$eval("${selector}", el => el.innerText)
+expect(text).to.not.equal("${value}")`;
+  }
 }
 
 function screenshotCode(

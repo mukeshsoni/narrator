@@ -8,7 +8,6 @@ import arrayMove from "array-move";
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
-import AssertionForm from "./AssertionForm";
 import AddCommandForm from "./AddCommandForm";
 import { Command } from "./command";
 
@@ -34,8 +33,8 @@ const initialState: State = {
   commands: [],
   urlToTest: dummyUrlToTest,
   isRecording: false,
-  showAssertionPanel: false,
-  showAddCommandPanel: true,
+  showAssertionPanel: true,
+  showAddCommandPanel: false,
 };
 
 function addHttpsIfRequired(url: string) {
@@ -305,18 +304,8 @@ export default function App() {
     dispatch({ type: "HIDE_ADD_COMMAND_PANEL" });
   }, [dispatch]);
 
-  const handleAssertionSave = React.useCallback(
-    (command) => {
-      console.log("let us save the assertion", command);
-      dispatch({ type: "HIDE_ASSERTION_PANEL" });
-      addCommand(command, true);
-    },
-    [dispatch, addCommand]
-  );
-
-  const handleAssertionCancel = React.useCallback(() => {
+  const hideAssertionPanel = React.useCallback(() => {
     dispatch({ type: "HIDE_ASSERTION_PANEL" });
-    ipcRenderer.send("stop-find-and-select");
   }, [dispatch]);
 
   const handleCommandValueChange = React.useCallback(
@@ -338,7 +327,14 @@ export default function App() {
     [dispatch]
   );
 
-  // abc
+  const handleCommandAddition = React.useCallback(
+    (command) => {
+      hideAddCommandPanel();
+      addCommand(command, true);
+    },
+    [addCommand, hideAddCommandPanel]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {showAddCommandPanel && (
@@ -349,19 +345,17 @@ export default function App() {
           }}
         >
           <AddCommandForm
-            onSave={(command) => {
-              hideAddCommandPanel();
-              addCommand(command, true);
-            }}
+            onSave={handleCommandAddition}
             onCancel={hideAddCommandPanel}
           />
         </Modal>
       )}
       {urlToTest ? (
         showAssertionPanel ? (
-          <AssertionForm
-            onSave={handleAssertionSave}
-            onCancel={handleAssertionCancel}
+          <AddCommandForm
+            onSave={handleCommandAddition}
+            onCancel={hideAssertionPanel}
+            filter={(command) => command[0].startsWith("assert")}
           />
         ) : (
           <SidePanel

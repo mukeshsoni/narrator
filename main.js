@@ -1,5 +1,6 @@
 const path = require("path");
 
+const { expect } = require("chai");
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const pie = require("puppeteer-in-electron");
 const puppeteer = require("puppeteer-core");

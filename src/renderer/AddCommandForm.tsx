@@ -3,15 +3,20 @@ import Downshift from "downshift";
 import classNames from "classnames";
 
 import { Command } from "./command";
-import { commands } from "../command/commands";
+import { commands, CommandMeta } from "../command/commands";
 const { ipcRenderer } = require("electron");
 
 interface Props {
   onSave: (command: Command) => void;
   onCancel: () => void;
+  filter?: (c: CommandMeta) => void;
 }
 
-export default function AddCommandForm({ onSave, onCancel }: Props) {
+export default function AddCommandForm({
+  onSave,
+  onCancel,
+  filter = (_: CommandMeta) => true,
+}: Props) {
   const [value, setValue] = React.useState("");
   const [selectedCommand, setCommand] = React.useState("");
   const [targets, setAssertionTargets] = React.useState<
@@ -62,7 +67,7 @@ export default function AddCommandForm({ onSave, onCancel }: Props) {
       <form className="mt-4" onSubmit={handleSubmit}>
         <Downshift
           onChange={(selection) => setCommand(selection[0])}
-          itemToString={(item) => (item && item[1] ? item[1].name : "dontknow")}
+          itemToString={(item) => (item && item[1] ? item[1].name : "")}
         >
           {({
             getLabelProps,
@@ -120,9 +125,11 @@ export default function AddCommandForm({ onSave, onCancel }: Props) {
                   <ul
                     {...getMenuProps()}
                     className="py-2 border border-gray-200 rounded-md"
+                    style={{ maxHeight: 400 }}
                   >
                     {commands
                       .filter((command) => command[1].enabled)
+                      .filter(filter)
                       .filter(
                         (command) =>
                           !inputValue || command[1].name.includes(inputValue)
