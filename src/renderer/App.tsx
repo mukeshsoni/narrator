@@ -34,7 +34,7 @@ const initialState: State = {
   urlToTest: dummyUrlToTest,
   isRecording: false,
   showAssertionPanel: false,
-  showAddCommandPanel: true,
+  showAddCommandPanel: false,
 };
 
 function addHttpsIfRequired(url: string) {

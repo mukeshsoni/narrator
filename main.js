@@ -39,7 +39,7 @@ function createControlPanelWindow() {
   controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
 }
 
 initializePie().then(() => {
@@ -357,7 +357,7 @@ async function createTestBrowserWindow(url) {
   // let's now wait more than 5 seconds for anything to appear
   page.setDefaultTimeout(3000);
   puppeteerHandles.page = page;
-  testingWindow.openDevTools();
+  // testingWindow.openDevTools();
 
   controlPanelWindow.focus();
   // const browser = await puppeteer.launch({
