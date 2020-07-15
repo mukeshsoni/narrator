@@ -338,7 +338,6 @@ export const commands: Array<[
         to check effects that relay on them, for example the material ripple effect.`,
       target: ArgTypes.locator,
       value: { isOptional: true, ...ArgTypes.coord },
-      enabled: true,
     },
   ],
   [
@@ -387,7 +386,6 @@ export const commands: Array<[
         ripple effect.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
-      enabled: true,
     },
   ],
   [
@@ -511,7 +509,6 @@ export const commands: Array<[
         releasing it yet) at the specified location.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
-      enabled: true,
     },
   ],
   [
@@ -566,7 +563,6 @@ export const commands: Array<[
         mouse button (e.g., stops holding the button down) at the specified location.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
-      enabled: true,
     },
   ],
   [
@@ -584,7 +580,6 @@ export const commands: Array<[
       name: "pause",
       description: "Wait for the specified amount of time.",
       target: ArgTypes.waitTime,
-      enabled: true,
     },
   ],
   [

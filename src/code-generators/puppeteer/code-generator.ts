@@ -8,6 +8,8 @@ const wrappedHeader = `(async () => {
   // to store intermediate elements whenever that element needs to be passed
   // to frame.evaluate to get something from inside the page
   let el; 
+  // for storing position of an element if we need to hover over it or click it
+  let elPos; 
 
   const browser = await puppeteer.launch()
   let page = await browser.newPage()\n`;
@@ -73,11 +75,18 @@ export function getCommandBlocks(command: Command): string | Array<string> {
     case "uncheck":
       return checkCode(command);
     // TODO
-    // case "uncheck":
-    // TODO
-    // case "dragAndDropToObject"
-    // TODO
-    // case "editContent"
+    case "uncheck":
+      return checkCode(command);
+    case "mouseDown":
+      return mouseDownCode();
+    case "mouseUp":
+      return mouseUpCode();
+    case "mouseMoveAt":
+      return mouseMoveAt(command);
+    case "mouseOver":
+      return mouseOverCode(command);
+    case "mouseOut":
+      return mouseOutCode(command);
     case "change":
       return changeCode(command);
     case "select":
@@ -418,6 +427,55 @@ await dragAndDrop(page, "${getSelector(target)[0]}", "${
 function checkCode(command: Command) {
   // const [ selector, selectorType ] =
   return getActionBlock("click", command, []);
+}
+
+function mouseDownCode() {
+  // the mouse property is only available on page not on frame
+  return `await page.mouse.down()`;
+}
+
+function mouseUpCode() {
+  // the mouse property is only available on page not on frame
+  return `await page.mouse.up()`;
+}
+
+function mouseMoveAt(command: Command) {
+  const { value } = command;
+
+  return `await page.mouse.move(${value})`;
+}
+
+function mouseOverCode(command: Command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  // have to call toJSON() on getBoundingClientRect() return value which is a
+  // DOMRect object. If we simply return the DOMRect object, we get back an
+  // empty object
+  if (selectorType === "xpath") {
+    return `xpathEl = await frame.$x("${selector}")
+  elPos = await frame.evaluate(el => el.getBoundingClientRect().toJSON(), xpathEl[0])
+  await page.mouse.move(elPos.x, elPos.y)`;
+  } else {
+    return `elPos = await frame.$eval("${selector}", el => el.getBoundingClientRect().toJSON)
+  await page.mouse.move(elPos.x, elPos.y)`;
+  }
+}
+
+function mouseOutCode(command: Command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  // have to call toJSON() on getBoundingClientRect() return value which is a
+  // DOMRect object. If we simply return the DOMRect object, we get back an
+  // empty object
+  if (selectorType === "xpath") {
+    // we move the mouse 1 pixel outside the elements bounding rect
+    return `xpathEl = await frame.$x("${selector}")
+  elPos = await frame.evaluate(el => el.getBoundingClientRect().toJSON(), xpathEl[0])
+  await page.mouse.move(elPos.x + elPos.width, elPos.y+elPos.height)`;
+  } else {
+    return `elPos = await frame.$eval("${selector}", el => el.getBoundingClientRect().toJSON)
+  await page.mouse.move(elPos.x+elPos.width, elPos.y+elPos.height)`;
+  }
 }
 
 function changeCode(command: Command) {
