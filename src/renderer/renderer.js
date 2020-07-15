@@ -1,7 +1,7 @@
-const React = require("react");
-const ReactDOM = require("react-dom");
+import React from "react";
+import ReactDOM from "react-dom";
 
-const App = require("./src/renderer/App.js");
+import App from "./App";
 
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.getElementById("root");

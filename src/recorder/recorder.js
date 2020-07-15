@@ -105,14 +105,18 @@ class Recorder {
   attachRecorderHandler(message, _sender, sendResponse) {
     if (message.attachRecorder) {
       this.attach();
-      sendResponse(true);
+      if (typeof sendResponse === "function") {
+        sendResponse(true);
+      }
     }
   }
 
   detachRecorderHandler(message, _sender, sendResponse) {
     if (message.detachRecorder) {
       this.detach();
-      sendResponse(true);
+      if (typeof sendResponse === "function") {
+        sendResponse(true);
+      }
     }
   }
 
@@ -133,7 +137,6 @@ class Recorder {
       return this.newCommandCallback({
         command: command,
         target: target,
-        selectedTarget: 0,
         value: value,
         insertBeforeLastCommand: insertBeforeLastCommand,
         frameLocation:
@@ -272,6 +275,15 @@ class Recorder {
   }
 
   // set frame id
+  // This function calculates the path to the frame in focus.
+  // If there's an iframe inside a window, then window.frames contains that
+  // frame. That iframe can then have multiple iframes inside it. Those frames
+  // will be inside that iframe as .frames. E.g. window.frames[0].frames
+  // The whole thing is a tree. This function will calculate the path to the
+  // iframe it's being injected in. If the iframe it's injected in is the third
+  // child of the 2nd iframe at root level, this function sets the frameLocation
+  // to root:1:2. Just like any other tree traversal algorithm which calculates
+  // the path to a child assuming that each node has children as an array.
   getFrameLocation() {
     let currentWindow = this.window;
     let currentParentWindow;
@@ -286,7 +298,7 @@ class Recorder {
         const frame = currentParentWindow.frames[idx];
 
         if (frame === currentWindow) {
-          this.frameLocation = ":" + this.frameLocation;
+          this.frameLocation = ":" + idx + this.frameLocation;
           currentWindow = currentParentWindow;
           break;
         }
