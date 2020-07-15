@@ -95,6 +95,8 @@ export function getCommandBlocks(command: Command): string | Array<string> {
       return dragAndDropCode(command);
     case "selectFrame":
       return selectFrameCode(command);
+    case "submit":
+      return submitCode(command);
     case "editContent":
       return editContentCode(command);
     case "waitForElementPresent":
@@ -288,6 +290,17 @@ function selectFrameCode(command: Command) {
   } else {
     const frameIndex = parseInt(command.target.split("=")[1], 10);
     return `await frame.waitForNavigation();\nframe = (await frame.childFrames())[${frameIndex}]`;
+  }
+}
+
+function submitCode(command: Command) {
+  let [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    return `xpathEl = await frame.$x("${selector}")
+  await frame.evaluate(el => el.submit(), xpathEl[0])`;
+  } else {
+    return `await frame.$eval("${selector}", el => el.submit())`;
   }
 }
 
