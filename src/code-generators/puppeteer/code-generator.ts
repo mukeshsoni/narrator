@@ -63,7 +63,9 @@ export function getCommandBlocks(command: Command): string | Array<string> {
     // TODO
     // case "doubleClickAt":
     // TODO
-    // case "check":
+    case "check":
+    case "uncheck":
+      return checkCode(command);
     // TODO
     // case "uncheck":
     // TODO
@@ -381,6 +383,11 @@ function dragAndDropCode(command: Command) {
 await dragAndDrop(page, "${getSelector(target)[0]}", "${
     getSelector(value)[0]
   }")`;
+}
+
+function checkCode(command: Command) {
+  // const [ selector, selectorType ] =
+  return getActionBlock("click", command, []);
 }
 
 function changeCode(command: Command) {

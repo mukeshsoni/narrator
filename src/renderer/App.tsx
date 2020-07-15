@@ -56,7 +56,9 @@ function rootReducer(state: State, action: any) {
       };
     case "ADD_COMMAND":
       if (
-        (state.isRecording || action.command.command.startsWith("assert")) &&
+        (state.isRecording ||
+          action.command.command.startsWith("assert") ||
+          action.forceAdd) &&
         state.urlToTest
       ) {
         let currentCommands = state.commands;
@@ -181,8 +183,8 @@ export default function App() {
   } = state;
 
   const addCommand = React.useCallback(
-    (command) => {
-      dispatch({ type: "ADD_COMMAND", command });
+    (command, forceAdd = false) => {
+      dispatch({ type: "ADD_COMMAND", command, forceAdd });
     },
     [dispatch]
   );
@@ -307,7 +309,7 @@ export default function App() {
     (command) => {
       console.log("let us save the assertion", command);
       dispatch({ type: "HIDE_ASSERTION_PANEL" });
-      addCommand(command);
+      addCommand(command, true);
     },
     [dispatch, addCommand]
   );
@@ -349,7 +351,7 @@ export default function App() {
           <AddCommandForm
             onSave={(command) => {
               hideAddCommandPanel();
-              addCommand(command);
+              addCommand(command, true);
             }}
             onCancel={hideAddCommandPanel}
           />

@@ -122,26 +122,27 @@ export default function SidePanel({
             </button>
           ) : (
             <button
-              className="flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase hover:bg-blue-500 hover:text-white"
+              className="flex flex-col items-center justify-center p-2 mr-2 text-xs uppercase cursor-pointer hover:bg-blue-500 hover:text-white"
               onClick={onPauseClick}
             >
               <svg
-                width={24}
+                width={20}
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="1"
+                strokeWidth="2"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
               </svg>
-              <span>Pause</span>
+              <span>Stop</span>
             </button>
           )}
           {commands && commands.length > 0 && (
             <button
-              className="flex flex-col items-center justify-center p-2 mr-2 text-xs text-green-800 uppercase hover:bg-blue-500 hover:text-white"
+              className="flex flex-col items-center justify-center p-2 mr-2 text-xs text-green-800 uppercase cursor-pointer hover:bg-blue-500 hover:text-white"
               onClick={onReplay}
             >
               <svg

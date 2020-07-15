@@ -122,6 +122,7 @@ export default function AddCommandForm({ onSave, onCancel }: Props) {
                     className="py-2 border border-gray-200 rounded-md"
                   >
                     {commands
+                      .filter((command) => command[1].enabled)
                       .filter(
                         (command) =>
                           !inputValue || command[1].name.includes(inputValue)

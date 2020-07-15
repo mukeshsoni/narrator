@@ -37,6 +37,7 @@ export const commands: Array<[
     type?: any;
     target?: { name: string; description: string };
     value?: any;
+    enabled?: boolean;
   }
 ]> = [
   [
@@ -45,6 +46,7 @@ export const commands: Array<[
       name: "Add custom puppeteer code",
       description:
         "You can add your own puppeteer code to run between other commands. This might be helpful when the tool does not provide some command which might be necessary to do the job.",
+      enabled: true,
     },
   ],
   [
@@ -121,6 +123,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: `Confirm that the target element is present somewhere on the page. The test will stop if the assert fails.`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -130,6 +133,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: `Confirm that the target element is not present anywhere on the page. The test will stop if the assert fails.`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -172,6 +176,7 @@ export const commands: Array<[
       The test will stop if the assert fails.`,
       target: ArgTypes.locator,
       value: ArgTypes.pattern,
+      enabled: true,
     },
   ],
   [
@@ -214,6 +219,7 @@ export const commands: Array<[
       The test will stop if the assert fails.`,
       target: ArgTypes.locator,
       value: ArgTypes.pattern,
+      enabled: true,
     },
   ],
   [
@@ -245,6 +251,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: "Check a toggle-button (checkbox/radio).",
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -281,6 +288,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: `Clicks on a target element (e.g., a link, button, checkbox, or radio button).`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -294,6 +302,7 @@ export const commands: Array<[
         to check effects that relay on them, for example the material ripple effect.`,
       target: ArgTypes.locator,
       value: { isOptional: true, ...ArgTypes.coord },
+      enabled: true,
     },
   ],
   [
@@ -327,6 +336,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: `Double clicks on an element (e.g., a link, button, checkbox, or radio button).`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -341,6 +351,7 @@ export const commands: Array<[
         ripple effect.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
+      enabled: true,
     },
   ],
   [
@@ -351,6 +362,7 @@ export const commands: Array<[
       description: "Drags an element and drops it on another element.",
       target: ArgTypes.locatorOfObjectToBeDragged,
       value: ArgTypes.locatorOfDragDestinationObject,
+      enabled: true,
     },
   ],
   [
@@ -370,6 +382,7 @@ export const commands: Array<[
       description: `Sets the value of a content editable element as if you typed in it.`,
       target: ArgTypes.locator,
       value: ArgTypes.value,
+      enabled: true,
     },
   ],
   [
@@ -408,6 +421,7 @@ export const commands: Array<[
         the 'return' keyword and provide a variable name in the value input field.`,
       target: ArgTypes.script,
       value: { isOptional: true, ...ArgTypes.variableName },
+      enabled: true,
     },
   ],
   [
@@ -449,6 +463,7 @@ export const commands: Array<[
       description: `Simulates a user pressing the left mouse button (without 
         releasing it yet).`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -460,6 +475,7 @@ export const commands: Array<[
         releasing it yet) at the specified location.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
+      enabled: true,
     },
   ],
   [
@@ -471,6 +487,7 @@ export const commands: Array<[
         it yet) on the specified element.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
+      enabled: true,
     },
   ],
   [
@@ -480,6 +497,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: `Simulates a user moving the mouse pointer away from the specified element.`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -489,6 +507,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: `Simulates a user hovering a mouse over the specified element.`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -499,6 +518,7 @@ export const commands: Array<[
       description: `Simulates the event that occurs when the user releases the 
         mouse button (e.g., stops holding the button down).`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -510,6 +530,7 @@ export const commands: Array<[
         mouse button (e.g., stops holding the button down) at the specified location.`,
       target: ArgTypes.locator,
       value: ArgTypes.coord,
+      enabled: true,
     },
   ],
   [
@@ -527,6 +548,7 @@ export const commands: Array<[
       name: "pause",
       description: "Wait for the specified amount of time.",
       target: ArgTypes.waitTime,
+      enabled: true,
     },
   ],
   [
@@ -583,6 +605,7 @@ export const commands: Array<[
         is provided, a match on the label will be attempted.`,
       target: ArgTypes.selectLocator,
       value: ArgTypes.optionLocator,
+      enabled: true,
     },
   ],
   [
@@ -598,6 +621,7 @@ export const commands: Array<[
         frame with "relative=parent". To return to the top of the page use 
         "relative=top".`,
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -625,6 +649,7 @@ export const commands: Array<[
         page directly, this command will not replace the existing content.`,
       target: ArgTypes.locator,
       value: ArgTypes.keySequence,
+      enabled: true,
     },
   ],
   [
@@ -643,6 +668,7 @@ export const commands: Array<[
     {
       name: "Set viewport dimensions",
       description: "Set viewport dimensions",
+      enabled: true,
     },
   ],
   [
@@ -740,6 +766,7 @@ export const commands: Array<[
       description: `Submit the specified form. This is particularly useful for 
         forms without submit buttons, e.g. single-input "Search" forms.`,
       target: ArgTypes.formLocator,
+      enabled: true,
     },
   ],
   [
@@ -747,6 +774,7 @@ export const commands: Array<[
     {
       name: "Take screenshot",
       description: "Take screenshot",
+      enabled: true,
     },
   ],
   [
@@ -771,6 +799,7 @@ export const commands: Array<[
         supported.`,
       target: ArgTypes.locator,
       value: ArgTypes.value,
+      enabled: true,
     },
   ],
   [
@@ -780,6 +809,7 @@ export const commands: Array<[
       type: TargetTypes.LOCATOR,
       description: "Uncheck a toggle-button (checkbox/radio).",
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -957,6 +987,7 @@ export const commands: Array<[
       description: "Wait for a target element to not be present on the page.",
       target: ArgTypes.locator,
       value: ArgTypes.waitTime,
+      enabled: true,
     },
   ],
   [
@@ -967,6 +998,7 @@ export const commands: Array<[
       description: "Wait for a target element to not be visible on the page.",
       target: ArgTypes.locator,
       value: ArgTypes.waitTime,
+      enabled: true,
     },
   ],
   [
@@ -977,6 +1009,7 @@ export const commands: Array<[
       description: "Wait for a target element to be present on the page.",
       target: ArgTypes.locator,
       value: ArgTypes.waitTime,
+      enabled: true,
     },
   ],
   [
@@ -987,6 +1020,7 @@ export const commands: Array<[
       description: "Wait for a target element to be visible on the page.",
       target: ArgTypes.locator,
       value: ArgTypes.waitTime,
+      enabled: true,
     },
   ],
   [
@@ -997,6 +1031,7 @@ export const commands: Array<[
       description: "Wait for the text of an element to be equal to the value.",
       target: ArgTypes.locator,
       value: ArgTypes.text,
+      enabled: true,
     },
   ],
   [
