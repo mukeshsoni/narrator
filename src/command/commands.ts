@@ -225,9 +225,33 @@ export const commands: Array<[
   [
     "assertText",
     {
-      name: "assert text",
+      name: "assert text equals",
+      type: TargetTypes.LOCATOR,
+      description: `Confirm that the text of an element equals the provided value.
+      The test will stop if the assert fails.`,
+      target: ArgTypes.locator,
+      value: ArgTypes.pattern,
+      enabled: true,
+    },
+  ],
+  [
+    "assertTextContains",
+    {
+      name: "assert text contains",
       type: TargetTypes.LOCATOR,
       description: `Confirm that the text of an element contains the provided value.
+      The test will stop if the assert fails.`,
+      target: ArgTypes.locator,
+      value: ArgTypes.pattern,
+      enabled: true,
+    },
+  ],
+  [
+    "assertTextStartsWith",
+    {
+      name: "assert text starts with",
+      type: TargetTypes.LOCATOR,
+      description: `Confirm that the text of an element starts the provided value.
       The test will stop if the assert fails.`,
       target: ArgTypes.locator,
       value: ArgTypes.pattern,

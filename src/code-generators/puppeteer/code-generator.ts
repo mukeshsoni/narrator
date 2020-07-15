@@ -119,6 +119,10 @@ export function getCommandBlocks(command: Command): string | Array<string> {
       return assertTextCode(command);
     case "assertNotText":
       return assertNotTextCode(command);
+    case "assertTextContains":
+      return assertTextContainsCode(command);
+    case "assertTextStartsWith":
+      return assertTextContainsCode(command);
     case "assertVisibility":
       return assertVisibilityCode(command);
     // default:
@@ -427,10 +431,10 @@ function assertElementPresentCode(command: Command) {
 
   if (selectorType === "xpath") {
     return `el = await frame.$x("${selector}")
-expect(el).to.not.equal(null)`;
+  expect(el).to.not.equal(null)`;
   } else {
     return `el = await frame.$("${selector}")
-expect(el).to.not.equal(null)`;
+  expect(el).to.not.equal(null)`;
   }
 }
 
@@ -439,10 +443,10 @@ function assertElementNotPresentCode(command: Command) {
 
   if (selectorType === "xpath") {
     return `el = await frame.$x("${selector}")
-expect(el).to.equal(null)`;
+  expect(el).to.equal(null)`;
   } else {
     return `el = await frame.$("${selector}")
-expect(el).to.equal(null)`;
+  expect(el).to.equal(null)`;
   }
 }
 
@@ -452,12 +456,12 @@ function assertTextCode(command: Command) {
 
   if (selectorType === "xpath") {
     return `await frame.waitForXPath("${selector}")
-el = await frame.$x("${selector}")
-text = await frame.evaluate(el => el.innerText, el[0])
-expect(text).to.equal("${value}")`;
+  el = await frame.$x("${selector}")
+  text = await frame.evaluate(el => el.innerText, el[0])
+  expect(text).to.equal("${value}")`;
   } else {
     return `text = await frame.$eval("${selector}", el => el.innerText)
-expect(text).to.equal("${value}")`;
+  expect(text).to.equal("${value}")`;
   }
 }
 
@@ -467,12 +471,42 @@ function assertNotTextCode(command: Command) {
 
   if (selectorType === "xpath") {
     return `await frame.waitForXPath("${selector}")
-el = await frame.$x("${selector}")
-text = await frame.evaluate(el => el.innerText, el[0])
-expect(text).to.not.equal("${value}")`;
+  el = await frame.$x("${selector}")
+  text = await frame.evaluate(el => el.innerText, el[0])
+  expect(text).to.not.equal("${value}")`;
   } else {
     return `text = await frame.$eval("${selector}", el => el.innerText)
-expect(text).to.not.equal("${value}")`;
+  expect(text).to.not.equal("${value}")`;
+  }
+}
+
+function assertTextContainsCode(command: Command) {
+  const { target, value } = command;
+  const [selector, selectorType] = getSelector(target);
+
+  if (selectorType === "xpath") {
+    return `await frame.waitForXPath("${selector}")
+  el = await frame.$x("${selector}")
+  text = await frame.evaluate(el => el.innerText, el[0])
+  expect(text.toLowerCase()).to.include("${value}".toLowerCase())`;
+  } else {
+    return `text = await frame.$eval("${selector}", el => el.innerText)
+  expect(text.toLowerCase()).to.include("${value}".toLowerCase())`;
+  }
+}
+
+function assertTextStartsWithCode(command: Command) {
+  const { target, value } = command;
+  const [selector, selectorType] = getSelector(target);
+
+  if (selectorType === "xpath") {
+    return `await frame.waitForXPath("${selector}")
+  el = await frame.$x("${selector}")
+  text = await frame.evaluate(el => el.innerText, el[0])
+  expect(text.toLowerCase().startsWith("${value}")).to.be.true`;
+  } else {
+    return `text = await frame.$eval("${selector}", el => el.innerText)
+  expect(text.toLowerCase().startsWith("${value}")).to.be.true`;
   }
 }
 
