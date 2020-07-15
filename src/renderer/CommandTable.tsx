@@ -36,6 +36,10 @@ interface Props {
     newValue: string
   ) => void;
   onCommandPosChange: (change: { oldIndex: number; newIndex: number }) => void;
+  onTargetListChange: (
+    commandIndex: number,
+    targets: Array<[string, string]>
+  ) => void;
 }
 
 const DragHandle = SortableHandle(() => (
@@ -102,6 +106,7 @@ export default function CommandTable({
   onCommandIgoreClick,
   onCommandValueChange,
   onCommandPosChange,
+  onTargetListChange,
 }: Props) {
   const [selectedCommandIndex, setSelectedCommandIndex] = React.useState<
     number | null
@@ -127,6 +132,10 @@ export default function CommandTable({
           onSelectorChange={onSelectorChange.bind(null, selectedCommandIndex)}
           onCommandIgoreClick={() => onCommandIgoreClick(selectedCommandIndex)}
           onCommandValueChange={onCommandValueChange.bind(
+            null,
+            selectedCommandIndex
+          )}
+          onTargetListChange={onTargetListChange.bind(
             null,
             selectedCommandIndex
           )}

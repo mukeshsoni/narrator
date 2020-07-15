@@ -162,6 +162,18 @@ function rootReducer(state: State, action: any) {
           action.change.newIndex
         ),
       };
+    case "CHANGE_TARGETS":
+      return {
+        ...state,
+        commands: state.commands
+          .slice(0, action.commandIndex)
+          .concat({
+            ...state.commands[action.commandIndex],
+            targets: action.targets,
+            target: action.targets[0],
+          })
+          .concat(state.commands.slice(action.commandIndex + 1)),
+      };
     default:
       return state;
   }
@@ -335,6 +347,13 @@ export default function App() {
     [addCommand, hideAddCommandPanel]
   );
 
+  const handleTargetListChange = React.useCallback(
+    (commandIndex, targets) => {
+      dispatch({ type: "CHANGE_TARGETS", commandIndex, targets });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {showAddCommandPanel && (
@@ -371,6 +390,7 @@ export default function App() {
             onAddCommandClick={handleAddCommandClick}
             onCommandValueChange={handleCommandValueChange}
             onCommandPosChange={handleCommandPosChange}
+            onTargetListChange={handleTargetListChange}
           />
         )
       ) : (

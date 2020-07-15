@@ -2,9 +2,9 @@ import * as React from "react";
 import Downshift from "downshift";
 import classNames from "classnames";
 
+import TargetSelector from "./TargetSelector";
 import { Command } from "./command";
 import { commands, CommandMeta } from "../command/commands";
-const { ipcRenderer } = require("electron");
 
 interface Props {
   onSave: (command: Command) => void;
@@ -23,16 +23,6 @@ export default function AddCommandForm({
     Array<[string, string]>
   >([]);
   const [target, setTarget] = React.useState("");
-
-  React.useEffect(() => {
-    ipcRenderer.on(
-      "assertion-target",
-      (_: any, targets: Array<[string, string]>) => {
-        console.log("Got assertion target", targets);
-        setAssertionTargets(targets);
-      }
-    );
-  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.stopPropagation();
@@ -188,31 +178,7 @@ export default function AddCommandForm({
                 placeholder="locator comes here"
               />
             )}
-            <button
-              className="flex items-center p-2 ml-2 text-gray-100 bg-blue-700 rounded-lg h-9 hover:bg-blue-900"
-              onClick={(e: React.MouseEvent) => {
-                e.preventDefault();
-                ipcRenderer.send("start-find-and-select");
-              }}
-            >
-              <svg
-                width={20}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  style={{
-                    transform: "rotate(90deg)",
-                    transformOrigin: "50% 50%",
-                  }}
-                  d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                ></path>
-              </svg>
-            </button>
+            <TargetSelector onTargetSelect={setAssertionTargets} />
           </div>
         </label>
         <label className="block mt-4">

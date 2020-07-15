@@ -89,6 +89,10 @@ interface Props {
     newValue: string
   ) => void;
   onCommandPosChange: (change: { oldIndex: number; newIndex: number }) => void;
+  onTargetListChange: (
+    commandIndex: number,
+    targets: Array<[string, string]>
+  ) => void;
 }
 
 export default function SidePanel({
@@ -104,6 +108,7 @@ export default function SidePanel({
   onAddCommandClick,
   onCommandValueChange,
   onCommandPosChange,
+  onTargetListChange,
 }: Props) {
   return (
     <div
@@ -224,6 +229,7 @@ export default function SidePanel({
           onCommandIgoreClick={onCommandIgoreClick}
           onCommandValueChange={onCommandValueChange}
           onCommandPosChange={onCommandPosChange}
+          onTargetListChange={onTargetListChange}
         />
       </div>
     </div>

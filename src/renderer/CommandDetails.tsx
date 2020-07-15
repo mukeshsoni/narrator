@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import TargetSelector from "./TargetSelector";
 import { Command } from "./command";
 import { getCommandValueProperty } from "./CommandRow";
 
@@ -7,6 +8,7 @@ interface Props {
   command: Command;
   onRemoveClick: () => void;
   onSelectorChange: (target: string) => void;
+  onTargetListChange: (targets: Array<[string, string]>) => void;
   onCommandIgoreClick: () => void;
   onCommandValueChange: (propName: string, newValue: string) => void;
 }
@@ -15,6 +17,7 @@ export default function CommandDetails({
   command,
   onRemoveClick,
   onSelectorChange,
+  onTargetListChange,
   onCommandIgoreClick,
   onCommandValueChange,
 }: Props) {
@@ -105,6 +108,7 @@ export default function CommandDetails({
                 </option>
               ))}
           </select>
+          <TargetSelector onTargetSelect={onTargetListChange} />
         </label>
         <label className="flex items-center w-full mb-4">
           Value
