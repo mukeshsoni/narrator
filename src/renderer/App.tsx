@@ -145,6 +145,7 @@ function rootReducer(state: State, action: any) {
       return {
         ...state,
         showAddCommandPanel: false,
+        showAssertionPanel: false,
       };
     case "HIDE_ASSERTION_PANEL":
       return {
