@@ -991,6 +991,17 @@ export const commands: Array<[
     },
   ],
   [
+    "waitFor",
+    {
+      name: "wait for element editable",
+      type: TargetTypes.LOCATOR,
+      description: "Wait for an element to be editable.",
+      target: ArgTypes.locator,
+      value: ArgTypes.waitTime,
+      enabled: true,
+    },
+  ],
+  [
     "waitForElementEditable",
     {
       name: "wait for element editable",

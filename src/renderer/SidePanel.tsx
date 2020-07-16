@@ -1,6 +1,9 @@
 import * as React from "react";
 import onClickOutside from "react-onclickoutside";
+import InputRange from "react-input-range";
 
+import "react-input-range/lib/css/index.css";
+import "./side_panel_styles.css";
 import CommandTable from "./CommandTable";
 import { Command } from "./test_config";
 
@@ -96,6 +99,8 @@ interface Props {
   ) => void;
   onUrlChange: (url: string) => void;
   currentlyPlayingCommandIndex: number;
+  replaySpeed: number;
+  onReplaySpeedChange: (replaySpeed: number) => void;
 }
 
 export default function SidePanel({
@@ -115,7 +120,11 @@ export default function SidePanel({
   onTargetListChange,
   onUrlChange,
   currentlyPlayingCommandIndex,
+  onReplaySpeedChange,
+  replaySpeed,
 }: Props) {
+  const [showSpeedSlider, setShowSpeedSlider] = React.useState(false);
+
   return (
     <div
       className="flex flex-col border border-gray-300"
@@ -173,6 +182,36 @@ export default function SidePanel({
           )}
         </div>
         <div className="flex items-center h-full">
+          <button
+            className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              setShowSpeedSlider(!showSpeedSlider);
+            }}
+            title="Speed"
+          >
+            <svg
+              width={24}
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+              <path d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
+            </svg>
+            <span className="text-xs uppercase">Speed</span>
+            {showSpeedSlider && (
+              <InputRange
+                maxValue={5}
+                minValue={1}
+                value={replaySpeed}
+                onChange={(rs) => onReplaySpeedChange(rs as number)}
+              />
+            )}
+          </button>
           <button
             className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
             onClick={(e: React.MouseEvent) => {

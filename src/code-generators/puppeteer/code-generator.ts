@@ -102,6 +102,10 @@ export function getCommandBlocks(
       return submitCode(command);
     case "editContent":
       return editContentCode(command);
+    case "waitFor":
+      return waitForCode(command);
+    case "waitForNavigation":
+      return waitForNavigationCode();
     case "waitForElementPresent":
       return waitForElementPresentCode(command);
     case "waitForElementNotPresent":
@@ -115,10 +119,6 @@ export function getCommandBlocks(
     case "executeScript":
     case "executePuppetterCode":
       return executePuppetterCodeCode(command);
-    case "waitFor":
-      return waitForCode(command);
-    case "waitForNavigation":
-      return waitForNavigationCode();
     case "open":
       return gotoCode(command, baseUrl);
     case "setViewport":

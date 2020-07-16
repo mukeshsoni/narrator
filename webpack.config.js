@@ -36,6 +36,10 @@ module.exports = {
       // test: /\.js$/,
       // loader: "source-map-loader",
       // },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
     ],
   },
 };

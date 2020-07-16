@@ -30,15 +30,17 @@ interface State {
   showAssertionPanel: boolean;
   showAddCommandPanel: boolean;
   currentlyPlayingCommandIndex: number;
+  replaySpeed: number;
 }
 
 const initialState: State = {
   commands: [],
-  url: "",
+  url: dummyUrl,
   isRecording: false,
   showAssertionPanel: false,
   showAddCommandPanel: false,
   currentlyPlayingCommandIndex: -1,
+  replaySpeed: 5,
 };
 
 function addHttpsIfRequired(url: string) {
@@ -190,6 +192,11 @@ function rootReducer(state: State, action: any) {
         ...state,
         currentlyPlayingCommandIndex: action.commandIndex,
       };
+    case "SET_REPLAY_SPEED":
+      return {
+        ...state,
+        replaySpeed: action.replaySpeed,
+      };
     default:
       return state;
   }
@@ -208,6 +215,7 @@ export default function App() {
     showAssertionPanel,
     showAddCommandPanel,
     currentlyPlayingCommandIndex,
+    replaySpeed,
   } = state;
 
   const addCommand = React.useCallback(
@@ -280,9 +288,14 @@ export default function App() {
         commands.filter((command) => !command.ignore),
         url
       );
-      ipcRenderer.send("replay", codeBlocks);
+      ipcRenderer.send(
+        "replay",
+        codeBlocks,
+        // so that the slowdown is not linear but on a curve
+        (5 - replaySpeed) * (5 - replaySpeed) * 10
+      );
     }
-  }, [commands, url]);
+  }, [commands, url, replaySpeed]);
 
   const handleNewCommand = React.useCallback(
     (_, command) => {
@@ -304,12 +317,25 @@ export default function App() {
       }
     );
 
-    ipcRenderer.on("replay-over", () => {
-      dispatch({
-        type: "UPDATE_CURRENTLY_PLAYING_COMMAND_INDEX",
-        commandIndex: -1,
-      });
-    });
+    ipcRenderer.on(
+      "replay-over",
+      (
+        _: any,
+        errorDuringReplay: { message: string; commandIndex: number } | null
+      ) => {
+        dispatch({
+          type: "UPDATE_CURRENTLY_PLAYING_COMMAND_INDEX",
+          commandIndex: -1,
+        });
+        if (errorDuringReplay) {
+          // TODO
+          // dispatch({
+          // type: 'ERROR_DURING_REPLAY',
+          // errorDuringReplay
+          // })
+        }
+      }
+    );
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -399,6 +425,13 @@ export default function App() {
     [dispatch]
   );
 
+  const handleReplaySpeedChange = React.useCallback(
+    (replaySpeed) => {
+      dispatch({ type: "SET_REPLAY_SPEED", replaySpeed });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {showAddCommandPanel && (
@@ -439,6 +472,8 @@ export default function App() {
             onTargetListChange={handleTargetListChange}
             onUrlChange={handleUrlChange}
             currentlyPlayingCommandIndex={currentlyPlayingCommandIndex}
+            replaySpeed={replaySpeed}
+            onReplaySpeedChange={handleReplaySpeedChange}
           />
         )
       ) : (

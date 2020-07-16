@@ -64,7 +64,7 @@ ipcMain.on("url-to-test", (event, url) => {
   createTestBrowserWindow(url);
 });
 
-ipcMain.on("replay", async (event, codeBlocks) => {
+ipcMain.on("replay", async (event, codeBlocks, replaySpeed) => {
   console.log("got some puppeteer code to run");
 
   const page = puppeteerHandles.page;
@@ -76,9 +76,10 @@ ipcMain.on("replay", async (event, codeBlocks) => {
   // of each operation
   const orignalOnMessage = page._client._onMessage;
   page._client._onMessage = async (...args) => {
-    await new Promise((x) => setTimeout(x, 30));
+    await new Promise((x) => setTimeout(x, replaySpeed));
     return orignalOnMessage.call(page._client, ...args);
   };
+  let errorDuringReplay = {};
 
   console.log("starting puppeteer replay run");
   for (let i = 0; i < codeBlocks.length; i++) {
@@ -94,6 +95,10 @@ ipcMain.on("replay", async (event, codeBlocks) => {
       page.evaluate((errorMessage) => {
         alert(`Error replaying: ${errorMessage}`);
       }, e.message);
+      errorDuringReplay = {
+        message: e.message,
+        commandIndex: i,
+      };
       break;
     }
   }
@@ -102,7 +107,7 @@ ipcMain.on("replay", async (event, codeBlocks) => {
   // // slowed down
   console.log("puppeteer replay over");
   console.log("resetting slowMo to 0");
-  controlPanelWindow.webContents.send("replay-over");
+  controlPanelWindow.webContents.send("replay-over", errorDuringReplay);
   page._client._onMessage = orignalOnMessage;
 });
 
