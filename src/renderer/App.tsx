@@ -292,7 +292,7 @@ export default function App() {
         "replay",
         codeBlocks,
         // so that the slowdown is not linear but on a curve
-        (5 - replaySpeed) * (5 - replaySpeed) * 10
+        (5 - replaySpeed) * (5 - replaySpeed) * 20
       );
     }
   }, [commands, url, replaySpeed]);

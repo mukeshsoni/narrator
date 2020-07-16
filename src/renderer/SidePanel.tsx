@@ -1,9 +1,6 @@
 import * as React from "react";
 import onClickOutside from "react-onclickoutside";
-import InputRange from "react-input-range";
 
-import "react-input-range/lib/css/index.css";
-import "./side_panel_styles.css";
 import CommandTable from "./CommandTable";
 import { Command } from "./test_config";
 
@@ -204,12 +201,29 @@ export default function SidePanel({
             </svg>
             <span className="text-xs uppercase">Speed</span>
             {showSpeedSlider && (
-              <InputRange
-                maxValue={5}
-                minValue={1}
-                value={replaySpeed}
-                onChange={(rs) => onReplaySpeedChange(rs as number)}
-              />
+              <div
+                className="absolute px-4 py-2 bg-gray-100 border border-gray-200 hover:bg-gray-100 hover:text-black rounded-md"
+                style={{ top: 65 }}
+              >
+                <input
+                  type="range"
+                  min={1}
+                  max={5}
+                  value={replaySpeed}
+                  className="cursor-pointer"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onReplaySpeedChange(parseInt(e.target.value, 10))
+                  }
+                />
+                <div
+                  className="flex justify-between w-full"
+                  style={{ fontSize: "0.5rem" }}
+                >
+                  <span>slow</span>
+                  <span>{replaySpeed}</span>
+                  <span>fast</span>
+                </div>
+              </div>
             )}
           </button>
           <button
