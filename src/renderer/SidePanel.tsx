@@ -94,6 +94,7 @@ interface Props {
     commandIndex: number,
     targets: Array<[string, string]>
   ) => void;
+  onUrlChange: (url: string) => void;
 }
 
 export default function SidePanel({
@@ -111,6 +112,7 @@ export default function SidePanel({
   onCommandValueChange,
   onCommandPosChange,
   onTargetListChange,
+  onUrlChange,
 }: Props) {
   return (
     <div
@@ -227,7 +229,11 @@ export default function SidePanel({
       <div className="flex flex-col justify-between h-full">
         <input
           value={url}
-          onChange={() => console.log("url changed")}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onUrlChange(e.target.value);
+          }}
           className="flex-1 px-4 py-2 mb-2 border border-gray-300 rounded-md"
         />
         <CommandTable

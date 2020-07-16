@@ -33,7 +33,7 @@ interface State {
 
 const initialState: State = {
   commands: [],
-  url: dummyUrl,
+  url: "",
   isRecording: false,
   showAssertionPanel: false,
   showAddCommandPanel: false,
@@ -177,6 +177,11 @@ function rootReducer(state: State, action: any) {
             target: action.targets[0],
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
+      };
+    case "CHANGE_URL":
+      return {
+        ...state,
+        url: action.url,
       };
     default:
       return state;
@@ -360,6 +365,13 @@ export default function App() {
     [dispatch]
   );
 
+  const handleUrlChange = React.useCallback(
+    (url) => {
+      dispatch({ type: "CHANGE_URL", url });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {showAddCommandPanel && (
@@ -398,6 +410,7 @@ export default function App() {
             onCommandValueChange={handleCommandValueChange}
             onCommandPosChange={handleCommandPosChange}
             onTargetListChange={handleTargetListChange}
+            onUrlChange={handleUrlChange}
           />
         )
       ) : (
