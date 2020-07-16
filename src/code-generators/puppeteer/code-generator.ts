@@ -236,15 +236,11 @@ function getActionBlock(
     blocks.push(
       `await frame.${action}("${selector}"${
         extraArgs.length > 0 ? ", " : ""
-      }${extraArgs.map((ea) => ea.toString()).join(",")})`
+      }${extraArgs.join(",")})`
     );
   } else {
     blocks.push(`xpathEl = await frame.$x("${selector}")`);
-    blocks.push(
-      `await xpathEl[0].${action}(${extraArgs
-        .map((ea) => JSON.stringify(ea))
-        .join(",")})`
-    );
+    blocks.push(`await xpathEl[0].${action}(${extraArgs.join(",")})`);
   }
 
   return blocks;
@@ -264,7 +260,7 @@ function doubleClickCode(command: Command) {
   // TODO: We should specially handle clicking of urls
   // We should add a frame.waitForNavigation after clicking a url
   return getActionBlock("click", command, [], options).concat(
-    getActionBlock("click", command, [{ clickCount: 2 }])
+    getActionBlock("click", command, ["{ clickCount: 2 }"])
   );
 }
 
@@ -767,9 +763,11 @@ export function generatePuppeteerCode(testConfig: TestConfig, opts?: Options) {
     getHeader() +
     frameAssignment +
     "\n" +
-    transformToCodeBlocks(commands, url).map(({ codeStrings }) =>
-      codeStrings.map((codeStr) => `${indent}${codeStr}`).join("\n")
-    ) +
+    transformToCodeBlocks(commands, url)
+      .map(({ codeStrings }) =>
+        codeStrings.map((codeStr) => `${indent}${codeStr}`).join("\n")
+      )
+      .join("\n") +
     getFooter()
   );
 }
