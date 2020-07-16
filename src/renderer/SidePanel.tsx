@@ -125,7 +125,7 @@ export default function SidePanel({
 
   return (
     <div
-      className="flex flex-col border border-gray-300"
+      className="flex flex-col h-screen overflow-hidden border border-gray-300"
       style={{ width: SIDE_PANEL_WIDTH }}
     >
       <div className="flex items-center justify-between w-full px-4 mb-4 bg-gray-100">
@@ -282,9 +282,9 @@ export default function SidePanel({
           </MenuWithClickOutside>
         </div>
       </div>
-      <div className="flex flex-col justify-between h-full">
+      <div className="flex flex-col justify-between h-full overflow-hidden">
         <form
-          className="flex items-center w-full px-2 m-0"
+          className="flex items-center w-full px-2 m-0 mb-2"
           onSubmit={(e: React.FormEvent) => {
             e.stopPropagation();
             e.preventDefault();

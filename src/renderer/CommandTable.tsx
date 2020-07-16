@@ -94,7 +94,7 @@ const SortableList = SortableContainer(
   }: SortableListProps) => {
     console.log({ currentlyPlayingCommandIndex });
     return (
-      <ul>
+      <ul className="h-full overflow-y-scroll">
         {commands.map((command, i) => {
           return (
             <SortableItem
@@ -129,7 +129,7 @@ export default function CommandTable({
   }
 
   return (
-    <div>
+    <div className="flex flex-col h-full pb-4">
       <CommandRowHeader />
       <SortableList
         commands={commands}
