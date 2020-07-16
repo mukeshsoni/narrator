@@ -13,6 +13,7 @@ const CONTROL_PANEL_WIDTH = 600;
 let browserForPuppeteer;
 let testingWindow;
 let currentFrameLocation = "";
+let findAndSelectInProgress = false;
 
 async function initializePie() {
   await pie.initialize(app);
@@ -121,6 +122,7 @@ ipcMain.on("recording", (event, action) => {
 });
 
 ipcMain.on("start-find-and-select", () => {
+  findAndSelectInProgress = true;
   selectTarget(puppeteerHandles.page);
 });
 
@@ -226,19 +228,6 @@ async function injectScripts(page) {
   for (const frame of page.mainFrame().childFrames()) {
     console.log("got frame");
 
-    // await frame.exposeFunction("sendCommandToParent", (command) => {
-    // // This is how we send message from the main process to our
-    // // renderer script which renders the control panel
-    // controlPanelWindow.webContents.send("new-command", {
-    // ...command,
-    // targets: command.target,
-    // target: command.target[0][0],
-    // value: Array.isArray(command.value)
-    // ? command.value[0][0]
-    // : command.value,
-    // values: Array.isArray(command.value) ? command.value : undefined,
-    // });
-    // });
     await injectScriptsIntoFrame(frame);
   }
 }
@@ -311,6 +300,10 @@ function getDirectionsToReachFrameLocation(
 }
 
 function handleCommandFromTestWindow(command) {
+  // we don't want to send recorded events when findAndSelect is in progress
+  if (findAndSelectInProgress) {
+    return;
+  }
   // if the command has come from an iframe which is not the currently
   // tracked frame, we have to generate commands to be able to first select
   // the new frame from the current frame. We do that by generating a list
@@ -402,7 +395,8 @@ async function createTestBrowserWindow(url) {
   });
 
   await page.exposeFunction("sendFindAndSelectTargetToParent", (target) => {
-    controlPanelWindow.webContents.send("assertion-target", target);
+    findAndSelectInProgress = false;
+    controlPanelWindow.webContents.send("selected-target", target);
   });
   // when the user does something which changes the url, we need to inejct
   // the recorder again in the newly loaded page

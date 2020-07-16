@@ -9,7 +9,7 @@ interface Props {
 export default function TargetSelector({ onTargetSelect }: Props) {
   React.useEffect(() => {
     ipcRenderer.on(
-      "assertion-target",
+      "selected-target",
       (_: any, targets: Array<[string, string]>) => {
         console.log("Got assertion target", targets);
         onTargetSelect(targets);

@@ -45,7 +45,7 @@ export default function AssertionForm({ onSave, onCancel }: Props) {
 
   React.useEffect(() => {
     ipcRenderer.on(
-      "assertion-target",
+      "selected-target",
       (_: any, targets: Array<[string, string]>) => {
         console.log("Got assertion target", targets);
         setAssertionTargets(targets);
