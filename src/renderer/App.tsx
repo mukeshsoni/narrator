@@ -29,6 +29,7 @@ interface State {
   isRecording: boolean;
   showAssertionPanel: boolean;
   showAddCommandPanel: boolean;
+  currentlyPlayingCommandIndex: number;
 }
 
 const initialState: State = {
@@ -37,6 +38,7 @@ const initialState: State = {
   isRecording: false,
   showAssertionPanel: false,
   showAddCommandPanel: false,
+  currentlyPlayingCommandIndex: -1,
 };
 
 function addHttpsIfRequired(url: string) {
@@ -183,6 +185,11 @@ function rootReducer(state: State, action: any) {
         ...state,
         url: action.url,
       };
+    case "UPDATE_CURRENTLY_PLAYING_COMMAND_INDEX":
+      return {
+        ...state,
+        currentlyPlayingCommandIndex: action.commandIndex,
+      };
     default:
       return state;
   }
@@ -200,6 +207,7 @@ export default function App() {
     isRecording,
     showAssertionPanel,
     showAddCommandPanel,
+    currentlyPlayingCommandIndex,
   } = state;
 
   const addCommand = React.useCallback(
@@ -284,6 +292,25 @@ export default function App() {
     },
     [addCommand]
   );
+
+  React.useEffect(() => {
+    ipcRenderer.on(
+      "update-replay-command-index",
+      (_: any, commandIndex: number) => {
+        dispatch({
+          type: "UPDATE_CURRENTLY_PLAYING_COMMAND_INDEX",
+          commandIndex,
+        });
+      }
+    );
+
+    ipcRenderer.on("replay-over", () => {
+      dispatch({
+        type: "UPDATE_CURRENTLY_PLAYING_COMMAND_INDEX",
+        commandIndex: -1,
+      });
+    });
+  }, [dispatch]);
 
   React.useEffect(() => {
     ipcRenderer.removeListener("new-command", handleNewCommand);
@@ -411,6 +438,7 @@ export default function App() {
             onCommandPosChange={handleCommandPosChange}
             onTargetListChange={handleTargetListChange}
             onUrlChange={handleUrlChange}
+            currentlyPlayingCommandIndex={currentlyPlayingCommandIndex}
           />
         )
       ) : (

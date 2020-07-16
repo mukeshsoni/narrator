@@ -39,7 +39,7 @@ function createControlPanelWindow() {
   controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+  controlPanelWindow.webContents.openDevTools({ mode: "detach" });
 }
 
 initializePie().then(() => {
@@ -76,12 +76,13 @@ ipcMain.on("replay", async (event, codeBlocks) => {
   // of each operation
   const orignalOnMessage = page._client._onMessage;
   page._client._onMessage = async (...args) => {
-    await new Promise((x) => setTimeout(x, 20));
+    await new Promise((x) => setTimeout(x, 30));
     return orignalOnMessage.call(page._client, ...args);
   };
 
   console.log("starting puppeteer replay run");
   for (let i = 0; i < codeBlocks.length; i++) {
+    controlPanelWindow.webContents.send("update-replay-command-index", i);
     const code = codeBlocks[i].codeStrings.join("\n");
     console.log("code to run\n", code);
     try {
@@ -101,6 +102,7 @@ ipcMain.on("replay", async (event, codeBlocks) => {
   // // slowed down
   console.log("puppeteer replay over");
   console.log("resetting slowMo to 0");
+  controlPanelWindow.webContents.send("replay-over");
   page._client._onMessage = orignalOnMessage;
 });
 

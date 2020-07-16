@@ -95,6 +95,7 @@ interface Props {
     targets: Array<[string, string]>
   ) => void;
   onUrlChange: (url: string) => void;
+  currentlyPlayingCommandIndex: number;
 }
 
 export default function SidePanel({
@@ -113,6 +114,7 @@ export default function SidePanel({
   onCommandPosChange,
   onTargetListChange,
   onUrlChange,
+  currentlyPlayingCommandIndex,
 }: Props) {
   return (
     <div
@@ -243,6 +245,7 @@ export default function SidePanel({
           onCommandValueChange={onCommandValueChange}
           onCommandPosChange={onCommandPosChange}
           onTargetListChange={onTargetListChange}
+          currentlyPlayingCommandIndex={currentlyPlayingCommandIndex}
         />
       </div>
     </div>
