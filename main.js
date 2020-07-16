@@ -39,7 +39,7 @@ function createControlPanelWindow() {
   controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+  controlPanelWindow.webContents.openDevTools({ mode: "detach" });
 }
 
 initializePie().then(() => {
@@ -64,10 +64,13 @@ ipcMain.on("url-to-test", (event, url) => {
   createTestBrowserWindow(url);
 });
 
-ipcMain.on("replay", async (event, code) => {
-  console.log("got some puppeteer code to run", code);
+ipcMain.on("replay", async (event, codeBlocks) => {
+  console.log("got some puppeteer code to run");
 
   const page = puppeteerHandles.page;
+  let frame = page.mainFrame();
+  // we use these variables in teh generated code to hold some stuff
+  let xlpathEl, el, elPos, text;
   // slow down the operations so that they are visible in replay
   // We can take input from user on how much to slow down the execution speed
   // of each operation
@@ -76,33 +79,36 @@ ipcMain.on("replay", async (event, code) => {
     await new Promise((x) => setTimeout(x, 20));
     return orignalOnMessage.call(page._client, ...args);
   };
-  let xlpathEl;
 
-  console.log("code to run\n", code);
-  try {
-    await eval(`(async function() {
-    console.log('starting puppeteer replay run');
+  console.log("starting puppeteer replay run");
+  for (let i = 0; i < codeBlocks.length; i++) {
+    const code = codeBlocks[i].codeStrings.join("\n");
+    console.log("code to run\n", code);
+    try {
+      await eval(`(async function() {
       ${code}
-    console.log('puppeteer replay over')
   })()`);
-  } catch (e) {
-    console.log("Error trying to replay", e);
-    page.evaluate((errorMessage) => {
-      alert(`Error replaying: ${errorMessage}`);
-    }, e.message);
-  } finally {
-    // // reset onMessage to original, so that future recording actions are not
-    // // slowed down
-    console.log("resetting slowMo to 0");
-    page._client._onMessage = orignalOnMessage;
+    } catch (e) {
+      console.log("Error trying to replay", e);
+      page.evaluate((errorMessage) => {
+        alert(`Error replaying: ${errorMessage}`);
+      }, e.message);
+      break;
+    }
   }
+
+  // // reset onMessage to original, so that future recording actions are not
+  // // slowed down
+  console.log("puppeteer replay over");
+  console.log("resetting slowMo to 0");
+  page._client._onMessage = orignalOnMessage;
 });
 
 ipcMain.on("recording", (event, action) => {
   if (action.type === "START") {
     // When recording starts, give the renderer the current url. The first
     // command can then be to goto(url)
-    event.returnValue = puppeteerHandles.page.url.bind(puppeteerHandles.page)();
+    event.returnValue = puppeteerHandles.page.url();
     testingWindow.focus();
   }
 });

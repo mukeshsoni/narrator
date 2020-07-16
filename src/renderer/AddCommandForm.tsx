@@ -3,7 +3,7 @@ import Downshift from "downshift";
 import classNames from "classnames";
 
 import TargetSelector from "./TargetSelector";
-import { Command } from "./command";
+import { Command } from "./test_config";
 import { commands, CommandMeta } from "../command/commands";
 
 interface Props {

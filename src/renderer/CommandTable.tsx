@@ -8,7 +8,7 @@ import {
 
 import CommandRow from "./CommandRow";
 import CommandDetails from "./CommandDetails";
-import { Command } from "./command";
+import { Command } from "./test_config";
 
 function CommandRowHeader() {
   return (

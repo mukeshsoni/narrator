@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import TargetSelector from "./TargetSelector";
-import { Command } from "./command";
+import { Command } from "./test_config";
 import { getCommandValueProperty } from "./CommandRow";
 
 interface Props {
@@ -21,7 +21,7 @@ export default function CommandDetails({
   onCommandIgoreClick,
   onCommandValueChange,
 }: Props) {
-  const { name, value, values, target } = command;
+  const { value, values, target } = command;
 
   return (
     <div className="px-4 py-2 mt-6 bg-indigo-100">

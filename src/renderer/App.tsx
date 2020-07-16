@@ -4,26 +4,28 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import CopyToClipboard from "react-copy-to-clipboard";
 import arrayMove from "array-move";
+import url from "url";
 
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
 import AddCommandForm from "./AddCommandForm";
-import { Command } from "./command";
+import { Command } from "./test_config";
 
 import {
   generatePuppeteerCode,
-  parseCommands,
+  transformToCodeBlocks,
 } from "../code-generators/puppeteer/code-generator";
 import generateCypressCode from "../code-generators/cypress/code-generator";
 
-// const dummyUrlToTest = "https://opensource-demo.orangehrmlive.com/";
-// const dummyUrlToTest = "https://google.com/";
-const dummyUrlToTest = "http://the-internet.herokuapp.com/";
+//
+// const dummyurl = "https://opensource-demo.orangehrmlive.com/";
+// const dummyUrl = "https://google.com/";
+const dummyUrl = "http://the-internet.herokuapp.com/";
 
 interface State {
   commands: Array<Command>;
-  urlToTest: string;
+  url: string;
   isRecording: boolean;
   showAssertionPanel: boolean;
   showAddCommandPanel: boolean;
@@ -31,7 +33,7 @@ interface State {
 
 const initialState: State = {
   commands: [],
-  urlToTest: dummyUrlToTest,
+  url: dummyUrl,
   isRecording: false,
   showAssertionPanel: false,
   showAddCommandPanel: false,
@@ -46,7 +48,7 @@ function addHttpsIfRequired(url: string) {
 }
 
 function rootReducer(state: State, action: any) {
-  console.log("action", action);
+  console.log("action", action, state);
   switch (action.type) {
     case "RESET_COMMANDS":
       return {
@@ -55,17 +57,18 @@ function rootReducer(state: State, action: any) {
       };
     case "ADD_COMMAND":
       if (
-        (state.isRecording ||
-          action.command.command.startsWith("assert") ||
-          action.forceAdd) &&
-        state.urlToTest
+        state.isRecording ||
+        action.command.command.startsWith("assert") ||
+        (action.forceAdd && state.url)
       ) {
         let currentCommands = state.commands;
         if (currentCommands.length === 0) {
+          const parsedUrl = url.parse(state.url);
+          console.log({ parsedUrl });
           currentCommands.push({
-            command: "GOTO",
-            name: "GOTO",
-            value: state.urlToTest,
+            command: "open",
+            name: "open",
+            value: parsedUrl.path,
             target: "",
             targets: [],
           });
@@ -84,12 +87,13 @@ function rootReducer(state: State, action: any) {
     case "SET_URL_TO_TEST":
       return {
         ...state,
-        urlToTest: addHttpsIfRequired(action.urlToTest),
+        url: addHttpsIfRequired(action.url),
       };
     case "START_RECORDING":
       console.log("starting recording. url: ", action.url);
       return {
         ...state,
+        url: action.url,
         isRecording: true,
       };
     case "PAUSE_RECORDING":
@@ -186,7 +190,7 @@ export default function App() {
   const [showGeneratedCode, setShowGeneratedCode] = React.useState(false);
   const urlInputRef = React.useRef<HTMLInputElement>(null);
   const {
-    urlToTest,
+    url,
     commands,
     isRecording,
     showAssertionPanel,
@@ -207,11 +211,11 @@ export default function App() {
   }, [urlInputRef.current]);
 
   React.useEffect(() => {
-    if (urlToTest) {
-      // addCommand({ command: 'GOTO', href: urlToTest });
-      ipcRenderer.send("url-to-test", urlToTest);
+    if (url) {
+      // addCommand({ command: 'open', href: url });
+      ipcRenderer.send("url-to-test", url);
     }
-  }, [urlToTest]);
+  }, [url]);
 
   const handleGenerateClick = React.useCallback(
     (toolName) => {
@@ -224,11 +228,11 @@ export default function App() {
           generator = generateCypressCode;
       }
 
-      console.log("generated code:", generator(commands));
-      setGeneratedCode(generator(commands));
+      console.log("generated code:", generator({ commands, url }));
+      setGeneratedCode(generator({ commands, url }));
       setShowGeneratedCode(true);
     },
-    [commands]
+    [commands, url]
   );
 
   const handleStartRecording = React.useCallback(() => {
@@ -255,15 +259,17 @@ export default function App() {
       // let's pause the recording when we start the replay. Keep it paused
       // even if the replay has ended. Let the user restart recording if they
       // want to.
+      // TODO: Instead of pausing recording here, the main process should
+      // maintain a state like 'selecting_target'. When it's in that state, it
+      // should not send across newly recorded commands.
       dispatch({ type: "PAUSE_RECORDING" });
-      // setTimeout(() => {
-      ipcRenderer.send(
-        "replay",
-        parseCommands(commands.filter((command) => !command.ignore))
+      const codeBlocks = transformToCodeBlocks(
+        commands.filter((command) => !command.ignore),
+        url
       );
-      // }, 500);
+      ipcRenderer.send("replay", codeBlocks);
     }
-  }, [commands]);
+  }, [commands, url]);
 
   const handleNewCommand = React.useCallback(
     (_, command) => {
@@ -296,7 +302,7 @@ export default function App() {
       if (urlInputRef.current) {
         dispatch({
           type: "SET_URL_TO_TEST",
-          urlToTest: urlInputRef.current.value,
+          url: urlInputRef.current.value,
         });
       }
     },
@@ -369,7 +375,7 @@ export default function App() {
           />
         </Modal>
       )}
-      {urlToTest ? (
+      {url ? (
         showAssertionPanel ? (
           <AddCommandForm
             onSave={handleCommandAddition}
@@ -379,6 +385,7 @@ export default function App() {
         ) : (
           <SidePanel
             isRecording={isRecording}
+            url={url}
             commands={commands}
             onGenerateClick={handleGenerateClick}
             onStartRecording={handleStartRecording}
@@ -398,7 +405,7 @@ export default function App() {
           <form onSubmit={handleUrlInputSubmit}>
             <input
               ref={urlInputRef}
-              defaultValue={urlToTest}
+              defaultValue={url}
               placeholder="Enter url to test"
               className="w-64 px-4 py-2 text-xl text-gray-900 bg-gray-100 border rounded-lg "
             />

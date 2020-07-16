@@ -1,4 +1,4 @@
-import { Command } from "../../renderer/command";
+import { Command, TestConfig } from "../../renderer/test_config";
 
 const importPuppeteer = `const puppeteer = require('puppeteer');\n\n`;
 const wrappedHeader = `(async () => {
@@ -53,7 +53,10 @@ function cleanUp() {
   hasNavigation = false;
 }
 
-export function getCommandBlocks(command: Command): string | Array<string> {
+export function getCommandBlocks(
+  command: Command,
+  baseUrl: string
+): string | Array<string> {
   const { name, value } = command;
 
   switch (name) {
@@ -116,8 +119,8 @@ export function getCommandBlocks(command: Command): string | Array<string> {
       return waitForCode(command);
     case "waitForNavigation":
       return waitForNavigationCode();
-    case "GOTO":
-      return gotoCode(value as string);
+    case "open":
+      return gotoCode(command, baseUrl);
     case "setViewport":
       return viewportCode(value);
     case "takeScreenshot":
@@ -495,8 +498,8 @@ function changeCode(command: Command) {
   return getActionBlock("select", command, [command.value]);
 }
 
-function gotoCode(href: string) {
-  return `await page.goto("${href}")`;
+function gotoCode(command: Command, baseUrl: string) {
+  return `await page.goto("${baseUrl}${command.value}")`;
 }
 
 function viewportCode({ width, height }: { width: number; height: number }) {
@@ -699,48 +702,74 @@ function waitForNavigationCode() {
   return `await frame.waitForNavigation()`;
 }
 
-export function parseCommands(commands: Array<Command>) {
+export function transformToCodeBlocks(
+  commands: Array<Command>,
+  baseUrl: string
+): Array<{ command: Command; codeStrings: Array<string> }> {
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
   );
   const indent = options.wrapAsync ? "  " : "";
   const newLine = "\n";
-  let result = indent + `let frame = page.mainFrame()${newLine}`;
 
-  if (!commands) return result;
+  if (!commands) return [];
 
-  const codeStrings: Array<string> = commands
+  const withCode: Array<{
+    command: Command;
+    codeStrings: Array<string>;
+  }> = commands
     .filter((c) => c.target !== "css=html")
-    .reduce((acc: Array<string>, command: Command) => {
-      return acc
-        .concat(getCommandBlocks(command))
-        .filter((codeString) => codeString);
-    }, []);
+    .reduce(
+      (
+        acc: Array<{ command: Command; codeStrings: Array<string> }>,
+        command: Command
+      ) => {
+        return acc.concat({
+          command,
+          codeStrings: ([] as Array<string>).concat(
+            getCommandBlocks(command, baseUrl)
+          ),
+        });
+      },
+      []
+    );
 
   if (hasNavigation && options.waitForNavigation) {
     console.debug("Adding navigationPromise declaration");
     const navigationBlock = `let navigationPromise = await page.waitForNavigation()`;
-    codeStrings.unshift(navigationBlock);
+    withCode.unshift({
+      command: {
+        name: "waitForNavigation",
+        command: "waitForNavigation",
+        targets: [],
+        target: "",
+      },
+      codeStrings: [navigationBlock],
+    });
   }
 
-  console.debug("post processing codeStrings:", codeStrings);
-
-  for (let codeString of codeStrings) {
-    result += indent + codeString + newLine;
-  }
-
-  return result;
+  return withCode;
 }
 
-export function generatePuppeteerCode(
-  commands: Array<Command>,
-  opts?: Options
-) {
+export function generatePuppeteerCode(testConfig: TestConfig, opts?: Options) {
   options = {
     ...options,
     ...opts,
   };
+  const { url, commands } = testConfig;
 
   cleanUp();
-  return importPuppeteer + getHeader() + parseCommands(commands) + getFooter();
+  const indent = "  ";
+  const frameAssignment = indent + `let frame = page.mainFrame()`;
+
+  return (
+    importPuppeteer +
+    getHeader() +
+    frameAssignment +
+    "\n" +
+    transformToCodeBlocks(commands, url).map(({ codeStrings }) =>
+      codeStrings.map((codeStr) => `${indent}${codeStr}`).join("\n")
+    ) +
+    getFooter()
+  );
 }

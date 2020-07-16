@@ -2,7 +2,7 @@ import * as React from "react";
 import onClickOutside from "react-onclickoutside";
 
 import CommandTable from "./CommandTable";
-import { Command } from "./command";
+import { Command } from "./test_config";
 
 const SIDE_PANEL_WIDTH = 600;
 
@@ -73,6 +73,7 @@ const clickOutsideConfig = {
 const MenuWithClickOutside = onClickOutside(Menu, clickOutsideConfig);
 
 interface Props {
+  url: string;
   commands: Array<Command>;
   onGenerateClick: (toolName: string) => void;
   isRecording: boolean;
@@ -96,6 +97,7 @@ interface Props {
 }
 
 export default function SidePanel({
+  url,
   commands,
   onGenerateClick,
   isRecording,
@@ -223,6 +225,11 @@ export default function SidePanel({
         </div>
       </div>
       <div className="flex flex-col justify-between h-full">
+        <input
+          value={url}
+          onChange={() => console.log("url changed")}
+          className="flex-1 px-4 py-2 mb-2 border border-gray-300 rounded-md"
+        />
         <CommandTable
           commands={commands}
           onSelectorChange={onSelectorChange}

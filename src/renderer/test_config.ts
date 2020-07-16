@@ -9,3 +9,8 @@ export interface Command {
   coordinates?: string;
   keyCode?: number;
 }
+
+export interface TestConfig {
+  url: string;
+  commands: Array<Command>;
+}

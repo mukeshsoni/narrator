@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Command } from "./command";
+import { Command } from "./test_config";
 
 export function getCommandValueProperty(command: Command) {
   switch (command.name) {
