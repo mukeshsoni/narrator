@@ -121,6 +121,7 @@ export default function SidePanel({
   replaySpeed,
 }: Props) {
   const [showSpeedSlider, setShowSpeedSlider] = React.useState(false);
+  const urlInputRef = React.useRef<HTMLInputElement>(null);
 
   return (
     <div
@@ -190,9 +191,9 @@ export default function SidePanel({
             <svg
               width={24}
               fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -237,9 +238,9 @@ export default function SidePanel({
             <svg
               width={24}
               fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -282,15 +283,38 @@ export default function SidePanel({
         </div>
       </div>
       <div className="flex flex-col justify-between h-full">
-        <input
-          value={url}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            e.preventDefault();
+        <form
+          className="flex items-center w-full px-2 m-0"
+          onSubmit={(e: React.FormEvent) => {
             e.stopPropagation();
-            onUrlChange(e.target.value);
+            e.preventDefault();
+            if (urlInputRef.current) {
+              onUrlChange(urlInputRef.current.value);
+            }
           }}
-          className="flex-1 px-4 py-2 mb-2 border border-gray-300 rounded-md"
-        />
+        >
+          <input
+            ref={urlInputRef}
+            defaultValue={url}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-md"
+          />
+          <button
+            type="submit"
+            className="flex flex-col items-center justify-center w-16 p-2 ml-1 mr-1 text-blue-900 bg-blue-300 hover:bg-blue-800 hover:text-white rounded-md"
+          >
+            <svg
+              width={24}
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </button>
+        </form>
         <CommandTable
           commands={commands}
           onSelectorChange={onSelectorChange}
