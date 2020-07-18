@@ -1,10 +1,10 @@
 import path from "path";
 import { format as formatUrl } from "url";
+import { expect } from "chai";
 
-const { expect } = require("chai");
-const { app, BrowserWindow, ipcMain, screen } = require("electron");
-const pie = require("puppeteer-in-electron");
-const puppeteer = require("puppeteer-core");
+import { app, BrowserWindow, ipcMain, screen } from "electron";
+import pie from "puppeteer-in-electron";
+import puppeteer from "puppeteer-core";
 
 // tells electron-webpack that we are ok with hot module reloading
 if (module.hot) {
