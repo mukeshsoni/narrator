@@ -1,6 +1,6 @@
 import path from "path";
 import { format as formatUrl } from "url";
-import { expect } from "chai";
+import chai from "chai";
 
 import { app, BrowserWindow, ipcMain, screen } from "electron";
 import pie from "puppeteer-in-electron";
@@ -114,6 +114,13 @@ ipcMain.on("replay", async (event, codeBlocks, replaySpeed) => {
     return orignalOnMessage.call(page._client, ...args);
   };
   let errorDuringReplay = {};
+
+  // if i try to use the expect directly imported from chai, like
+  // import { expect } from 'chai'
+  // i get a reference error - expect is not defined
+  // if i set expect variable inside this function, then the code inside eval
+  // is able to see it. Don't know why.
+  const expect = chai.expect;
 
   console.log("starting puppeteer replay run");
   for (let i = 0; i < codeBlocks.length; i++) {
@@ -442,4 +449,3 @@ async function createTestBrowserWindow(url) {
     injectScriptsOnNavigation();
   });
 }
-
