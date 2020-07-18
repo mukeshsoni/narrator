@@ -1,10 +1,12 @@
-const path = require("path");
+import path from "path";
+import { format as formatUrl } from "url";
 
 const { expect } = require("chai");
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const pie = require("puppeteer-in-electron");
 const puppeteer = require("puppeteer-core");
 
+// tells electron-webpack that we are ok with hot module reloading
 if (module.hot) {
   module.hot.accept();
 }
@@ -40,9 +42,20 @@ function createControlPanelWindow() {
   // panel, using the args --window-position option when launching
   // browser window
   // controlPanelWindow.setPosition(0, 0);
-  controlPanelWindow.loadURL(
-    `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
-  );
+  // copied from electron-webpack-quick-start repo
+  if (isDevelopment) {
+    controlPanelWindow.loadURL(
+      `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+    );
+  } else {
+    controlPanelWindow.loadURL(
+      formatUrl({
+        pathname: path.join(__dirname, "index.html"),
+        protocol: "file",
+        slashes: true,
+      })
+    );
+  }
   // controlPanelWindow.loadFile("index.html");
 
   controlPanelWindow.webContents.on("will-navigate", () => {
