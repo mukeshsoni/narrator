@@ -34,6 +34,7 @@ function createControlPanelWindow() {
   controlPanelWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
+      nodeIntegrationInWorker: true,
     },
   });
 
@@ -104,7 +105,7 @@ ipcMain.on("replay", async (event, codeBlocks, replaySpeed) => {
   const page = puppeteerHandles.page;
   let frame = page.mainFrame();
   // we use these variables in teh generated code to hold some stuff
-  let xlpathEl, el, elPos, text;
+  let xpathEl, el, elPos, text;
   // slow down the operations so that they are visible in replay
   // We can take input from user on how much to slow down the execution speed
   // of each operation
