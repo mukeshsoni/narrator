@@ -1,8 +1,8 @@
 How to see stuff - 
 
 ```
-npm run build
-npm start
+npm install
+npm run dev
 ```
 
 To build the renderer in watch mode so that changes to renderer are reflected in
@@ -10,7 +10,7 @@ the main process -
 
 ```
 npm run build:renderer -- --watch
-npm start
+npm run dev
 ```
 
 You can also build recorder and findandselect modules in watch mode. But you
