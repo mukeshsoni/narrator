@@ -1,19 +1,26 @@
-const path = require("path");
+import path from "path";
+import { format as formatUrl } from "url";
+import { expect } from "chai";
 
-const { expect } = require("chai");
-const { app, BrowserWindow, ipcMain, screen } = require("electron");
-const pie = require("puppeteer-in-electron");
-const puppeteer = require("puppeteer-core");
+import { app, BrowserWindow, ipcMain, screen } from "electron";
+import pie from "puppeteer-in-electron";
+import puppeteer from "puppeteer-core";
 
-require("electron-reload")(__dirname, {
-  electron: path.join(__dirname, "node_modules", ".bin", "electron"),
-});
+// tells electron-webpack that we are ok with hot module reloading
+if (module.hot) {
+  module.hot.accept();
+}
+// require("electron-reload")(__dirname, {
+// electron: path.join(__dirname, "node_modules", ".bin", "electron"),
+// });
 
 const CONTROL_PANEL_WIDTH = 600;
 let browserForPuppeteer;
 let testingWindow;
 let currentFrameLocation = "";
 let findAndSelectInProgress = false;
+
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 async function initializePie() {
   await pie.initialize(app);
@@ -35,12 +42,38 @@ function createControlPanelWindow() {
   // panel, using the args --window-position option when launching
   // browser window
   // controlPanelWindow.setPosition(0, 0);
-  controlPanelWindow.loadFile("index.html");
+  // copied from electron-webpack-quick-start repo
+  if (isDevelopment) {
+    controlPanelWindow.loadURL(
+      `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+    );
+  } else {
+    controlPanelWindow.loadURL(
+      formatUrl({
+        pathname: path.join(__dirname, "index.html"),
+        protocol: "file",
+        slashes: true,
+      })
+    );
+  }
+  // controlPanelWindow.loadFile("index.html");
 
   controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+
+  controlPanelWindow.webContents.on("devtools-opened", () => {
+    controlPanelWindow.focus();
+    setImmediate(() => {
+      controlPanelWindow.focus();
+    });
+  });
+
+  if (isDevelopment) {
+    controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+  }
+
+  return controlPanelWindow;
 }
 
 initializePie().then(() => {
@@ -409,3 +442,4 @@ async function createTestBrowserWindow(url) {
     injectScriptsOnNavigation();
   });
 }
+

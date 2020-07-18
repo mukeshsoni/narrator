@@ -6,6 +6,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import arrayMove from "array-move";
 import url from "url";
 
+import "../tailwind_generated.css";
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
@@ -21,7 +22,7 @@ import generateCypressCode from "../code-generators/cypress/code-generator";
 //
 // const dummyurl = "https://opensource-demo.orangehrmlive.com/";
 // const dummyUrl = "https://google.com/";
-const dummyUrl = "http://the-internet.herokuapp.com/";
+// const dummyUrl = "http://the-internet.herokuapp.com/";
 
 interface State {
   commands: Array<Command>;
