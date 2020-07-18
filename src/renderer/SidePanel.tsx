@@ -98,6 +98,7 @@ interface Props {
   currentlyPlayingCommandIndex: number;
   replaySpeed: number;
   onReplaySpeedChange: (replaySpeed: number) => void;
+  onCommandDeleteClick: (commandIndex: number) => void;
 }
 
 export default function SidePanel({
@@ -119,6 +120,7 @@ export default function SidePanel({
   currentlyPlayingCommandIndex,
   onReplaySpeedChange,
   replaySpeed,
+  onCommandDeleteClick,
 }: Props) {
   const [showSpeedSlider, setShowSpeedSlider] = React.useState(false);
   const urlInputRef = React.useRef<HTMLInputElement>(null);
@@ -246,7 +248,7 @@ export default function SidePanel({
             >
               <path d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            <span className="text-xs uppercase">Add command</span>
+            <span className="text-xs uppercase">Add comman</span>
           </button>
           <button
             className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
@@ -323,6 +325,7 @@ export default function SidePanel({
           onCommandPosChange={onCommandPosChange}
           onTargetListChange={onTargetListChange}
           currentlyPlayingCommandIndex={currentlyPlayingCommandIndex}
+          onCommandDeleteClick={onCommandDeleteClick}
         />
       </div>
     </div>

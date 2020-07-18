@@ -22,25 +22,11 @@ function CommandRowHeader() {
       <span className="flex-1 px-4 py-2 text-lg font-bold text-center">
         Value
       </span>
+      <span className="flex-shrink-0 px-4 py-2 mr-6 text-lg font-bold text-center">
+        A
+      </span>
     </div>
   );
-}
-
-interface Props {
-  commands: Array<Command>;
-  currentlyPlayingCommandIndex: number;
-  onSelectorChange: (commandIndex: number, target: string) => void;
-  onCommandIgoreClick: (commandIndex: number) => void;
-  onCommandValueChange: (
-    selectedCommandIndex: number,
-    propName: string,
-    newValue: string
-  ) => void;
-  onCommandPosChange: (change: { oldIndex: number; newIndex: number }) => void;
-  onTargetListChange: (
-    commandIndex: number,
-    targets: Array<[string, string]>
-  ) => void;
 }
 
 const DragHandle = SortableHandle(() => (
@@ -62,11 +48,17 @@ const DragHandle = SortableHandle(() => (
 interface SortableItemProps {
   command: Command;
   onCommandRowClick: () => void;
+  onCommandDeleteClick: () => void;
   currentlyPlaying: boolean;
 }
 
 const SortableItem = SortableElement(
-  ({ command, onCommandRowClick, currentlyPlaying }: SortableItemProps) => (
+  ({
+    command,
+    onCommandRowClick,
+    currentlyPlaying,
+    onCommandDeleteClick,
+  }: SortableItemProps) => (
     <li
       className={classNames("flex bg-gray-200 mb-px", {
         "bg-gray-300 text-gray-500": command.name.startsWith("//"),
@@ -75,7 +67,11 @@ const SortableItem = SortableElement(
     >
       <DragHandle />
       <span className="bg-black">{currentlyPlaying}</span>
-      <CommandRow command={command} onCommandRowClick={onCommandRowClick} />
+      <CommandRow
+        command={command}
+        onCommandRowClick={onCommandRowClick}
+        onCommandDeleteClick={onCommandDeleteClick}
+      />
     </li>
   )
 );
@@ -83,6 +79,7 @@ const SortableItem = SortableElement(
 interface SortableListProps {
   commands: Array<Command>;
   onCommandRowClick: (commandIndex: number) => void;
+  onCommandDeleteClick: (commandIndex: number) => void;
   currentlyPlayingCommandIndex: number;
 }
 
@@ -90,6 +87,7 @@ const SortableList = SortableContainer(
   ({
     commands,
     onCommandRowClick,
+    onCommandDeleteClick,
     currentlyPlayingCommandIndex,
   }: SortableListProps) => {
     console.log({ currentlyPlayingCommandIndex });
@@ -102,6 +100,7 @@ const SortableList = SortableContainer(
               index={i}
               command={command}
               onCommandRowClick={onCommandRowClick.bind(null, i)}
+              onCommandDeleteClick={onCommandDeleteClick.bind(null, i)}
               currentlyPlaying={currentlyPlayingCommandIndex === i}
             />
           );
@@ -111,6 +110,24 @@ const SortableList = SortableContainer(
   }
 );
 
+interface Props {
+  commands: Array<Command>;
+  currentlyPlayingCommandIndex: number;
+  onSelectorChange: (commandIndex: number, target: string) => void;
+  onCommandIgoreClick: (commandIndex: number) => void;
+  onCommandValueChange: (
+    selectedCommandIndex: number,
+    propName: string,
+    newValue: string
+  ) => void;
+  onCommandPosChange: (change: { oldIndex: number; newIndex: number }) => void;
+  onTargetListChange: (
+    commandIndex: number,
+    targets: Array<[string, string]>
+  ) => void;
+  onCommandDeleteClick: (commandIndex: number) => void;
+}
+
 export default function CommandTable({
   commands,
   onSelectorChange,
@@ -118,6 +135,7 @@ export default function CommandTable({
   onCommandValueChange,
   onCommandPosChange,
   onTargetListChange,
+  onCommandDeleteClick,
   currentlyPlayingCommandIndex,
 }: Props) {
   const [selectedCommandIndex, setSelectedCommandIndex] = React.useState<
@@ -135,6 +153,7 @@ export default function CommandTable({
         commands={commands}
         currentlyPlayingCommandIndex={currentlyPlayingCommandIndex}
         onCommandRowClick={handleCommandRowClick}
+        onCommandDeleteClick={onCommandDeleteClick}
         onSortEnd={onCommandPosChange}
         useDragHandle
       />

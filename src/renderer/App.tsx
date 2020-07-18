@@ -22,6 +22,7 @@ import generateCypressCode from "../code-generators/cypress/code-generator";
 //
 // const dummyurl = "https://opensource-demo.orangehrmlive.com/";
 // const dummyUrl = "https://google.com/";
+// http://the-internet.herokuapp.com/
 // const dummyUrl = "http://the-internet.herokuapp.com/";
 
 interface State {
@@ -207,6 +208,13 @@ function rootReducer(state: State, action: any) {
       return {
         ...state,
         replaySpeed: action.replaySpeed,
+      };
+    case "DELETE_COMMAND":
+      return {
+        ...state,
+        commands: state.commands
+          .slice(0, action.commandIndex)
+          .concat(state.commands.slice(action.commandIndex + 1)),
       };
     default:
       return state;
@@ -440,6 +448,13 @@ export default function App() {
     [dispatch]
   );
 
+  const handleCommandDeleteClick = React.useCallback(
+    (commandIndex) => {
+      dispatch({ type: "DELETE_COMMAND", commandIndex });
+    },
+    [dispatch]
+  );
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {showAddCommandPanel && (
@@ -482,6 +497,7 @@ export default function App() {
             currentlyPlayingCommandIndex={currentlyPlayingCommandIndex}
             replaySpeed={replaySpeed}
             onReplaySpeedChange={handleReplaySpeedChange}
+            onCommandDeleteClick={handleCommandDeleteClick}
           />
         )
       ) : (
