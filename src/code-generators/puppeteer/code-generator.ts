@@ -116,9 +116,10 @@ export function getCommandBlocks(
       return waitForElementNotVisibleCode(command);
     case "waitForText":
       return waitForTextCode(command);
-    case "executeScript":
     case "executePuppetterCode":
       return executePuppetterCodeCode(command);
+    case "executeScript":
+      return executeScriptCode(command);
     case "open":
       return gotoCode(command, baseUrl);
     case "setViewport":
@@ -686,6 +687,14 @@ document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, nul
 
 function executePuppetterCodeCode(command: Command) {
   return command.value;
+}
+
+// executeScript will execute the code in the context of the window/page
+// and not in puppeteer context
+function executeScriptCode(command: Command) {
+  return `await frame.evaluate(() => {
+    ${command.value}
+  })`;
 }
 
 function waitForCode(command: Command) {
