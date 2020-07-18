@@ -5,7 +5,6 @@ export interface Command {
   targets: Array<[string, string]>;
   value?: any;
   values?: Array<[string, string]>;
-  ignore?: boolean;
   coordinates?: string;
   keyCode?: number;
 }

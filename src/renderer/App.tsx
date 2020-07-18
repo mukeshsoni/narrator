@@ -118,18 +118,26 @@ function rootReducer(state: State, action: any) {
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
       };
-    case "TOGGLE_IGNORE":
+    case "TOGGLE_IGNORE": {
       console.log("TOGGLE_IGNORE", action);
+      const commandToToggle = state.commands[action.commandIndex];
+
       return {
         ...state,
         commands: state.commands
           .slice(0, action.commandIndex)
           .concat({
-            ...state.commands[action.commandIndex],
-            ignore: !state.commands[action.commandIndex].ignore,
+            ...commandToToggle,
+            name: commandToToggle.name.startsWith("//")
+              ? commandToToggle.name.slice(2)
+              : `//${commandToToggle.name}`,
+            command: commandToToggle.name.startsWith("//")
+              ? commandToToggle.name.slice(2)
+              : `//${commandToToggle.name}`,
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
       };
+    }
     case "SHOW_ASSERTION_PANEL":
       return {
         ...state,
@@ -286,10 +294,7 @@ export default function App() {
       // maintain a state like 'selecting_target'. When it's in that state, it
       // should not send across newly recorded commands.
       dispatch({ type: "PAUSE_RECORDING" });
-      const codeBlocks = transformToCodeBlocks(
-        commands.filter((command) => !command.ignore),
-        url
-      );
+      const codeBlocks = transformToCodeBlocks(commands, url);
       ipcRenderer.send(
         "replay",
         codeBlocks,

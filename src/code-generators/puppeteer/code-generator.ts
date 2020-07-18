@@ -705,16 +705,13 @@ export function transformToCodeBlocks(
   console.debug(
     `generating code for ${commands ? commands.length : 0} commands`
   );
-  const indent = options.wrapAsync ? "  " : "";
-  const newLine = "\n";
-
   if (!commands) return [];
 
   const withCode: Array<{
     command: Command;
     codeStrings: Array<string>;
   }> = commands
-    .filter((c) => c.target !== "css=html")
+    .filter((c) => c.target !== "css=html" && !c.name.startsWith("//"))
     .reduce(
       (
         acc: Array<{ command: Command; codeStrings: Array<string> }>,
@@ -731,7 +728,6 @@ export function transformToCodeBlocks(
     );
 
   if (hasNavigation && options.waitForNavigation) {
-    console.debug("Adding navigationPromise declaration");
     const navigationBlock = `let navigationPromise = await page.waitForNavigation()`;
     withCode.unshift({
       command: {
@@ -768,6 +764,8 @@ export function generatePuppeteerCode(testConfig: TestConfig, opts?: Options) {
         codeStrings.map((codeStr) => `${indent}${codeStr}`).join("\n")
       )
       .join("\n") +
+    "\n" +
+    "\n" +
     getFooter()
   );
 }

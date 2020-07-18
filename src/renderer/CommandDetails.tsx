@@ -61,7 +61,7 @@ export default function CommandDetails({
             }}
             title="Ignore/comment this command"
           >
-            {command.ignore ? (
+            {command.name.startsWith("//") ? (
               <svg
                 width={20}
                 fill="none"

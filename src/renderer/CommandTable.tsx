@@ -69,7 +69,7 @@ const SortableItem = SortableElement(
   ({ command, onCommandRowClick, currentlyPlaying }: SortableItemProps) => (
     <li
       className={classNames("flex bg-gray-200 mb-px", {
-        "bg-gray-300 text-gray-500": command.ignore,
+        "bg-gray-300 text-gray-500": command.name.startsWith("//"),
         "bg-green-200": currentlyPlaying,
       })}
     >
