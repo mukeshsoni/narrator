@@ -136,7 +136,7 @@ export function getCommandBlocks(
     case "assertTextContains":
       return assertTextContainsCode(command);
     case "assertTextStartsWith":
-      return assertTextContainsCode(command);
+      return assertTextStartsWithCode(command);
     case "assertVisibility":
       return assertVisibilityCode(command);
     // default:
@@ -600,8 +600,6 @@ function screenshotCode(
     height: number | string;
   }> = {}
 ) {
-  let blocks = [];
-
   if (options && options.x && options.y && options.width && options.height) {
     options.x = parseInt(options.x + "", 10);
     options.y = parseInt(options.y + "", 10);

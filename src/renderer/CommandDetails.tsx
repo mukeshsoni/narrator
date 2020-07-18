@@ -21,7 +21,7 @@ export default function CommandDetails({
   onCommandIgoreClick,
   onCommandValueChange,
 }: Props) {
-  const { value, values, target } = command;
+  const { value, values } = command;
 
   return (
     <div className="px-4 py-2 mt-6 bg-indigo-100">

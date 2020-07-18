@@ -5,15 +5,20 @@ const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const pie = require("puppeteer-in-electron");
 const puppeteer = require("puppeteer-core");
 
-require("electron-reload")(__dirname, {
-  electron: path.join(__dirname, "node_modules", ".bin", "electron"),
-});
+if (module.hot) {
+  module.hot.accept();
+}
+// require("electron-reload")(__dirname, {
+// electron: path.join(__dirname, "node_modules", ".bin", "electron"),
+// });
 
 const CONTROL_PANEL_WIDTH = 600;
 let browserForPuppeteer;
 let testingWindow;
 let currentFrameLocation = "";
 let findAndSelectInProgress = false;
+
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 async function initializePie() {
   await pie.initialize(app);
@@ -35,12 +40,27 @@ function createControlPanelWindow() {
   // panel, using the args --window-position option when launching
   // browser window
   // controlPanelWindow.setPosition(0, 0);
-  controlPanelWindow.loadFile("index.html");
+  controlPanelWindow.loadURL(
+    `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+  );
+  // controlPanelWindow.loadFile("index.html");
 
   controlPanelWindow.webContents.on("will-navigate", () => {
     console.log("navigating");
   });
-  // controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+
+  controlPanelWindow.webContents.on("devtools-opened", () => {
+    controlPanelWindow.focus();
+    setImmediate(() => {
+      controlPanelWindow.focus();
+    });
+  });
+
+  if (isDevelopment) {
+    controlPanelWindow.webContents.openDevTools({ mode: "detach" });
+  }
+
+  return controlPanelWindow;
 }
 
 initializePie().then(() => {
@@ -409,3 +429,4 @@ async function createTestBrowserWindow(url) {
     injectScriptsOnNavigation();
   });
 }
+
