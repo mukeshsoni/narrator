@@ -4,7 +4,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import CopyToClipboard from "react-copy-to-clipboard";
 import arrayMove from "array-move";
-import url from "url";
+import urlParser from "url";
 
 import "../tailwind_generated.css";
 const { ipcRenderer } = require("electron");
@@ -70,8 +70,7 @@ function rootReducer(state: State, action: any) {
       ) {
         let currentCommands = state.commands;
         if (currentCommands.length === 0) {
-          const parsedUrl = url.parse(state.url);
-          console.log({ parsedUrl });
+          const parsedUrl = urlParser.parse(state.url);
           currentCommands.push({
             command: "open",
             name: "open",
@@ -268,8 +267,14 @@ export default function App() {
           generator = generateCypressCode;
       }
 
-      console.log("generated code:", generator({ commands, url }));
-      setGeneratedCode(generator({ commands, url }));
+      const parsedUrl = urlParser.parse(state.url);
+      console.log(
+        "generated code:",
+        generator({ commands, url: `${parsedUrl.protocol}//${parsedUrl.host}` })
+      );
+      setGeneratedCode(
+        generator({ commands, url: `${parsedUrl.protocol}//${parsedUrl.host}` })
+      );
       setShowGeneratedCode(true);
     },
     [commands, url]
@@ -303,7 +308,11 @@ export default function App() {
       // maintain a state like 'selecting_target'. When it's in that state, it
       // should not send across newly recorded commands.
       dispatch({ type: "PAUSE_RECORDING" });
-      const codeBlocks = transformToCodeBlocks(commands, url);
+      const parsedUrl = urlParser.parse(state.url);
+      const codeBlocks = transformToCodeBlocks(
+        commands,
+        `${parsedUrl.protocol}//${parsedUrl.host}`
+      );
       ipcRenderer.send(
         "replay",
         codeBlocks,

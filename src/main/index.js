@@ -1,3 +1,10 @@
+// tells electron-webpack that we are ok with hot module reloading
+// it's not working for me. If i comment it out, atleast it restarts the whole
+// thing by itself when i make a change to this file
+// if (module.hot) {
+// module.hot.accept();
+// }
+
 import path from "path";
 import { format as formatUrl } from "url";
 import chai from "chai";
@@ -6,10 +13,6 @@ import { app, BrowserWindow, ipcMain, screen } from "electron";
 import pie from "puppeteer-in-electron";
 import puppeteer from "puppeteer-core";
 
-// tells electron-webpack that we are ok with hot module reloading
-if (module.hot) {
-  module.hot.accept();
-}
 // require("electron-reload")(__dirname, {
 // electron: path.join(__dirname, "node_modules", ".bin", "electron"),
 // });
@@ -379,6 +382,7 @@ function handleCommandFromTestWindow(command) {
 }
 
 async function createTestBrowserWindow(url) {
+  console.log("going to url", url);
   currentFrameLocation = "root";
   shiftControlPanelWindowToSide();
   await closeTestWindow();

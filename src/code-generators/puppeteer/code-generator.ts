@@ -286,10 +286,10 @@ function selectFrameCode(command: Command) {
   if (command.target === "relative=parent") {
     return `frame = frame.parentFrame()`;
   } else if (command.target === "relative=top") {
-    return `await frame.waitForNavigation();\nframe = page.frames()[1];`;
+    return `frame = page.frames()[1];`;
   } else {
     const frameIndex = parseInt(command.target.split("=")[1], 10);
-    return `await frame.waitForNavigation();\nframe = (await frame.childFrames())[${frameIndex}]`;
+    return `frame = frame.childFrames()[${frameIndex}]`;
   }
 }
 
@@ -496,6 +496,7 @@ function changeCode(command: Command) {
 }
 
 function gotoCode(command: Command, baseUrl: string) {
+  console.log("url", baseUrl, command.value);
   return `await page.goto("${baseUrl}${command.value}")`;
 }
 
