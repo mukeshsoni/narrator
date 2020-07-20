@@ -108,7 +108,7 @@ ipcMain.on("replay", async (event, codeBlocks, replaySpeed) => {
   const page = puppeteerHandles.page;
   let frame = page.mainFrame();
   // we use these variables in teh generated code to hold some stuff
-  let xpathEl, el, elPos, text;
+  let xpathEl, el, elPos, text, inputVal;
   // slow down the operations so that they are visible in replay
   // We can take input from user on how much to slow down the execution speed
   // of each operation
@@ -134,7 +134,6 @@ ipcMain.on("replay", async (event, codeBlocks, replaySpeed) => {
     try {
       await eval(`(async function() {
       ${code}
-      await page.waitFor(1000);
   })()`);
     } catch (e) {
       console.log("Error trying to replay", e);

@@ -107,6 +107,7 @@ export const commands: Array<[
       description:
         "Confirm that the target element has been checked. The test will stop if the assert fails.",
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -156,6 +157,7 @@ export const commands: Array<[
       description:
         "Confirm that the target element has not been checked. The test will stop if the assert fails.",
       target: ArgTypes.locator,
+      enabled: true,
     },
   ],
   [
@@ -1076,6 +1078,7 @@ export const commands: Array<[
       description: "Wait for page to navigate to another url",
       target: ArgTypes.locator,
       value: ArgTypes.waitTime,
+      enabled: true,
     },
   ],
   [

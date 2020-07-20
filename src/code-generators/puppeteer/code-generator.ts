@@ -10,6 +10,8 @@ const wrappedHeader = `(async () => {
   let el; 
   // for storing position of an element if we need to hover over it or click it
   let elPos; 
+  // to store values from any kind of input element
+  let inputVal;
 
   const browser = await puppeteer.launch()
   let page = await browser.newPage()\n`;
@@ -145,6 +147,10 @@ export function getCommandBlocks(
       return assertTextStartsWithCode(command);
     case "assertVisibility":
       return assertVisibilityCode(command);
+    case "assertChecked":
+      return assertCheckedCode(command);
+    case "assertNotChecked":
+      return assertNotCheckedCode(command);
     // default:
     // return [];
   }
@@ -513,6 +519,34 @@ function assertVisibilityCode(command: Command) {
   let { target } = command;
 
   return getWaitForBlock(target);
+}
+
+function assertCheckedCode(command: Command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    // we move the mouse 1 pixel outside the elements bounding rect
+    return `xpathEl = await frame.$x("${selector}")
+  inputVal = await frame.evaluate(el => el.checked, xpathEl[0])
+  expect((inputVal).checked).to.equal(true)`;
+  } else {
+    return `inputVal = await frame.$eval("${selector}", el => el.checked)
+  expect(inputVal).to.equal(true)`;
+  }
+}
+
+function assertNotCheckedCode(command: Command) {
+  const [selector, selectorType] = getSelector(command.target);
+
+  if (selectorType === "xpath") {
+    // we move the mouse 1 pixel outside the elements bounding rect
+    return `xpathEl = await frame.$x("${selector}")
+  inputVal = await frame.evaluate(el => el.checked, xpathEl[0])
+  expect((inputVal).checked).to.equal(false)`;
+  } else {
+    return `inputVal = await frame.$eval("${selector}", el => el.checked)
+  expect(inputVal).to.equal(false)`;
+  }
 }
 
 function assertElementPresentCode(command: Command) {
