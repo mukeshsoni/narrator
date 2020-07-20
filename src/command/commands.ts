@@ -297,6 +297,7 @@ export const commands: Array<[
       description: `Affects the next confirmation alert. This command will 
         cancel it. If the alert is already present, then use "webdriver choose 
         cancel on visible confirmation" instead.`,
+      enabled: true,
     },
   ],
   [
@@ -306,6 +307,7 @@ export const commands: Array<[
       description: `Affects the next alert prompt. This command will cancel 
         it. If the alert is already present, then use "webdriver choose cancel 
         on visible prompt" instead.`,
+      enabled: true,
     },
   ],
   [
@@ -315,6 +317,7 @@ export const commands: Array<[
       description: `Affects the next confirmation alert. This command will 
         accept it. If the alert is already present, then use "webdriver choose 
         ok on visible confirmation" instead.`,
+      enabled: true,
     },
   ],
   [

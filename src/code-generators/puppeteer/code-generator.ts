@@ -126,6 +126,11 @@ export function getCommandBlocks(
       return viewportCode(value);
     case "takeScreenshot":
       return screenshotCode(value);
+    case "chooseOkOnNextConfirmation":
+      return dialogOkCode();
+    case "chooseCancelOnNextPrompt":
+    case "chooseCancelOnNextConfirmation":
+      return dialogCancelCode();
     case "assertElementPresent":
       return assertElementPresentCode(command);
     case "assertElementNotPresent":
@@ -592,6 +597,14 @@ function assertTextStartsWithCode(command: Command) {
     return `text = await frame.$eval("${selector}", el => el.innerText)
   expect(text.toLowerCase().startsWith("${value}")).to.be.true`;
   }
+}
+
+function dialogOkCode() {
+  return `page.once('dialog', async dialog => await dialog.accept())`;
+}
+
+function dialogCancelCode() {
+  return `page.once('dialog', async dialog => await dialog.dismiss())`;
 }
 
 function screenshotCode(

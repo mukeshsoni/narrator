@@ -134,6 +134,7 @@ ipcMain.on("replay", async (event, codeBlocks, replaySpeed) => {
     try {
       await eval(`(async function() {
       ${code}
+      await page.waitFor(1000);
   })()`);
     } catch (e) {
       console.log("Error trying to replay", e);
