@@ -141,6 +141,8 @@ export function getCommandBlocks(
       return assertTextCode(command);
     case "assertNotText":
       return assertNotTextCode(command);
+    case "assertTitle":
+      return assertTitleCode(command);
     case "assertTextContains":
       return assertTextContainsCode(command);
     case "assertTextStartsWith":
@@ -601,6 +603,10 @@ function assertNotTextCode(command: Command) {
     return `text = await frame.$eval("${selector}", el => el.innerText)
   expect(text).to.not.equal("${value}")`;
   }
+}
+
+function assertTitleCode(command: Command) {
+  return `expect(await page.title()).to.equal("${command.value}")`;
 }
 
 function assertTextContainsCode(command: Command) {

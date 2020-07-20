@@ -267,6 +267,7 @@ export const commands: Array<[
       description: `Confirm the title of the current page contains the provided text.
       The test will stop if the assert fails.`,
       target: ArgTypes.pattern,
+      enabled: true,
     },
   ],
   [
