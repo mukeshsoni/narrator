@@ -7,13 +7,13 @@ import { TestConfig } from "./test_config";
 import NewTestForm from "./NewTestForm";
 
 const testConfigFolderName = "test-config";
+const userDataPath = remote.app.getPath("userData");
 
 interface Props {
   onTestSelect: (test: TestConfig) => void;
 }
 
 async function createTestConfigFolder() {
-  const userDataPath = remote.app.getPath("userData");
   const testConfigFilesPath = `${userDataPath}/${testConfigFolderName}`;
 
   if (fs.existsSync(testConfigFilesPath)) {
@@ -21,6 +21,19 @@ async function createTestConfigFolder() {
   } else {
     return fs.promises.mkdir(testConfigFilesPath);
   }
+}
+
+function getTestFilePath(name: string) {
+  const testConfigFilesPath = `${userDataPath}/${testConfigFolderName}`;
+  return `${testConfigFilesPath}/${name.replace(/\s+/g, "_")}.json`;
+}
+
+export async function saveCommandsToFile(test: TestConfig) {
+  await fs.promises.writeFile(
+    getTestFilePath(test.name),
+    JSON.stringify(test),
+    "utf-8"
+  );
 }
 
 function LandingScreen({ onTestSelect }: Props) {
@@ -37,16 +50,17 @@ function LandingScreen({ onTestSelect }: Props) {
   }
 
   async function readTestsFromFileSystem() {
-    const userDataPath = remote.app.getPath("userData");
     const testConfigFilesPath = `${userDataPath}/${testConfigFolderName}`;
 
     try {
       const testFiles = await fs.promises.readdir(testConfigFilesPath);
 
       console.log("testFiles", testFiles);
-      const promises = testFiles.map((testFileName) =>
-        readTestConfigFile(`${testConfigFilesPath}/${testFileName}`)
-      );
+      const promises = testFiles
+        .filter((fileName: string) => fileName.endsWith(".json"))
+        .map((testFileName) =>
+          readTestConfigFile(`${testConfigFilesPath}/${testFileName}`)
+        );
 
       return Promise.all(promises).then((testConfigs: Array<TestConfig>) => {
         console.log({ testConfigs });

@@ -1,4 +1,5 @@
 import * as React from "react";
+import debounce from "debounce";
 import Modal from "react-modal";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
@@ -10,7 +11,7 @@ import "../tailwind_generated.css";
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
-import LandingScreen from "./LandingScreen";
+import LandingScreen, { saveCommandsToFile } from "./LandingScreen";
 import AddCommandForm from "./AddCommandForm";
 import { TestConfig, Command } from "./test_config";
 
@@ -355,6 +356,14 @@ export default function App() {
     },
     [addCommand]
   );
+
+  // debounce command saves to file by 3 seconds
+  const saveCommands = debounce(saveCommandsToFile, 3000);
+
+  // save commands or url to test file on change
+  React.useEffect(() => {
+    saveCommands({ url, name: testName, commands });
+  }, [commands, url]);
 
   React.useEffect(() => {
     ipcRenderer.on(
