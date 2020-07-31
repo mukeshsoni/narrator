@@ -11,5 +11,7 @@ export interface Command {
 
 export interface TestConfig {
   url: string;
+  name: string;
+  description?: string;
   commands: Array<Command>;
 }

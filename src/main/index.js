@@ -77,6 +77,8 @@ function createControlPanelWindow() {
     controlPanelWindow.webContents.openDevTools({ mode: "detach" });
   }
 
+  shiftControlPanelWindowToSide();
+
   return controlPanelWindow;
 }
 

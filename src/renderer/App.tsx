@@ -10,6 +10,7 @@ import "../tailwind_generated.css";
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
+import LandingScreen from "./LandingScreen";
 import AddCommandForm from "./AddCommandForm";
 import { Command } from "./test_config";
 
@@ -270,10 +271,18 @@ export default function App() {
       const parsedUrl = urlParser.parse(state.url);
       console.log(
         "generated code:",
-        generator({ commands, url: `${parsedUrl.protocol}//${parsedUrl.host}` })
+        generator({
+          commands,
+          url: `${parsedUrl.protocol}//${parsedUrl.host}`,
+          name: "random test",
+        })
       );
       setGeneratedCode(
-        generator({ commands, url: `${parsedUrl.protocol}//${parsedUrl.host}` })
+        generator({
+          commands,
+          url: `${parsedUrl.protocol}//${parsedUrl.host}`,
+          name: "random test",
+        })
       );
       setShowGeneratedCode(true);
     },
@@ -463,6 +472,10 @@ export default function App() {
     },
     [dispatch]
   );
+
+  if (true) {
+    return <LandingScreen />;
+  }
 
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
