@@ -36,6 +36,22 @@ export async function saveCommandsToFile(test: TestConfig) {
   );
 }
 
+function TestRowHeader() {
+  return (
+    <div className="flex w-full">
+      <span className="flex-1 px-4 py-2 text-lg font-semibold text-center">
+        Test name
+      </span>
+      <span className="flex-1 px-4 py-2 text-lg font-semibold text-center">
+        Commands
+      </span>
+      <span className="flex-shrink-0 px-4 py-2 mr-6 text-lg font-semibold text-center">
+        A
+      </span>
+    </div>
+  );
+}
+
 function LandingScreen({ onTestSelect }: Props) {
   const [tests, setTests] = React.useState<Array<TestConfig>>([]);
   const [showCreateNewTestModal, setShowNewCreateTestModal] = React.useState(
@@ -155,35 +171,60 @@ function LandingScreen({ onTestSelect }: Props) {
           <h2 className="my-4 text-lg font-bold">
             List of tests (double click to open)
           </h2>
+          <TestRowHeader />
           <ul className="h-full overflow-y-scroll">
             {tests.map((test: TestConfig) => {
               return (
-                <li key={test.name} className="flex w-full mb-px bg-gray-200">
+                <li
+                  key={test.name}
+                  className="flex items-center w-full mb-px bg-gray-200"
+                >
                   <button
-                    className="flex w-full hover:bg-gray-400"
+                    className="flex items-center w-full hover:bg-gray-400"
                     onClick={(e: React.MouseEvent) => {}}
                     onDoubleClick={(e: React.MouseEvent) => {
                       onTestSelect(test);
                     }}
                   >
                     <div className="flex-1 px-4 py-2 truncate">{test.name}</div>
+                    <span className="flex-1 px-4 py-2">
+                      {test.commands.length}
+                    </span>
                   </button>
-                  <button
-                    onClick={handleDeleteTestClick.bind(null, test.name)}
-                    className="p-2 mr-4"
-                  >
-                    <svg
-                      width={18}
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                  <div className="flex">
+                    <button
+                      onClick={handleDeleteTestClick.bind(null, test.name)}
+                      className="p-2 mr-4 hover:bg-purple-600 hover:text-gray-200"
                     >
-                      <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  </button>
+                      <svg
+                        width={18}
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={onTestSelect.bind(null, test)}
+                      className="p-2 mr-4 hover:bg-purple-600 hover:text-gray-200"
+                    >
+                      <svg
+                        width={18}
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                      </svg>
+                    </button>
+                  </div>
                 </li>
               );
             })}
