@@ -117,12 +117,33 @@ function LandingScreen({ onTestSelect }: Props) {
       // return Promise.resolve();
 
       setTests(tests.concat({ name, url, commands: [] }));
+      setShowNewCreateTestModal(false);
       return createNewTest(name, url);
     }
   }
 
+  function handleDeleteTestClick(testName: string) {
+    const response = confirm("Are you sure you want to delete the test?");
+
+    if (response) {
+      const indexOfTest = tests.findIndex((test) => test.name === testName);
+      console.log({ indexOfTest });
+
+      if (indexOfTest >= 0) {
+        const newTests = [
+          ...tests.slice(0, indexOfTest),
+          ...tests.slice(indexOfTest + 1),
+        ];
+
+        setTests(newTests);
+        const testFilePath = getTestFilePath(testName);
+        fs.promises.unlink(testFilePath);
+      }
+    }
+  }
+
   return (
-    <div>
+    <div className="p-2 overflow-hidden">
       <button
         className="w-full px-4 py-2 bg-blue-200 rounded-md hover:bg-blue-500 hover:text-white"
         onClick={handleCreateNewTestClick}
@@ -130,35 +151,25 @@ function LandingScreen({ onTestSelect }: Props) {
         Create new test
       </button>
       {tests.length > 0 && (
-        <div>
-          <h2>Open a test</h2>
-          <ul>
+        <div className="flex flex-col h-full pb-4 mt-6">
+          <h2 className="my-4 text-lg font-bold">
+            List of tests (double click to open)
+          </h2>
+          <ul className="h-full overflow-y-scroll">
             {tests.map((test: TestConfig) => {
               return (
-                <li key={test.name} className="flex w-full align-center">
+                <li key={test.name} className="flex w-full mb-px bg-gray-200">
                   <button
                     className="flex w-full hover:bg-gray-400"
-                    onClick={(e: React.MouseEvent) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
+                    onClick={(e: React.MouseEvent) => {}}
                     onDoubleClick={(e: React.MouseEvent) => {
-                      e.preventDefault();
-                      e.stopPropagation();
                       onTestSelect(test);
                     }}
                   >
                     <div className="flex-1 px-4 py-2 truncate">{test.name}</div>
                   </button>
                   <button
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      const response = confirm(
-                        "Are you sure you want to delete the test?"
-                      );
-                      if (response) {
-                      }
-                    }}
+                    onClick={handleDeleteTestClick.bind(null, test.name)}
                     className="p-2 mr-4"
                   >
                     <svg

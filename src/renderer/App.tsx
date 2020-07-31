@@ -362,7 +362,9 @@ export default function App() {
 
   // save commands or url to test file on change
   React.useEffect(() => {
-    saveCommands({ url, name: testName, commands });
+    if (testName) {
+      saveCommands({ url, name: testName, commands });
+    }
   }, [commands, url]);
 
   React.useEffect(() => {
