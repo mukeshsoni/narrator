@@ -405,6 +405,8 @@ async function createTestBrowserWindow(url) {
     },
   });
 
+  testingWindow.openDevTools();
+  console.log("abc");
   await testingWindow.loadURL(url);
   const page = await pie.getPage(browserForPuppeteer, testingWindow);
   // await page.setViewport({
@@ -415,7 +417,6 @@ async function createTestBrowserWindow(url) {
   // let's now wait more than 5 seconds for anything to appear
   page.setDefaultTimeout(3000);
   puppeteerHandles.page = page;
-  // testingWindow.openDevTools();
 
   controlPanelWindow.focus();
   // const browser = await puppeteer.launch({

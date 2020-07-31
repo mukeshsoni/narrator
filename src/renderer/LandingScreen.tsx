@@ -8,6 +8,10 @@ import NewTestForm from "./NewTestForm";
 
 const testConfigFolderName = "test-config";
 
+interface Props {
+  onTestSelect: (test: TestConfig) => void;
+}
+
 async function createTestConfigFolder() {
   const userDataPath = remote.app.getPath("userData");
   const testConfigFilesPath = `${userDataPath}/${testConfigFolderName}`;
@@ -19,10 +23,10 @@ async function createTestConfigFolder() {
   }
 }
 
-function LandingScreen() {
+function LandingScreen({ onTestSelect }: Props) {
   const [tests, setTests] = React.useState<Array<TestConfig>>([]);
   const [showCreateNewTestModal, setShowNewCreateTestModal] = React.useState(
-    true
+    false
   );
 
   async function readTestConfigFile(filePath: string) {
@@ -123,6 +127,11 @@ function LandingScreen() {
                     onClick={(e: React.MouseEvent) => {
                       e.preventDefault();
                       e.stopPropagation();
+                    }}
+                    onDoubleClick={(e: React.MouseEvent) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onTestSelect(test);
                     }}
                   >
                     <div className="flex-1 px-4 py-2 truncate">{test.name}</div>
