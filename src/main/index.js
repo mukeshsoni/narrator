@@ -405,7 +405,7 @@ async function createTestBrowserWindow(url) {
     },
   });
 
-  testingWindow.openDevTools();
+  // testingWindow.openDevTools();
   console.log("abc");
   await testingWindow.loadURL(url);
   const page = await pie.getPage(browserForPuppeteer, testingWindow);

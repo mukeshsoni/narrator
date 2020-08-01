@@ -59,7 +59,6 @@ function LandingScreen({ onTestSelect }: Props) {
   );
 
   async function readTestConfigFile(filePath: string) {
-    console.log({ filePath });
     const fileContent = await fs.promises.readFile(filePath, "utf-8");
 
     return JSON.parse(fileContent);
@@ -71,7 +70,6 @@ function LandingScreen({ onTestSelect }: Props) {
     try {
       const testFiles = await fs.promises.readdir(testConfigFilesPath);
 
-      console.log("testFiles", testFiles);
       const promises = testFiles
         .filter((fileName: string) => fileName.endsWith(".json"))
         .map((testFileName) =>
@@ -79,7 +77,6 @@ function LandingScreen({ onTestSelect }: Props) {
         );
 
       return Promise.all(promises).then((testConfigs: Array<TestConfig>) => {
-        console.log({ testConfigs });
         setTests(testConfigs);
       });
     } catch (e) {
@@ -89,9 +86,7 @@ function LandingScreen({ onTestSelect }: Props) {
 
   React.useEffect(() => {
     // load tests from file system
-
     readTestsFromFileSystem();
-    console.log(remote.app.getPath("userData"));
 
     setTests([]);
   }, []);
@@ -143,7 +138,6 @@ function LandingScreen({ onTestSelect }: Props) {
 
     if (response) {
       const indexOfTest = tests.findIndex((test) => test.name === testName);
-      console.log({ indexOfTest });
 
       if (indexOfTest >= 0) {
         const newTests = [
@@ -194,7 +188,8 @@ function LandingScreen({ onTestSelect }: Props) {
                   <div className="flex">
                     <button
                       onClick={handleDeleteTestClick.bind(null, test.name)}
-                      className="p-2 mr-4 hover:bg-purple-600 hover:text-gray-200"
+                      title="Delete test"
+                      className="p-2 mr-4 rounded-full hover:bg-purple-600 hover:text-gray-200"
                     >
                       <svg
                         width={18}
@@ -210,14 +205,15 @@ function LandingScreen({ onTestSelect }: Props) {
                     </button>
                     <button
                       onClick={onTestSelect.bind(null, test)}
-                      className="p-2 mr-4 hover:bg-purple-600 hover:text-gray-200"
+                      title="Open test"
+                      className="p-2 mr-4 rounded-full hover:bg-purple-600 hover:text-gray-200"
                     >
                       <svg
                         width={18}
                         fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                       >

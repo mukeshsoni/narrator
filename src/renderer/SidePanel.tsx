@@ -136,16 +136,16 @@ export default function SidePanel({
     >
       <div className="flex items-center p-2 text-gray-100 bg-gray-700">
         <button
-          className="p-2 text-gray-800 bg-teal-100 rounded-md hover:bg-teal-700 hover:text-gray-100"
+          className="p-2 text-gray-100 rounded-full hover:bg-purple-600 hover:text-gray-100"
           title="Go back to tests"
           onClick={onBackClick}
         >
           <svg
             width={24}
             fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
