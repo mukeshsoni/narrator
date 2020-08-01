@@ -1,3 +1,65 @@
+// mostly copied from selenium-ide
+// Look for BrowserBot.filterFunctions inside selenium-browserbots.js
+// And selenium-api.js
+
+function filterByName(name, elements) {
+  let selectedElements = [];
+  for (let i = 0; i < elements.length; i++) {
+    if (elements[i].name === name) {
+      selectedElements.push(elements[i]);
+    }
+  }
+  return selectedElements;
+}
+
+function filterByValue(value, elements) {
+  let selectedElements = [];
+  for (let i = 0; i < elements.length; i++) {
+    if (elements[i].value === value) {
+      selectedElements.push(elements[i]);
+    }
+  }
+  return selectedElements;
+}
+
+function filterByIndex(index, elements) {
+  index = Number(index);
+  if (isNaN(index) || index < 0) {
+    throw new Error("Illegaj Index: " + index);
+  }
+  if (elements.length <= index) {
+    throw new Error("Index out of range: " + index);
+  }
+
+  return [elements[index]];
+}
+
+function selectElementsBy(filterType, filter, elements) {
+  switch (filterType) {
+    case "name":
+      return filterByName(filter, elements);
+    case "value":
+      return filterByValue(filter, elements);
+    case "index":
+      return filterByIndex(filter, elements);
+    default:
+      return null;
+  }
+}
+
+function selectElements(filterExpr, elements, defaultFilterType) {
+  let filterType = defaultFilterType || "value";
+
+  // If there is a filter prefix, use the specified strategy
+  let result = filterExpr.match(/^([A-Za-z]+)=(.+)/);
+  if (result) {
+    filterType = result[1].toLowerCase();
+    filterExpr = result[2];
+  }
+
+  return selectElementsBy(filterType, filterExpr, elements);
+}
+
 function locateElementById(id) {
   return document.getElementById(id);
 }
@@ -35,11 +97,13 @@ function locateElementByName(locator) {
         }
         */
   let filter = "name=" + locator;
-  elements = this.selectElements(filter, elements, "value");
+  elements = selectElements(filter, elements, "value");
 
   if (elements.length > 0) {
     return elements[0];
   }
+
+  console.log("locateElementByName: selectElements did not find any element");
   return null;
 }
 
