@@ -149,46 +149,53 @@ export default function AddCommandForm({
             );
           }}
         </Downshift>
-        <label className="block mt-4">
-          Target
-          <div className="flex items-center w-full mt-2">
-            {targets.length > 0 ? (
-              <select
-                name="selector"
-                className="flex-1 w-full px-4 py-2 bg-white border border-gray-300 rounded-md"
-                value={target}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  e.preventDefault();
-                  console.log("new target selected", e.target.value);
-                  setTarget(e.target.value);
-                }}
-              >
-                {targets.map((t, i) => {
-                  return (
-                    <option value={t[0]} key={t[0]}>
-                      {t[0]}
-                    </option>
-                  );
-                })}
-              </select>
-            ) : (
-              <input
-                className="flex-1 px-4 py-2 text-gray-500 bg-gray-100 border border-gray-400 rounded-md"
-                disabled={true}
-                placeholder="locator comes here"
+        {selectedCommand && (
+          <label className="block mt-4">
+            Target
+            <div className="flex items-center w-full mt-2">
+              {targets.length > 0 ? (
+                <select
+                  name="selector"
+                  className="flex-1 w-full px-4 py-2 bg-white border border-gray-300 rounded-md"
+                  value={target}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    e.preventDefault();
+                    console.log("new target selected", e.target.value);
+                    setTarget(e.target.value);
+                  }}
+                >
+                  {targets.map((t, i) => {
+                    return (
+                      <option value={t[0]} key={t[0]}>
+                        {t[0]}
+                      </option>
+                    );
+                  })}
+                </select>
+              ) : (
+                <input
+                  className="flex-1 px-4 py-2 text-gray-500 bg-gray-100 border border-gray-400 rounded-md"
+                  disabled={true}
+                  placeholder="locator comes here"
+                />
+              )}
+              <TargetSelector
+                onTargetSelect={setAssertionTargets}
+                target={target}
               />
-            )}
-            <TargetSelector onTargetSelect={setAssertionTargets} />
-          </div>
-        </label>
-        <label className="block mt-4">
-          Value
-          <textarea
-            value={value}
-            onChange={handleValueChange}
-            className="flex-1 block w-full px-4 py-2 mt-2 border border-gray-400 rounded-md"
-          />
-        </label>
+            </div>
+          </label>
+        )}
+        {selectedCommand && (
+          <label className="block mt-4">
+            Value
+            <textarea
+              value={value}
+              onChange={handleValueChange}
+              className="flex-1 block w-full px-4 py-2 mt-2 border border-gray-400 rounded-md"
+            />
+          </label>
+        )}
         <div className="flex flex-row-reverse mt-4">
           <button
             type="submit"
