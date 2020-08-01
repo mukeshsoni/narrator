@@ -22,6 +22,35 @@ export default function CommandDetails({
   onCommandValueChange,
 }: Props) {
   const { value, values } = command;
+  const [editingTarget, setEditingTarget] = React.useState(false);
+  const [target, setTarget] = React.useState("");
+
+  function handleTargetEditClick(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingTarget(true);
+  }
+
+  function handleTargetEditSubmit(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingTarget(false);
+    // TODO: We don't want to create new target every time user edits a target
+    onTargetListChange(
+      [[`css=${target}`, "css:finder"] as [string, string]].concat(
+        command.targets
+      )
+    );
+  }
+
+  React.useEffect(() => {
+    console.log("targets", command.targets);
+  }, []);
+  function handleTargetChange(e: React.ChangeEvent<HTMLInputElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setTarget(e.target.value);
+  }
 
   return (
     <div className="px-4 py-2 mt-6 bg-indigo-100">
@@ -91,23 +120,68 @@ export default function CommandDetails({
         </label>
         <label className="flex items-center w-full mb-4">
           Target
-          <select
-            name="selector"
-            key={command.target}
-            className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
-            value={command.target}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              onSelectorChange(e.target.value)
-            }
-          >
-            {command.targets &&
-              command.targets.length > 0 &&
-              command.targets.map((t, i) => (
-                <option value={t[0]} key={t[0]}>
-                  {t[0]}
-                </option>
-              ))}
-          </select>
+          {!editingTarget ? (
+            <select
+              name="selector"
+              key={command.target}
+              className="flex-1 w-full px-4 py-2 ml-4 bg-white border border-gray-300 rounded-md"
+              value={command.target}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                onSelectorChange(e.target.value)
+              }
+            >
+              {command.targets &&
+                command.targets.length > 0 &&
+                command.targets.map((t, i) => (
+                  <option value={t[0]} key={t[0]}>
+                    {t[0]}
+                  </option>
+                ))}
+            </select>
+          ) : (
+            <input
+              className="flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md"
+              onChange={handleTargetChange}
+              value={target}
+            />
+          )}
+          {!editingTarget ? (
+            <button
+              className="p-2 ml-2 cursor-pointer hover:bg-blue-500 hover:text-blue-100 rounded-md"
+              onClick={handleTargetEditClick}
+              title="Ignore/comment this command"
+            >
+              <svg
+                width={20}
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </button>
+          ) : (
+            <button
+              className="p-2 ml-2 cursor-pointer hover:bg-blue-500 hover:text-blue-100 rounded-md"
+              onClick={handleTargetEditSubmit}
+              title="Ignore/comment this command"
+            >
+              <svg
+                width={20}
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M5 13l4 4L19 7"></path>
+              </svg>
+            </button>
+          )}
           <TargetSelector onTargetSelect={onTargetListChange} />
         </label>
         <label className="flex items-center w-full mb-4">

@@ -192,7 +192,7 @@ function rootReducer(state: State, action: any) {
           .concat({
             ...state.commands[action.commandIndex],
             targets: action.targets,
-            target: action.targets[0],
+            target: action.targets[0][0],
           })
           .concat(state.commands.slice(action.commandIndex + 1)),
       };
