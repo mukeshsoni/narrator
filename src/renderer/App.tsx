@@ -1,4 +1,5 @@
 import * as React from "react";
+import debounce from "debounce";
 import Modal from "react-modal";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
@@ -10,8 +11,9 @@ import "../tailwind_generated.css";
 const { ipcRenderer } = require("electron");
 
 import SidePanel from "./SidePanel";
+import LandingScreen, { saveCommandsToFile } from "./LandingScreen";
 import AddCommandForm from "./AddCommandForm";
-import { Command } from "./test_config";
+import { TestConfig, Command } from "./test_config";
 
 import {
   generatePuppeteerCode,
@@ -27,6 +29,7 @@ import generateCypressCode from "../code-generators/cypress/code-generator";
 
 interface State {
   commands: Array<Command>;
+  testName?: string;
   url: string;
   isRecording: boolean;
   showAssertionPanel: boolean;
@@ -99,7 +102,7 @@ function rootReducer(state: State, action: any) {
       console.log("starting recording. url: ", action.url);
       return {
         ...state,
-        url: action.url,
+        url: addHttpsIfRequired(action.url),
         isRecording: true,
       };
     case "PAUSE_RECORDING":
@@ -196,7 +199,7 @@ function rootReducer(state: State, action: any) {
     case "CHANGE_URL":
       return {
         ...state,
-        url: action.url,
+        url: addHttpsIfRequired(action.url),
       };
     case "UPDATE_CURRENTLY_PLAYING_COMMAND_INDEX":
       return {
@@ -214,6 +217,20 @@ function rootReducer(state: State, action: any) {
         commands: state.commands
           .slice(0, action.commandIndex)
           .concat(state.commands.slice(action.commandIndex + 1)),
+      };
+    case "TEST_SELECT":
+      return {
+        ...state,
+        url: addHttpsIfRequired(action.test.url),
+        testName: action.test.name,
+        commands: action.test.commands,
+      };
+    case "GO_BACK_TO_TESTS":
+      return {
+        ...state,
+        url: "",
+        testName: undefined,
+        commands: [],
       };
     default:
       return state;
@@ -234,6 +251,7 @@ export default function App() {
     showAddCommandPanel,
     currentlyPlayingCommandIndex,
     replaySpeed,
+    testName,
   } = state;
 
   const addCommand = React.useCallback(
@@ -270,10 +288,18 @@ export default function App() {
       const parsedUrl = urlParser.parse(state.url);
       console.log(
         "generated code:",
-        generator({ commands, url: `${parsedUrl.protocol}//${parsedUrl.host}` })
+        generator({
+          commands,
+          url: `${parsedUrl.protocol}//${parsedUrl.host}`,
+          name: "random test",
+        })
       );
       setGeneratedCode(
-        generator({ commands, url: `${parsedUrl.protocol}//${parsedUrl.host}` })
+        generator({
+          commands,
+          url: `${parsedUrl.protocol}//${parsedUrl.host}`,
+          name: "random test",
+        })
       );
       setShowGeneratedCode(true);
     },
@@ -330,6 +356,16 @@ export default function App() {
     },
     [addCommand]
   );
+
+  // debounce command saves to file by 3 seconds
+  const saveCommands = debounce(saveCommandsToFile, 3000);
+
+  // save commands or url to test file on change
+  React.useEffect(() => {
+    if (testName) {
+      saveCommands({ url, name: testName, commands });
+    }
+  }, [commands, url]);
 
   React.useEffect(() => {
     ipcRenderer.on(
@@ -464,6 +500,21 @@ export default function App() {
     [dispatch]
   );
 
+  const handleTestSelect = React.useCallback(
+    (test: TestConfig) => {
+      dispatch({ type: "TEST_SELECT", test });
+    },
+    [dispatch]
+  );
+
+  const handleBackClick = React.useCallback(() => {
+    dispatch({ type: "GO_BACK_TO_TESTS" });
+  }, [dispatch]);
+
+  if (!testName) {
+    return <LandingScreen onTestSelect={handleTestSelect} />;
+  }
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
       {showAddCommandPanel && (
@@ -489,6 +540,7 @@ export default function App() {
         ) : (
           <SidePanel
             isRecording={isRecording}
+            testName={testName}
             url={url}
             commands={commands}
             onGenerateClick={handleGenerateClick}
@@ -507,6 +559,7 @@ export default function App() {
             replaySpeed={replaySpeed}
             onReplaySpeedChange={handleReplaySpeedChange}
             onCommandDeleteClick={handleCommandDeleteClick}
+            onBackClick={handleBackClick}
           />
         )
       ) : (

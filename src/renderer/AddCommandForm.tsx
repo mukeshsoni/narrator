@@ -200,8 +200,6 @@ export default function AddCommandForm({
             type="submit"
             className="px-4 py-2 mr-4 text-white bg-blue-500 rounded-md hover:bg-blue-300 hover:text-black"
             onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              e.preventDefault();
               onCancel();
             }}
           >

@@ -13,16 +13,16 @@ import { Command } from "./test_config";
 function CommandRowHeader() {
   return (
     <div className="flex w-full">
-      <span className="flex-1 px-4 py-2 text-lg font-bold text-center">
+      <span className="flex-1 px-4 py-2 text-lg font-semibold text-center">
         Command
       </span>
-      <span className="flex-1 px-4 py-2 text-lg font-bold text-center">
+      <span className="flex-1 px-4 py-2 text-lg font-semibold text-center">
         Target
       </span>
-      <span className="flex-1 px-4 py-2 text-lg font-bold text-center">
+      <span className="flex-1 px-4 py-2 text-lg font-semibold text-center">
         Value
       </span>
-      <span className="flex-shrink-0 px-4 py-2 mr-6 text-lg font-bold text-center">
+      <span className="flex-shrink-0 px-4 py-2 mr-6 text-lg font-semibold text-center">
         A
       </span>
     </div>

@@ -73,6 +73,7 @@ const clickOutsideConfig = {
 const MenuWithClickOutside = onClickOutside(Menu, clickOutsideConfig);
 
 interface Props {
+  testName: string;
   url: string;
   commands: Array<Command>;
   onGenerateClick: (toolName: string) => void;
@@ -99,9 +100,11 @@ interface Props {
   replaySpeed: number;
   onReplaySpeedChange: (replaySpeed: number) => void;
   onCommandDeleteClick: (commandIndex: number) => void;
+  onBackClick: () => void;
 }
 
 export default function SidePanel({
+  testName,
   url,
   commands,
   onGenerateClick,
@@ -121,6 +124,7 @@ export default function SidePanel({
   onReplaySpeedChange,
   replaySpeed,
   onCommandDeleteClick,
+  onBackClick,
 }: Props) {
   const [showSpeedSlider, setShowSpeedSlider] = React.useState(false);
   const urlInputRef = React.useRef<HTMLInputElement>(null);
@@ -130,6 +134,26 @@ export default function SidePanel({
       className="flex flex-col h-screen overflow-hidden border border-gray-300"
       style={{ width: SIDE_PANEL_WIDTH }}
     >
+      <div className="flex items-center p-2 text-gray-100 bg-gray-700">
+        <button
+          className="p-2 text-gray-100 rounded-full hover:bg-purple-600 hover:text-gray-100"
+          title="Go back to tests"
+          onClick={onBackClick}
+        >
+          <svg
+            width={24}
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        </button>
+        <h2 className="flex justify-center flex-1 text-xl">{testName}</h2>
+      </div>
       <div className="flex items-center justify-between w-full px-4 mb-4 bg-gray-100">
         <div className="flex">
           {!isRecording ? (
