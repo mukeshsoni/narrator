@@ -70,6 +70,13 @@ export function findAndHighlight(locator) {
   console.log("inside findAndHighlight");
   const parsedLocator = parseLocator(locator);
   const element = findElement(parsedLocator);
+
+  if (!element) {
+    return Promise.reject(
+      new Error(`Could not find element for locator: ${locator}`)
+    );
+  }
+
   return highlight(element)
     .then(() => console.log("highlight operation complete"))
     .catch((e) => {

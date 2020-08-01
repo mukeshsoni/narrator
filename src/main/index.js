@@ -222,7 +222,7 @@ async function highlightTarget(page, target) {
     if (window.PuppeteerFindAndSelect) {
       console.log("will start find and highlight");
       window.PuppeteerFindAndSelect.findAndHighlight(target).catch((e) => {
-        console.log("Error trying to highlight target", target, e);
+        console.log("Error trying to highlight target:", target, e);
       });
     } else {
       console.log("could not find PuppeteerFindAndSelect");
