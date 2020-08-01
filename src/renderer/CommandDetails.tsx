@@ -154,9 +154,9 @@ export default function CommandDetails({
               <svg
                 width={20}
                 fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
@@ -182,7 +182,10 @@ export default function CommandDetails({
               </svg>
             </button>
           )}
-          <TargetSelector onTargetSelect={onTargetListChange} />
+          <TargetSelector
+            onTargetSelect={onTargetListChange}
+            target={command.target}
+          />
         </label>
         <label className="flex items-center w-full mb-4">
           Value

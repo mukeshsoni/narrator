@@ -172,6 +172,10 @@ ipcMain.on("start-find-and-select", () => {
   selectTarget(puppeteerHandles.page);
 });
 
+ipcMain.on("find-and-highlight", (e, target) => {
+  highlightTarget(puppeteerHandles.page, target);
+});
+
 ipcMain.on("stop-find-and-select", () => {
   stopFindAndSelect(puppeteerHandles.page);
 });
@@ -210,6 +214,20 @@ async function stopRecording(page) {
       window.puppeteerPuppeteerStuff.detach();
     }
   });
+}
+
+async function highlightTarget(page, target) {
+  console.log("will start find and highlight", target);
+  await page.evaluate((target) => {
+    if (window.PuppeteerFindAndSelect) {
+      console.log("will start find and highlight");
+      window.PuppeteerFindAndSelect.findAndHighlight(target).catch((e) => {
+        console.log("Error trying to highlight target", target, e);
+      });
+    } else {
+      console.log("could not find PuppeteerFindAndSelect");
+    }
+  }, target);
 }
 
 async function selectTarget(page) {

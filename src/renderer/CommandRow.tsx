@@ -53,7 +53,7 @@ export default function CommandRow({
             onCommandDeleteClick();
           }
         }}
-        className="p-2 mr-4"
+        className="p-2 mr-4 rounded-full hover:bg-purple-600 hover:text-gray-200"
       >
         <svg
           width={18}

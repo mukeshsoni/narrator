@@ -20,6 +20,8 @@ import scrollIntoViewIfNeeded from "scroll-into-view-if-needed";
 import LocatorBuilders from "../recorder/locator-builders";
 import TargetSelector from "./target-selector";
 
+import { findElement } from "./find-element";
+
 const locatorBuilders = new LocatorBuilders(window);
 
 window.addEventListener("message", (event) => {
@@ -40,6 +42,41 @@ window.addEventListener("message", (event) => {
     });
   }
 });
+
+// locator which we store in our target
+// like css=.class-name
+export function parseLocator(locator) {
+  if (!locator) {
+    throw new TypeError("Locator cannot be empty");
+  }
+  const result = locator.match(/^([A-Za-z]+)=.+/);
+  if (result) {
+    let type = result[1];
+    const length = type.length;
+    if (type === "link") {
+      type = "linkText";
+    }
+    const actualLocator = locator.substring(length + 1);
+    return { type: type, string: actualLocator };
+  }
+
+  const implicitType = locator.indexOf("//") === -1 ? "id" : "xpath";
+  return { type: implicitType, string: locator };
+}
+
+// locator which we store in our target
+// like css=.class-name
+export function findAndHighlight(locator) {
+  console.log("inside findAndHighlight");
+  const parsedLocator = parseLocator(locator);
+  const element = findElement(parsedLocator);
+  return highlight(element)
+    .then(() => console.log("highlight operation complete"))
+    .catch((e) => {
+      console.error("Error trying to highlight element", locator, e);
+      throw e;
+    });
+}
 
 let targetSelector;
 
@@ -90,7 +127,7 @@ export function cleanSelection() {
   }
 }
 
-function highlight(element) {
+export function highlight(element) {
   return new Promise((res) => {
     const elementForInjectingStyle = document.createElement("link");
     elementForInjectingStyle.rel = "stylesheet";
