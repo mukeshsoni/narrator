@@ -31,7 +31,7 @@ export default function CommandDetails({
     setEditingTarget(true);
   }
 
-  function handleTargetEditSubmit(e: React.MouseEvent) {
+  function handleTargetEditSubmit(e: React.MouseEvent | React.FormEvent) {
     e.preventDefault();
     e.stopPropagation();
     setEditingTarget(false);
@@ -139,11 +139,13 @@ export default function CommandDetails({
                 ))}
             </select>
           ) : (
-            <input
-              className="flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md"
-              onChange={handleTargetChange}
-              value={target}
-            />
+            <form onSubmit={handleTargetEditSubmit} className="flex flex-1">
+              <input
+                className="flex-1 px-4 py-2 ml-4 border border-gray-300 rounded-md"
+                onChange={handleTargetChange}
+                value={target}
+              />
+            </form>
           )}
           {!editingTarget ? (
             <button
