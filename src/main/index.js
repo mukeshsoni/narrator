@@ -218,16 +218,20 @@ async function stopRecording(page) {
 
 async function highlightTarget(page, target) {
   console.log("will start find and highlight", target);
-  await page.evaluate((target) => {
-    if (window.PuppeteerFindAndSelect) {
-      console.log("will start find and highlight");
-      window.PuppeteerFindAndSelect.findAndHighlight(target).catch((e) => {
-        console.log("Error trying to highlight target:", target, e);
-      });
-    } else {
-      console.log("could not find PuppeteerFindAndSelect");
-    }
-  }, target);
+  try {
+    await page.evaluate((target) => {
+      if (window.PuppeteerFindAndSelect) {
+        console.log("will start find and highlight");
+        window.PuppeteerFindAndSelect.findAndHighlight(target).catch((e) => {
+          console.log("Error trying to highlight target:", target, e);
+        });
+      } else {
+        console.log("could not find PuppeteerFindAndSelect");
+      }
+    }, target);
+  } catch (e) {
+    console.log("Error trying to run highlight function", e);
+  }
 }
 
 async function selectTarget(page) {
@@ -302,6 +306,20 @@ function shiftControlPanelWindowToSide() {
   controlPanelWindow.setSize(CONTROL_PANEL_WIDTH, screenHeight);
 }
 
+function destroyTestingWindow() {
+  return new Promise((resolve, reject) => {
+    // we don't want to set testingWindow to null before the destroy operation
+    // is complete. So we wait for it.
+    // The way to wait for it is to create a promise and then await it's
+    // resolution in our closeTestWindow function
+    testingWindow.on("closed", () => {
+      testingWindow = null;
+      resolve();
+    });
+    testingWindow.destroy();
+  });
+}
+
 async function closeTestWindow() {
   if (testingWindow && puppeteerHandles.page) {
     try {
@@ -309,8 +327,7 @@ async function closeTestWindow() {
     } catch (e) {
       console.log("the page might be closed already");
     }
-    testingWindow.destroy();
-    testingWindow = null;
+    await destroyTestingWindow();
   }
 }
 
