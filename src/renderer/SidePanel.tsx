@@ -7,11 +7,11 @@ import { Command } from "./test_config";
 const SIDE_PANEL_WIDTH = 600;
 
 interface MenuProps {
-  buttonText: string;
+  menuButton?: React.ReactNode;
   children: React.ReactNode | React.ReactNodeArray;
 }
 
-function Menu({ buttonText, children }: MenuProps) {
+function Menu({ menuButton, children }: MenuProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   Menu.handleClickOutside = () => setMenuOpen(false);
@@ -22,32 +22,18 @@ function Menu({ buttonText, children }: MenuProps) {
         className="flex items-center h-full px-4 py-2 hover:bg-blue-500 hover:text-white"
         onClick={() => (menuOpen ? setMenuOpen(false) : setMenuOpen(true))}
       >
-        {buttonText}
-        {menuOpen ? (
-          <svg
-            className="w-4 ml-2"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M5 15l7-7 7 7"></path>
-          </svg>
-        ) : (
-          <svg
-            className="w-4 ml-2"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M19 9l-7 7-7-7"></path>
-          </svg>
-        )}
+        {menuButton}
+        <svg
+          width={24}
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+        </svg>
       </button>
       <div
         className={
@@ -101,6 +87,7 @@ interface Props {
   onReplaySpeedChange: (replaySpeed: number) => void;
   onCommandDeleteClick: (commandIndex: number) => void;
   onBackClick: () => void;
+  onAccessibilityAnalysisClick: () => void;
 }
 
 export default function SidePanel({
@@ -114,7 +101,6 @@ export default function SidePanel({
   onPauseClick,
   onSelectorChange,
   onCommandIgoreClick,
-  onAddAssertionClick,
   onAddCommandClick,
   onCommandValueChange,
   onCommandPosChange,
@@ -125,6 +111,7 @@ export default function SidePanel({
   replaySpeed,
   onCommandDeleteClick,
   onBackClick,
+  onAccessibilityAnalysisClick,
 }: Props) {
   const [showSpeedSlider, setShowSpeedSlider] = React.useState(false);
   const urlInputRef = React.useRef<HTMLInputElement>(null);
@@ -274,35 +261,21 @@ export default function SidePanel({
             </svg>
             <span className="text-xs uppercase">Add comman</span>
           </button>
-          <button
-            className="flex flex-col items-center justify-center p-2 mr-1 hover:bg-blue-500 hover:text-white"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onAddAssertionClick();
-            }}
-            title="Add assertion"
-          >
-            <svg
-              width={24}
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span className="text-xs uppercase">Assert</span>
-          </button>
-          <MenuWithClickOutside buttonText="Generate code">
+          <MenuWithClickOutside>
             <>
               <button
                 className="px-4 py-2 mb-2 hover:bg-blue-500 hover:text-white"
                 onClick={onGenerateClick.bind(null, "puppeteer")}
                 key="puppeteer"
               >
-                Puppeteer
+                Generate puppeteer code
+              </button>
+              <button
+                className="px-4 py-2 mb-2 hover:bg-blue-500 hover:text-white"
+                onClick={onAccessibilityAnalysisClick}
+                key="Accessibilty-analysis"
+              >
+                Accessibilty
               </button>
             </>
           </MenuWithClickOutside>

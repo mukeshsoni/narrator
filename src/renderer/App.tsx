@@ -6,6 +6,7 @@ import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import CopyToClipboard from "react-copy-to-clipboard";
 import arrayMove from "array-move";
 import urlParser from "url";
+import ReactJson from "react-json-view";
 
 import "../tailwind_generated.css";
 const { ipcRenderer } = require("electron");
@@ -36,6 +37,7 @@ interface State {
   showAddCommandPanel: boolean;
   currentlyPlayingCommandIndex: number;
   replaySpeed: number;
+  accessibilityResults?: any | null;
 }
 
 const initialState: State = {
@@ -232,6 +234,17 @@ function rootReducer(state: State, action: any) {
         testName: undefined,
         commands: [],
       };
+    case "SHOW_ACCESSIBILITY_RESULTS":
+      return {
+        ...state,
+        accessibilityResults: action.results,
+      };
+    case "HIDE_ACCESSIBILITY_RESULTS":
+      return {
+        ...state,
+        accessibilityResults: null,
+      };
+
     default:
       return state;
   }
@@ -252,6 +265,7 @@ export default function App() {
     currentlyPlayingCommandIndex,
     replaySpeed,
     testName,
+    accessibilityResults,
   } = state;
 
   const addCommand = React.useCallback(
@@ -515,8 +529,27 @@ export default function App() {
     return <LandingScreen onTestSelect={handleTestSelect} />;
   }
 
+  function showAccessibilityAnalysis() {
+    console.log("showAccessibilityAnalysis");
+
+    ipcRenderer.invoke("run-accessibility-analysis").then((results) => {
+      console.log("result of analysis", results);
+      dispatch({ type: "SHOW_ACCESSIBILITY_RESULTS", results });
+    });
+  }
+
   return (
     <div className="flex w-screen antialiased text-copy-primary bg-background-primary">
+      {accessibilityResults && (
+        <Modal
+          isOpen={accessibilityResults}
+          onRequestClose={() =>
+            dispatch({ type: "HIDE_ACCESSIBILITY_RESULTS" })
+          }
+        >
+          <ReactJson src={accessibilityResults} />
+        </Modal>
+      )}
       {showAddCommandPanel && (
         <Modal
           isOpen={showAddCommandPanel}
@@ -560,6 +593,7 @@ export default function App() {
             onReplaySpeedChange={handleReplaySpeedChange}
             onCommandDeleteClick={handleCommandDeleteClick}
             onBackClick={handleBackClick}
+            onAccessibilityAnalysisClick={showAccessibilityAnalysis}
           />
         )
       ) : (

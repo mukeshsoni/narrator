@@ -5,6 +5,7 @@
 // module.hot.accept();
 // }
 
+import { AxePuppeteer } from "axe-puppeteer";
 import path from "path";
 import { format as formatUrl } from "url";
 import chai from "chai";
@@ -178,6 +179,19 @@ ipcMain.on("find-and-highlight", (e, target) => {
 
 ipcMain.on("stop-find-and-select", () => {
   stopFindAndSelect(puppeteerHandles.page);
+});
+
+ipcMain.handle("run-accessibility-analysis", async () => {
+  console.log("runAccessibilityAnalysis");
+  const page = puppeteerHandles.page;
+  if (page) {
+    console.log("runAccessibilityAnalysis");
+    const results = await new AxePuppeteer(puppeteerHandles.page).analyze();
+    return results;
+  } else {
+    console.log("There is no page to run analysis on");
+    return { blah: "di blah" };
+  }
 });
 
 let puppeteerHandles = {
@@ -444,6 +458,8 @@ async function createTestBrowserWindow(url) {
   console.log("abc");
   await testingWindow.loadURL(url);
   const page = await pie.getPage(browserForPuppeteer, testingWindow);
+  // to do accessibility analysis
+  await page.setBypassCSP(true);
   // await page.setViewport({
   // width: 400,
   // height: 800,
