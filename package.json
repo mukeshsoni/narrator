@@ -1,7 +1,7 @@
 {
-  "name": "puppeteer-puppeteer",
-  "version": "1.0.0",
-  "description": "",
+  "name": "narrator",
+  "version": "0.1.0",
+  "description": "narrator helps you record interactions on any website and replay it. It can also generate code for various test platforms for the recorded script. Right now it generates puppeteer code but generators for other test runners can be added very easily.",
   "main": "main.js",
   "scripts": {
     "dev": "npm run build && electron-webpack dev",
