@@ -19,15 +19,12 @@ npm install
 npm run dev
 ```
 
-To build the renderer in watch mode so that changes to renderer are reflected in
+The electron app uses prebuilt recorder and findandselect modules. `npm run build` builds `recorder` and `findandselect` modules. `npm run dev` first runs `npm run build` before building and starting `electron` app.
+
+To build the recorder in watch mode so that changes to recorder are reflected in
 the main process -
 
 ```bash
 npm run build:recorder -- --watch
-# In another terminal
-npm run dev
 ```
-
-You can also build recorder and findandselect modules in watch mode. But you
-probably won't have to.
 
