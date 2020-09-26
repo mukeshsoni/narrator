@@ -23,7 +23,8 @@ To build the renderer in watch mode so that changes to renderer are reflected in
 the main process -
 
 ```bash
-npm run build:renderer -- --watch
+npm run build:recorder -- --watch
+# In another terminal
 npm run dev
 ```
 
