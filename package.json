@@ -65,7 +65,7 @@
     "react-onclickoutside": "^6.9.0",
     "react-sortable-hoc": "^1.11.0",
     "react-syntax-highlighter": "^12.2.1",
-    "scroll-into-view-if-needed": "^2.2.25",
+    "scroll-into-view-if-needed": "^2.2.26",
     "ua-parser-js": "^0.7.21",
     "url": "^0.11.0"
   }
