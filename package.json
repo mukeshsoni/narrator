@@ -53,7 +53,7 @@
     "chai": "^4.2.0",
     "classnames": "^2.2.6",
     "debounce": "^1.2.0",
-    "downshift": "^5.4.6",
+    "downshift": "^6.0.6",
     "mocha": "^8.0.1",
     "puppeteer-core": "^5.0.0",
     "puppeteer-in-electron": "^3.0.3",
