@@ -24,7 +24,7 @@
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^10.0.0",
     "@types/array-move": "^2.0.0",
-    "@types/classnames": "^2.2.10",
+    "@types/classnames": "^2.3.1",
     "@types/debounce": "^1.2.0",
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.8",
