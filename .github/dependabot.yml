@@ -1,0 +1,27 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "23:30"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: "@types/react-dom"
+    versions:
+    - 17.0.0
+    - 17.0.1
+    - 17.0.2
+  - dependency-name: autoprefixer
+    versions:
+    - 10.2.4
+    - 9.8.6
+  - dependency-name: electron
+    versions:
+    - 11.2.1
+  - dependency-name: postcss-cli
+    versions:
+    - 7.1.2
+  - dependency-name: "@types/classnames"
+    versions:
+    - 2.2.11
